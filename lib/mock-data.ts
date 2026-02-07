@@ -1,5 +1,5 @@
-import { Vendor } from '@bridezilla/shared/types/vendor'
-import { RSVP } from '@bridezilla/shared/types/rsvp'
+import { Vendor } from '@/types/vendor'
+import { RSVP } from '@/types/rsvp'
 
 export const DEMO_COUPLE = {
   bride: 'Bella',
