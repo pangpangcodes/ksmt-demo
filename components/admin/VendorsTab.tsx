@@ -374,6 +374,7 @@ export default function VendorsTab() {
             >
               <img src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/images/bridezilla-logo-simple.svg'} alt="Bridezilla" className="w-6 h-6 object-contain" />
             </button>
+            </div>
           </div>
         </div>
 
