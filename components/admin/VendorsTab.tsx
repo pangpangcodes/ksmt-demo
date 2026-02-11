@@ -498,11 +498,11 @@ export default function VendorsTab() {
 
         return upcomingPayments.length > 0 ? (
           <div className={`${theme.cardBackground} rounded-2xl shadow-md p-3 md:p-6 mb-4 md:mb-6 border ${theme.border}`}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 mb-3 md:mb-4">
+            <div className="flex items-center justify-between gap-2 mb-3 md:mb-4">
               <h3 className={`font-display text-xl md:text-2xl ${theme.textPrimary}`}>Upcoming Payments</h3>
               <button
                 onClick={() => setShowReminderSettings(true)}
-                className={`flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-medium rounded-lg transition-colors ${theme.secondaryButton} ${theme.textPrimary} ${theme.secondaryButtonHover} self-start sm:self-auto`}
+                className={`flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-medium rounded-lg transition-colors ${theme.secondaryButton} ${theme.textPrimary} ${theme.secondaryButtonHover} flex-shrink-0`}
               >
                 <Settings className="w-4 h-4" />
                 <span className="hidden sm:inline">Reminder Settings</span>
