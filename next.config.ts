@@ -4,8 +4,10 @@ const nextConfig: NextConfig = {
   // Externalize canvas module for pdfjs-dist (server-side only, not used for text extraction)
   serverExternalPackages: ['canvas', 'pdfjs-dist'],
 
-  // Empty turbopack config to silence Next.js 16 warning
-  turbopack: {},
+  // Turbopack config to specify correct workspace root
+  turbopack: {
+    root: '/Users/monica.pang/Documents/monica-pang/bridezilla',
+  },
 
   // Use webpack mode explicitly since Turbopack doesn't fully support serverExternalPackages
   webpack: (config, { isServer }) => {
