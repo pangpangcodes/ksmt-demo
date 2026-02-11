@@ -35,7 +35,7 @@ export default function AddVendorModal({ isOpen, onClose, onSuccess, coupleId, v
 
   const [formData, setFormData] = useState({
     vendor_name: vendorToEdit?.vendor_name || '',
-    vendor_type: vendorToEdit?.vendor_type || 'Photographer',
+    vendor_type: vendorToEdit?.vendor_type || '',
     contact_name: vendorToEdit?.contact_name || '',
     email: vendorToEdit?.email || '',
     phone: vendorToEdit?.phone || '',
@@ -43,7 +43,7 @@ export default function AddVendorModal({ isOpen, onClose, onSuccess, coupleId, v
     website: vendorToEdit?.website || '',
     pricing: vendorToEdit?.pricing || '',
     description: vendorToEdit?.description || '',
-    tags: vendorToEdit?.tags || [],
+    tags: vendorToEdit?.tags?.slice(0, 3) || [],
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -63,7 +63,7 @@ export default function AddVendorModal({ isOpen, onClose, onSuccess, coupleId, v
     if (isOpen) {
       setFormData({
         vendor_name: vendorToEdit?.vendor_name || '',
-        vendor_type: vendorToEdit?.vendor_type || 'Photographer',
+        vendor_type: vendorToEdit?.vendor_type || '',
         contact_name: vendorToEdit?.contact_name || '',
         email: vendorToEdit?.email || '',
         phone: vendorToEdit?.phone || '',
@@ -71,7 +71,7 @@ export default function AddVendorModal({ isOpen, onClose, onSuccess, coupleId, v
         website: vendorToEdit?.website || '',
         pricing: vendorToEdit?.pricing || '',
         description: vendorToEdit?.description || '',
-        tags: vendorToEdit?.tags || [],
+        tags: vendorToEdit?.tags?.slice(0, 3) || [],
       })
       setError('')
     }
@@ -212,6 +212,7 @@ export default function AddVendorModal({ isOpen, onClose, onSuccess, coupleId, v
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm bg-white focus:ring-1 focus:ring-stone-900 focus:border-stone-900 transition-all"
               >
+                <option value="" disabled>Select vendor type...</option>
                 {VENDOR_TYPES.map(type => (
                   <option key={type} value={type}>{type}</option>
                 ))}
@@ -332,14 +333,15 @@ export default function AddVendorModal({ isOpen, onClose, onSuccess, coupleId, v
             <label className={`block text-xs font-medium ${theme.textSecondary} uppercase tracking-widest mb-3`}>
               Tags
               <span className={`text-xs ${theme.textSecondary} font-normal normal-case ml-2`}>
-                (Type-specific suggestions provided)
+                (Max 3 tags - type-specific suggestions provided)
               </span>
             </label>
             <TagInput
               value={formData.tags}
-              onChange={(tags) => setFormData({ ...formData, tags })}
+              onChange={(tags) => setFormData({ ...formData, tags: tags.slice(0, 3) })}
               vendorType={formData.vendor_type}
               placeholder="Add tags (press Enter)"
+              maxTags={3}
             />
           </div>
 
