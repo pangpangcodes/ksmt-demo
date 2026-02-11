@@ -850,8 +850,11 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {sortedVendors.map(vendor => {
-                          // Vendor is superseded if another vendor in same category is approved and this one is in review
-                          const isSuperseded = hasApprovedVendor && !vendor.couple_status
+                          // Vendor is superseded if:
+                          // 1. There's a booked vendor and this one is not booked, OR
+                          // 2. There's an approved vendor (and no booked) and this one is in review
+                          const isSuperseded = (booked > 0 && vendor.couple_status !== 'booked') ||
+                                               (booked === 0 && approved > 0 && !vendor.couple_status)
                           return (
                             <VendorCard
                               key={vendor.id}
@@ -882,9 +885,14 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                   const bStatus = b.couple_status || 'null'
                   return statusOrder[aStatus] - statusOrder[bStatus]
                 }).map(vendor => {
-                  // Check if any vendor in the filtered category is approved
+                  // Check if any vendor in the filtered category is booked or approved
+                  const hasBookedInCategory = filteredVendors.some(v => v.couple_status === 'booked')
                   const hasApprovedInCategory = filteredVendors.some(v => v.couple_status === 'interested')
-                  const isSuperseded = hasApprovedInCategory && !vendor.couple_status
+                  // Vendor is superseded if:
+                  // 1. There's a booked vendor and this one is not booked, OR
+                  // 2. There's an approved vendor (and no booked) and this one is in review
+                  const isSuperseded = (hasBookedInCategory && vendor.couple_status !== 'booked') ||
+                                       (!hasBookedInCategory && hasApprovedInCategory && !vendor.couple_status)
                   return (
                     <VendorCard
                       key={vendor.id}

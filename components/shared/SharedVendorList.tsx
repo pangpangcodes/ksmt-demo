@@ -115,7 +115,7 @@ export default function SharedVendorList({ vendors, coupleId, onUpdate, activeCa
         // Calculate status counts (excluding declined)
         const inReview = activeVendors.filter(v => !v.couple_status).length
         const approved = activeVendors.filter(v => v.couple_status === 'interested').length
-        const booked = activeVendors.filter(v => v.couple_status === 'interested').length
+        const booked = activeVendors.filter(v => v.couple_status === 'booked').length
 
         // Build status text - if there's at least one approved or booked, only show that
         let statusText
@@ -149,8 +149,11 @@ export default function SharedVendorList({ vendors, coupleId, onUpdate, activeCa
             <div className="md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6">
               <div className="flex md:contents gap-4 overflow-x-auto snap-x snap-mandatory pb-4 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0">
                 {activeVendors.map((vendor) => {
-                  // Vendor is superseded if another vendor in same category is approved and this one is in review
-                  const isSuperseded = hasApprovedVendor && !vendor.couple_status
+                  // Vendor is superseded if:
+                  // 1. There's a booked vendor and this one is not booked, OR
+                  // 2. There's an approved vendor (and no booked) and this one is in review
+                  const isSuperseded = (booked > 0 && vendor.couple_status !== 'booked') ||
+                                       (booked === 0 && approved > 0 && !vendor.couple_status)
                   return (
                     <div key={vendor.id} className="flex-shrink-0 w-[85vw] sm:w-[70vw] md:w-auto snap-start">
                       <VendorCard
