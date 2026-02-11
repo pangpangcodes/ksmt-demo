@@ -31,14 +31,19 @@ export default function SharedWorkspace({ shareLinkId }: SharedWorkspaceProps) {
 
   const stats = useMemo(() => {
     const uniqueCategories = new Set(vendors.map(v => v.vendor_type))
+
+    // Count total vendors with 'booked' status (Booked & Confirmed)
+    const bookedCount = vendors.filter(v => v.couple_status === 'booked').length
+
+    // Count categories that have at least one booked vendor
     const categoriesWithBooking = new Set(
-      vendors.filter(v => v.couple_status === 'interested').map(v => v.vendor_type)
+      vendors.filter(v => v.couple_status === 'booked').map(v => v.vendor_type)
     )
     const toHireCount = uniqueCategories.size - categoriesWithBooking.size
 
     return {
       totalCategories: uniqueCategories.size,
-      bookedCount: categoriesWithBooking.size,
+      bookedCount,
       toHireCount
     }
   }, [vendors])
