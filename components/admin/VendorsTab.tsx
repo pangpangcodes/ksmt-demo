@@ -604,27 +604,74 @@ export default function VendorsTab() {
                 const isDueSoon = payment.days_until_due > 0 && payment.days_until_due <= 7
 
                 return (
-                  <div
-                    key={index}
-                    className={`p-3 md:p-4 rounded-lg border ${
-                      isOverdue
-                        ? 'bg-red-50 border-red-200'
-                        : isDueToday
-                        ? 'bg-orange-50 border-orange-200'
-                        : isDueSoon
-                        ? 'bg-yellow-50 border-yellow-200'
-                        : 'bg-gray-50 border-gray-200'
-                    }`}
-                  >
-                    <div className="flex flex-col gap-2">
-                      {/* Vendor name and description */}
-                      <div className="flex flex-col gap-0.5">
-                        <span className={`font-medium text-sm md:text-base ${theme.textPrimary}`}>{payment.vendor_name}</span>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className={`text-xs md:text-sm ${theme.textSecondary}`}>{payment.payment_description}</span>
+                  <div key={index}>
+                    {/* Mobile: New compact layout */}
+                    <div
+                      className={`sm:hidden p-3 rounded-lg border ${
+                        isOverdue
+                          ? 'bg-red-50 border-red-200'
+                          : isDueToday
+                          ? 'bg-orange-50 border-orange-200'
+                          : isDueSoon
+                          ? 'bg-yellow-50 border-yellow-200'
+                          : 'bg-gray-50 border-gray-200'
+                      }`}
+                    >
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-0.5">
+                          <span className={`font-medium text-sm ${theme.textPrimary}`}>{payment.vendor_name}</span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className={`text-xs ${theme.textSecondary}`}>{payment.payment_description}</span>
+                            {payment.payment_type && (
+                              <>
+                                <span className={`text-xs ${theme.textMuted}`}>•</span>
+                                <span className={`text-xs ${theme.textMuted}`}>
+                                  {payment.payment_type === 'bank_transfer' ? 'Bank Transfer' : 'Cash'}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between gap-3 pt-1">
+                          <span className={`text-base font-semibold ${theme.textPrimary} whitespace-nowrap`}>
+                            {formatCurrency(payment.payment_amount)} {payment.payment_currency}
+                          </span>
+                          <span className={`text-xs font-medium text-right whitespace-nowrap ${
+                            isOverdue ? 'text-red-700' : isDueToday ? 'text-orange-700' : isDueSoon ? 'text-yellow-700' : 'text-gray-600'
+                          }`}>
+                            {(() => {
+                              const [year, month, day] = payment.due_date.split('-')
+                              const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+                              const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                              if (isOverdue) return `${dateStr} overdue by ${Math.abs(payment.days_until_due)} ${Math.abs(payment.days_until_due) === 1 ? 'day' : 'days'}`
+                              else if (isDueToday) return `${dateStr} due today`
+                              else return `${dateStr} due in ${payment.days_until_due} ${payment.days_until_due === 1 ? 'day' : 'days'}`
+                            })()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Desktop: Original compact layout */}
+                    <div
+                      className={`hidden sm:flex sm:flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-lg border ${
+                        isOverdue
+                          ? 'bg-red-50 border-red-200'
+                          : isDueToday
+                          ? 'bg-orange-50 border-orange-200'
+                          : isDueSoon
+                          ? 'bg-yellow-50 border-yellow-200'
+                          : 'bg-gray-50 border-gray-200'
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                          <span className={`font-medium text-sm md:text-base ${theme.textPrimary} truncate`}>{payment.vendor_name}</span>
+                          <span className={`hidden sm:inline text-xs ${theme.textMuted}`}>•</span>
+                          <span className={`text-xs md:text-sm ${theme.textSecondary} truncate`}>{payment.payment_description}</span>
                           {payment.payment_type && (
                             <>
-                              <span className={`text-xs ${theme.textMuted}`}>•</span>
+                              <span className={`hidden sm:inline text-xs ${theme.textMuted}`}>•</span>
                               <span className={`text-xs ${theme.textMuted}`}>
                                 {payment.payment_type === 'bank_transfer' ? 'Bank Transfer' : 'Cash'}
                               </span>
@@ -632,35 +679,26 @@ export default function VendorsTab() {
                           )}
                         </div>
                       </div>
-
-                      {/* Amount and due date - side by side on mobile */}
-                      <div className="flex items-center justify-between gap-3 pt-1">
-                        <span className={`text-base md:text-lg font-semibold ${theme.textPrimary} whitespace-nowrap`}>
-                          {formatCurrency(payment.payment_amount)} {payment.payment_currency}
-                        </span>
-                        <span className={`text-xs md:text-sm font-medium text-right whitespace-nowrap ${
-                          isOverdue
-                            ? 'text-red-700'
-                            : isDueToday
-                            ? 'text-orange-700'
-                            : isDueSoon
-                            ? 'text-yellow-700'
-                            : 'text-gray-600'
-                        }`}>
-                          {(() => {
-                            const [year, month, day] = payment.due_date.split('-')
-                            const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
-                            const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-
-                            if (isOverdue) {
-                              return `${dateStr} overdue by ${Math.abs(payment.days_until_due)} ${Math.abs(payment.days_until_due) === 1 ? 'day' : 'days'}`
-                            } else if (isDueToday) {
-                              return `${dateStr} due today`
-                            } else {
-                              return `${dateStr} due in ${payment.days_until_due} ${payment.days_until_due === 1 ? 'day' : 'days'}`
-                            }
-                          })()}
-                        </span>
+                      <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+                        <div className="text-left sm:text-right">
+                          <span className={`text-sm font-semibold ${theme.textPrimary} whitespace-nowrap`}>
+                            {formatCurrency(payment.payment_amount)} {payment.payment_currency}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <span className={`text-xs font-medium ${
+                            isOverdue ? 'text-red-700' : isDueToday ? 'text-orange-700' : isDueSoon ? 'text-yellow-700' : 'text-gray-600'
+                          }`}>
+                            {(() => {
+                              const [year, month, day] = payment.due_date.split('-')
+                              const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+                              const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                              if (isOverdue) return `${dateStr} overdue by ${Math.abs(payment.days_until_due)} ${Math.abs(payment.days_until_due) === 1 ? 'day' : 'days'}`
+                              else if (isDueToday) return `${dateStr} due today`
+                              else return `${dateStr} due in ${payment.days_until_due} ${payment.days_until_due === 1 ? 'day' : 'days'}`
+                            })()}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
