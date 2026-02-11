@@ -356,7 +356,7 @@ export default function CoupleTableRow({
             <button
               onClick={() => window.open(shareLink, '_blank')}
               className={`p-1.5 rounded ${theme.textSecondary} hover:bg-stone-100 hover:${theme.textPrimary} transition-all`}
-              title="Open shared wedding website"
+              title="Open shared workspace"
             >
               <ExternalLink className="w-4 h-4" />
             </button>
