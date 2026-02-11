@@ -301,7 +301,7 @@ export default function VendorLibraryTab() {
                 value: type,
                 label: type,
                 count: stats.byType[type] || 0
-              }))}
+              })).filter(option => option.count > 0)}
               selectedValues={selectedType}
               onChange={handleTypeChange}
               placeholder="Filter by type..."
@@ -321,7 +321,7 @@ export default function VendorLibraryTab() {
                 selectedValues={selectedTag}
                 onChange={handleTagChange}
                 placeholder="Filter by tags..."
-                allLabel="All Filters"
+                allLabel="All Tags"
                 className="w-full"
                 inlineOnMobile={true}
               />
@@ -393,7 +393,7 @@ export default function VendorLibraryTab() {
                 value: type,
                 label: type,
                 count: stats.byType[type] || 0
-              }))}
+              })).filter(option => option.count > 0)}
               selectedValues={selectedType}
               onChange={handleTypeChange}
               placeholder="Filter by type..."
@@ -412,7 +412,7 @@ export default function VendorLibraryTab() {
                 selectedValues={selectedTag}
                 onChange={handleTagChange}
                 placeholder="Filter by tags..."
-                allLabel="All Filters"
+                allLabel="All Tags"
                 className="min-w-[160px]"
               />
             )}
