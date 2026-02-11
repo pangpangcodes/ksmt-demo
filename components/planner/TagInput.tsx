@@ -41,21 +41,21 @@ export default function TagInput({
   const inputRef = useRef<HTMLInputElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
-  // Fetch suggestions when vendor type changes
+  // Fetch suggestions when vendor type changes (or on mount for all tags)
   useEffect(() => {
-    if (!vendorType) return
-
     const fetchSuggestions = async () => {
       try {
         const token = localStorage.getItem('auth_token')
         if (!token) return
 
-        const response = await fetch(
-          `/api/planner/vendor-library/tags?vendor_type=${encodeURIComponent(vendorType)}`,
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        )
+        // If vendor type is provided, fetch type-specific tags; otherwise fetch all tags
+        const url = vendorType
+          ? `/api/planner/vendor-library/tags?vendor_type=${encodeURIComponent(vendorType)}`
+          : '/api/planner/vendor-library/tags'
+
+        const response = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
 
         const data = await response.json()
         if (data.success) {
