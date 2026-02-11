@@ -418,6 +418,332 @@ const theme = useThemeStyles()
 
 ---
 
+## 📱 Mobile & Responsive Design
+
+### Core Principles
+
+**Mobile-First Approach:**
+- Base classes apply to mobile (< 768px)
+- Use `md:` prefix for tablet/desktop (≥ 768px)
+- Use `sm:` prefix for small screens (≥ 640px)
+- Desktop layouts should remain unchanged when adding mobile optimizations
+
+**Key Breakpoints:**
+- Mobile: `< 640px` (base classes)
+- Small: `sm:` (≥ 640px)
+- Medium/Desktop: `md:` (≥ 768px)
+- Large: `lg:` (≥ 1024px)
+
+### Grid Layouts
+
+**Stat Cards Pattern:**
+```tsx
+// 2 columns on mobile, 4 on desktop
+<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+  {/* Stat cards */}
+</div>
+```
+
+**Content Cards:**
+```tsx
+// 2 columns on mobile, 3 on desktop, 4 on large screens
+<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+  {/* Content cards */}
+</div>
+```
+
+**Even Distribution (3 items):**
+```tsx
+// 3 columns that fit evenly on mobile
+<div className="grid grid-cols-3 gap-4 md:gap-16">
+  <div className="text-center">
+    <div className={`text-2xl md:text-4xl font-semibold ${theme.textPrimary}`}>42</div>
+    <div className={`text-[9px] md:text-[11px] ${theme.textMuted} uppercase`}>Label</div>
+  </div>
+</div>
+```
+
+### Responsive Typography
+
+**Headings:**
+```tsx
+// Mobile smaller, desktop larger
+<h1 className={`text-xl md:text-3xl font-display ${theme.textPrimary}`}>
+  Welcome back
+</h1>
+```
+
+**Body Text:**
+```tsx
+// Smaller on mobile for better fit
+<p className={`text-sm md:text-base ${theme.textSecondary}`}>
+  Description text
+</p>
+```
+
+**Micro Text (Labels):**
+```tsx
+// Extra small on mobile, still readable
+<span className={`text-[9px] md:text-[11px] ${theme.textMuted} uppercase tracking-[0.12em] md:tracking-[0.15em]`}>
+  Label Text
+</span>
+```
+
+### Filter Layouts (Separate Mobile/Desktop)
+
+**Pattern:** Create two separate layouts - one for mobile (stacked), one for desktop (horizontal)
+
+```tsx
+const theme = useThemeStyles()
+
+<div className={`${theme.cardBackground} rounded-2xl p-6`}>
+  {/* Mobile: Stacked Layout */}
+  <div className="md:hidden space-y-3">
+    {/* Search - full width */}
+    <input
+      type="text"
+      className={`w-full px-4 py-2 border ${theme.border} rounded-xl`}
+      placeholder="Search..."
+    />
+
+    {/* Filters Row */}
+    <div className="flex gap-2">
+      <select className="flex-1">
+        <option>All Types</option>
+      </select>
+      <select className="flex-1">
+        <option>All Filters</option>
+      </select>
+    </div>
+
+    {/* Buttons Row */}
+    <div className="flex gap-2">
+      <button className={`${theme.secondaryButton} flex-1`}>
+        Action 1
+      </button>
+      <button className={`${theme.primaryButton} ${theme.textOnPrimary} flex-1`}>
+        Action 2
+      </button>
+    </div>
+  </div>
+
+  {/* Desktop: Original Horizontal Layout */}
+  <div className="hidden md:flex flex-wrap gap-4 items-center justify-between">
+    <div className="flex gap-4 flex-1">
+      <input
+        type="text"
+        className={`min-w-[200px] px-4 py-2 border ${theme.border} rounded-xl`}
+        placeholder="Search..."
+      />
+      <select className="min-w-[160px]">
+        <option>All Types</option>
+      </select>
+      <select className="min-w-[160px]">
+        <option>All Filters</option>
+      </select>
+    </div>
+    <button className={`${theme.secondaryButton}`}>Action 1</button>
+    <button className={`${theme.primaryButton} ${theme.textOnPrimary}`}>Action 2</button>
+  </div>
+</div>
+```
+
+**Key Points:**
+- Use `md:hidden` for mobile-only layouts
+- Use `hidden md:flex` for desktop-only layouts
+- Stack elements vertically on mobile (`space-y-3`)
+- Keep desktop layout unchanged
+- Use `flex-1` on mobile for equal-width buttons
+
+### Sticky Navigation
+
+**Tab Navigation:**
+```tsx
+<div className="sticky top-0 z-40 bg-white">
+  <div className="flex justify-center space-x-8 border-b border-stone-200">
+    <button className={`pb-4 text-sm font-medium border-b-2 ${
+      activeTab === 'tab1'
+        ? `border-current ${theme.textPrimary}`
+        : `border-transparent ${theme.textSecondary}`
+    }`}>
+      Tab 1
+    </button>
+  </div>
+</div>
+```
+
+**Category Pills (Below Tabs):**
+```tsx
+<div className={`sticky top-[57px] md:top-[65px] z-30 ${theme.pageBackground} border-b border-stone-200`}>
+  <div className="flex justify-center space-x-2 overflow-x-auto no-scrollbar pb-1">
+    {categories.map((cat) => (
+      <button
+        key={cat}
+        className={`px-4 py-2 rounded-full text-sm whitespace-nowrap ${
+          activeCategory === cat
+            ? `${theme.primaryButton} ${theme.textOnPrimary}`
+            : `${theme.secondaryButton} ${theme.textSecondary}`
+        }`}
+      >
+        {cat}
+      </button>
+    ))}
+  </div>
+</div>
+```
+
+**Key Points:**
+- Calculate `top` offset based on previous sticky elements
+- Use `z-30`/`z-40` hierarchy for stacking
+- Use `${theme.pageBackground}` instead of `bg-white` for consistency
+- Add `overflow-x-auto` and `no-scrollbar` for horizontal scroll
+
+### Horizontal Scroll (Mobile Cards)
+
+**Pattern:** Horizontal scroll on mobile, grid on desktop
+
+```tsx
+<div className="md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6">
+  <div className="flex md:contents gap-4 overflow-x-auto snap-x snap-mandatory pb-4 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0">
+    {items.map((item) => (
+      <div key={item.id} className="flex-shrink-0 w-[85vw] sm:w-[70vw] md:w-auto snap-start">
+        <Card {...item} />
+      </div>
+    ))}
+  </div>
+</div>
+```
+
+**Key Points:**
+- `flex md:contents` - flex on mobile, grid child on desktop
+- `w-[85vw]` - card width as viewport percentage
+- `snap-x snap-mandatory` - smooth scroll snapping
+- `flex-shrink-0` - prevent cards from shrinking
+- `-mx-4 px-4 md:mx-0 md:px-0` - edge-to-edge scroll on mobile
+
+### Viewport Constrained Content
+
+**Pattern:** Limit content height on mobile with scrolling
+
+```tsx
+<div className="max-h-[40vh] md:max-h-none overflow-y-auto">
+  {/* Long content like pricing details */}
+</div>
+```
+
+**Use Cases:**
+- Expanded card details
+- Pricing information
+- Long descriptions
+- Table expanded rows
+
+### Welcome Banners (Mobile Compact)
+
+**Pattern:** Hide decorative elements, center text on mobile
+
+```tsx
+<div className={`${theme.cardBackground} rounded-2xl p-4 md:p-6`}>
+  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+    {/* Text - centered on mobile */}
+    <div className="text-center md:text-left">
+      <h2 className={`text-xl md:text-3xl font-display ${theme.textPrimary}`}>
+        Welcome back
+      </h2>
+      <p className={`text-sm md:text-base ${theme.textSecondary}`}>
+        Description text!
+      </p>
+    </div>
+
+    {/* Decorative element - hidden on mobile */}
+    <div className="hidden md:flex">
+      <div className={`px-6 py-3 bg-stone-50 rounded-xl`}>
+        <div className={`text-3xl font-semibold ${theme.textPrimary}`}>42</div>
+        <div className={`text-xs ${theme.textMuted} uppercase`}>Days</div>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+### Navigation Links (Responsive Sizing)
+
+**Pattern:** Very small text on mobile, larger on desktop
+
+```tsx
+<div className="flex items-center gap-2 md:gap-4">
+  <span className="text-gray-300">|</span>
+  <a
+    href="/planners"
+    className="font-heading text-[10px] sm:text-xs md:text-sm tracking-[0.2em] uppercase text-gray-600 hover:text-bridezilla-pink transition-colors"
+  >
+    PLANNERS
+  </a>
+  <span className="text-gray-300">|</span>
+  <a
+    href="/couples"
+    className="font-heading text-[10px] sm:text-xs md:text-sm tracking-[0.2em] uppercase text-gray-600 hover:text-bridezilla-pink transition-colors"
+  >
+    COUPLES
+  </a>
+</div>
+```
+
+**Key Points:**
+- `text-[10px]` for mobile (custom size)
+- `sm:text-xs` for small screens
+- `md:text-sm` for desktop
+- Reduce gaps on mobile (`gap-2 md:gap-4`)
+
+### Responsive Spacing
+
+**Padding:**
+```tsx
+// Less padding on mobile
+className="p-4 md:p-6"
+className="px-4 md:px-6"
+className="py-2 md:py-3"
+```
+
+**Gaps:**
+```tsx
+// Smaller gaps on mobile
+className="gap-2 md:gap-4"
+className="gap-4 md:gap-6"
+className="space-y-3 md:space-y-6"
+```
+
+**Margins:**
+```tsx
+// Smaller margins on mobile
+className="mb-4 md:mb-6"
+className="mt-3 md:mt-6"
+```
+
+### Anti-Patterns (Mobile)
+
+| ❌ Wrong | ✅ Right | Why |
+|---------|---------|-----|
+| Changing desktop layouts when fixing mobile | Separate mobile/desktop layouts with `md:hidden` and `hidden md:flex` | Prevents breaking existing desktop UX |
+| Using same text size on mobile and desktop | `text-sm md:text-base` | Mobile needs smaller text to fit |
+| Stacking 4 stat cards on mobile | `grid-cols-2 lg:grid-cols-4` | Better use of mobile screen space |
+| Vertical stack of cards on mobile | Horizontal scroll with `overflow-x-auto` | Better browsing experience |
+| Hardcoded `bg-white` on sticky elements | `${theme.pageBackground}` | Theme consistency |
+| Single layout for all screen sizes | Separate mobile/desktop layouts | Optimal UX per device |
+
+### Testing Checklist
+
+Mobile responsive changes should:
+- [ ] Not affect desktop layouts (verify at 1024px+ width)
+- [ ] Use appropriate breakpoint prefixes (`sm:`, `md:`, `lg:`)
+- [ ] Maintain theme consistency (use theme tokens)
+- [ ] Test on actual mobile device or Chrome DevTools mobile view
+- [ ] Check sticky elements don't overlap
+- [ ] Verify horizontal scrolls work smoothly
+- [ ] Ensure touch targets are large enough (min 44px)
+- [ ] Check text remains readable at all sizes
+
+---
+
 ## 🖼️ Assets & Logos (Theme-Specific)
 
 ### Logo Usage by Theme
@@ -784,6 +1110,18 @@ Therefore:
 ---
 
 ## 📝 Changelog
+
+**v3.2 (Feb 11, 2026)** - Mobile & Responsive Design
+- Added comprehensive Mobile & Responsive Design section
+- Documented grid layout patterns (2-col mobile, 4-col desktop for stat cards)
+- Added filter layout patterns (separate mobile/desktop layouts)
+- Documented sticky navigation with proper z-index and top offsets
+- Added horizontal scroll pattern for mobile card browsing
+- Documented responsive typography sizing (text-[10px] to md:text-sm)
+- Added viewport-constrained content pattern (max-h-[40vh])
+- Added welcome banner mobile optimization patterns
+- Documented responsive spacing (padding, gaps, margins)
+- Added mobile anti-patterns and testing checklist
 
 **v3.1 (Feb 11, 2026)** - Email Template Documentation
 - Added Email Templates section with font requirements
