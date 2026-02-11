@@ -100,3 +100,6 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     '- Network monitoring active'
   );
 }
+
+// Export empty object to make this a valid ES module
+export {};
