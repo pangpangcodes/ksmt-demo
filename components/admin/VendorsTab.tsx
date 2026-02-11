@@ -681,7 +681,7 @@ export default function VendorsTab() {
                       )}
                     </td>
                     <td className="px-2 py-3">
-                      <span className={`inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold w-full ${
+                      <div className={`inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold w-full ${
                         vendor.contract_signed
                           ? 'bg-emerald-50 text-emerald-700'
                           : !vendor.contract_required
@@ -691,14 +691,14 @@ export default function VendorsTab() {
                         {vendor.contract_signed ? (
                           <>
                             <CheckCircle className="w-3 h-3" />
-                            Signed
+                            <span>Signed</span>
                           </>
                         ) : !vendor.contract_required ? (
-                          'Not Required'
+                          <span>Not Required</span>
                         ) : (
-                          'Unsigned'
+                          <span>Unsigned</span>
                         )}
-                      </span>
+                      </div>
                     </td>
                     <td className="px-2 py-3">
                       {(() => {
@@ -711,7 +711,7 @@ export default function VendorsTab() {
                         const isDepositPaid = firstDepositPayment?.paid || false
 
                         return (
-                          <span className={`inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold w-full ${
+                          <div className={`inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold w-full ${
                             isDepositPaid
                               ? 'bg-emerald-50 text-emerald-700'
                               : 'bg-amber-50 text-amber-700'
@@ -719,15 +719,15 @@ export default function VendorsTab() {
                             {isDepositPaid ? (
                               <>
                                 <CheckCircle className="w-3 h-3" />
-                                Paid
+                                <span>Paid</span>
                               </>
                             ) : (
                               <>
                                 <AlertCircle className="w-3 h-3" />
-                                Pending
+                                <span>Pending</span>
                               </>
                             )}
-                          </span>
+                          </div>
                         )
                       })()}
                     </td>
