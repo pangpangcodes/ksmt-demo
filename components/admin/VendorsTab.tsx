@@ -310,9 +310,9 @@ export default function VendorsTab() {
       </div>
 
       {/* Controls */}
-      <div className={`${theme.cardBackground} rounded-xl shadow mb-4 md:mb-6`}>
-        {/* Mobile: Single row with horizontal scroll - extra bottom padding for dropdown */}
-        <div className="md:hidden overflow-x-auto p-3 pb-44">
+      <div className={`${theme.cardBackground} rounded-xl shadow p-3 md:p-4 mb-4 md:mb-6`}>
+        {/* Mobile: Single row with horizontal scroll */}
+        <div className="md:hidden overflow-x-auto">
           <div className="flex gap-2 items-center">
             <SearchableMultiSelect
               options={VENDOR_TYPES.map(type => ({ value: type, label: type }))}
