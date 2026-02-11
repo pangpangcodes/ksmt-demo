@@ -126,7 +126,7 @@ export default function SelectVendorsModal({
   const selectedCount = selectedVendorIds.size
 
   const modalContent = (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-[100] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-[9999] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}>
       <div className={`${theme.cardBackground} rounded-2xl shadow-xl max-w-2xl w-full max-h-[95vh] flex flex-col border ${theme.border} ${theme.borderWidth} overflow-hidden`}>
         {/* Header */}
         <div className={`${theme.cardBackground} border-b ${theme.border} px-8 py-6 flex justify-between items-center flex-shrink-0`}>

@@ -54,7 +54,7 @@ export default function EmailPreviewModal({
   }
 
   const modalContent = (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-[110] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-[9999] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}>
       <div className={`${theme.cardBackground} rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-stone-200`}>
         {/* Modal Header */}
         <div className={`${theme.cardBackground} border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0`}>

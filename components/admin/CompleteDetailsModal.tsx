@@ -221,7 +221,7 @@ export default function CompleteDetailsModal({ vendors, onClose, onComplete }: C
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
       <div className={`${theme.cardBackground} rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col`}>
         {/* Header */}
         <div className={`${theme.cardBackground} border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0`}>

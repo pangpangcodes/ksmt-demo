@@ -144,7 +144,7 @@ export default function AskBridezillaCoupleModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
       <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[95vh] border border-stone-200 overflow-hidden flex flex-col">
         {/* Header */}
         <div className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">

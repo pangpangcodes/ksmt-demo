@@ -165,7 +165,7 @@ export default function PaymentReminderSettingsModal({ isOpen, onClose, onSave }
   if (typeof window === 'undefined') return null
 
   return createPortal(
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4" onClick={onClose} style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4" onClick={onClose} style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
       <div
         className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[95vh] border border-stone-200 overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
