@@ -7,6 +7,7 @@ export const VENDOR_TYPES = [
   'Videographer',
   'Florist',
   'Caterer',
+  'Cake',
   'Entertainment - DJ',
   'Entertainment - Live Music',
   'Hair & Makeup',
