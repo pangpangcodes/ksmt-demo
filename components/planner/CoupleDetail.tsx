@@ -805,7 +805,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                   const categoryVendors = vendorsByCategory[category]
                   const inReview = categoryVendors.filter(v => !v.couple_status).length
                   const approved = categoryVendors.filter(v => v.couple_status === 'interested').length
-                  const booked = categoryVendors.filter(v => v.couple_status === 'interested').length
+                  const booked = categoryVendors.filter(v => v.couple_status === 'booked').length
                   const declined = categoryVendors.filter(v => v.couple_status === 'pass').length
 
                   // Build status text - if there's at least one approved or booked, only show that
