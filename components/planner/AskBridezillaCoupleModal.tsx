@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import { X, Loader2, Sparkles, CheckCircle, Calendar } from 'lucide-react'
 import { PlannerCouple, ParsedCoupleOperation, CoupleParseResult } from '@/types/planner'
@@ -27,9 +28,11 @@ export default function AskBridezillaCoupleModal({
   const [parsing, setParsing] = useState(false)
   const [executing, setExecuting] = useState(false)
   const [error, setError] = useState('')
+  const [mounted, setMounted] = useState(false)
 
-  // Prevent body scroll when modal is open
+  // Handle mounting and prevent body scroll when modal is open
   useEffect(() => {
+    setMounted(true)
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = 'unset'
@@ -143,7 +146,9 @@ export default function AskBridezillaCoupleModal({
     setOperations(operations.filter((_, i) => i !== index))
   }
 
-  return (
+  if (!mounted) return null
+
+  return createPortal(
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
       <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[95vh] border border-stone-200 overflow-hidden flex flex-col">
         {/* Header */}
@@ -449,6 +454,7 @@ export default function AskBridezillaCoupleModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

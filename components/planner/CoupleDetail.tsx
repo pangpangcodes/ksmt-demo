@@ -662,7 +662,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                     className={`flex items-center gap-2 px-6 py-2.5 ${theme.primaryButton} ${theme.primaryButtonHover} ${theme.textOnPrimary} rounded-xl text-sm font-medium transition-colors`}
                   >
                     <Image
-                      src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/images/bridezilla-logo-simple.svg'}
+                      src="/images/bridezilla-logo-green.png"
                       alt="Bridezilla"
                       width={32}
                       height={32}
@@ -749,7 +749,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 ${theme.primaryButton} ${theme.primaryButtonHover} ${theme.textOnPrimary} rounded-xl text-sm font-medium transition-colors`}
                       >
                         <Image
-                          src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/images/bridezilla-logo-simple.svg'}
+                          src="/images/bridezilla-logo-green.png"
                           alt="Bridezilla"
                           width={32}
                           height={32}

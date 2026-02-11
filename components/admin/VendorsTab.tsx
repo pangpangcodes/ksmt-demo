@@ -442,7 +442,7 @@ export default function VendorsTab() {
               onClick={() => setShowBulkImport(true)}
               className={`flex items-center justify-center gap-2 px-3 md:px-4 py-2 ${theme.primaryButton} ${theme.primaryButtonHover} ${theme.textOnPrimary} rounded-xl text-sm font-medium transition-colors min-w-[44px]`}
             >
-              <img src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/images/bridezilla-logo-simple.svg'} alt="Bridezilla" className="w-6 h-6 object-contain" />
+              <img src="/images/bridezilla-logo-green.png" alt="Bridezilla" className="w-6 h-6 object-contain" />
               <span className="hidden sm:inline">Ask Bridezilla</span>
             </button>
           </div>

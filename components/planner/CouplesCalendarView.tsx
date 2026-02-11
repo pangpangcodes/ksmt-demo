@@ -57,13 +57,19 @@ export default function CouplesCalendarView() {
   // Load saved view preference from localStorage after mount to avoid hydration mismatch
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('couplesViewMode')
-      if (saved === 'list' || saved === 'calendar') {
-        setDisplayMode(saved)
+      const isMobile = window.innerWidth < 768
+
+      if (isMobile) {
+        // On mobile, always default to list view (ignore cached preferences)
+        setDisplayMode('list')
       } else {
-        // Default to list view on mobile (width < 768px), calendar on desktop
-        const isMobile = window.innerWidth < 768
-        setDisplayMode(isMobile ? 'list' : 'calendar')
+        // On desktop, respect cached preference or default to calendar
+        const saved = localStorage.getItem('couplesViewMode')
+        if (saved === 'list' || saved === 'calendar') {
+          setDisplayMode(saved)
+        } else {
+          setDisplayMode('calendar')
+        }
       }
     }
   }, [])
@@ -113,12 +119,9 @@ export default function CouplesCalendarView() {
     setSelectedVenue(values)
   }
 
-  // Handle display mode change with localStorage persistence
+  // Handle display mode change (persistence handled by useEffect)
   const handleDisplayModeChange = (mode: 'calendar' | 'list') => {
     setDisplayMode(mode)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('couplesViewMode', mode)
-    }
   }
 
   const [showAddModal, setShowAddModal] = useState(false)
@@ -160,10 +163,14 @@ export default function CouplesCalendarView() {
     calculateStats()
   }, [couples, vendorCounts])
 
-  // Persist display mode to localStorage
+  // Persist display mode to localStorage (desktop only)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('couplesViewMode', displayMode)
+      const isMobile = window.innerWidth < 768
+      // Only save preferences on desktop
+      if (!isMobile) {
+        localStorage.setItem('couplesViewMode', displayMode)
+      }
     }
   }, [displayMode])
 
@@ -540,7 +547,7 @@ export default function CouplesCalendarView() {
                 <Plus className="w-4 h-4" />
               </button>
               <button onClick={() => setShowAddModal(true)} className={`flex items-center justify-center gap-2 px-3 py-2.5 ${theme.primaryButton} text-white rounded-xl text-sm font-medium hover:${theme.primaryButtonHover} transition-colors`}>
-                <Image src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/images/bridezilla-logo-simple.svg'} alt="Bridezilla" width={24} height={24} className="object-contain" />
+                <Image src="/images/bridezilla-logo-green.png" alt="Bridezilla" width={24} height={24} className="object-contain" />
               </button>
             </div>
           </div>
@@ -610,7 +617,7 @@ export default function CouplesCalendarView() {
               <span>Add Manually</span>
             </button>
             <button onClick={() => setShowAddModal(true)} className={`flex items-center gap-2 px-6 py-2.5 ${theme.primaryButton} text-white rounded-xl text-sm font-medium hover:${theme.primaryButtonHover} transition-colors`}>
-              <Image src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/images/bridezilla-logo-simple.svg'} alt="Bridezilla" width={24} height={24} className="object-contain" />
+              <Image src="/images/bridezilla-logo-green.png" alt="Bridezilla" width={24} height={24} className="object-contain" />
               <span>Ask Bridezilla</span>
             </button>
           </div>

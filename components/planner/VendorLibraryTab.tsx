@@ -345,7 +345,7 @@ export default function VendorLibraryTab() {
               className={`flex items-center justify-center gap-2 px-4 py-2.5 ${theme.primaryButton} ${theme.primaryButtonHover} ${theme.textOnPrimary} rounded-xl text-sm font-medium transition-colors flex-1`}
             >
               <Image
-                src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/images/bridezilla-logo-simple.svg'}
+                src="/images/bridezilla-logo-green.png"
                 alt="Bridezilla"
                 width={24}
                 height={24}
@@ -433,7 +433,7 @@ export default function VendorLibraryTab() {
             className={`flex items-center gap-2 px-6 py-2.5 ${theme.primaryButton} ${theme.primaryButtonHover} ${theme.textOnPrimary} rounded-xl text-sm font-medium transition-colors`}
           >
             <Image
-              src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/images/bridezilla-logo-simple.svg'}
+              src="/images/bridezilla-logo-green.png"
               alt="Bridezilla"
               width={24}
               height={24}

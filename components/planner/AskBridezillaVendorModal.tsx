@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import { X, Upload, Loader2, ChevronLeft, ChevronRight, CheckCircle, FileText, Sparkles } from 'lucide-react'
 import { VendorLibrary, ParsedVendorLibraryOperation, VendorParseResult } from '@/types/planner'
@@ -34,11 +35,13 @@ export default function AskBridezillaVendorModal({
   const [executing, setExecuting] = useState(false)
   const [error, setError] = useState('')
   const [pdfError, setPdfError] = useState('')
+  const [mounted, setMounted] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Prevent body scroll when modal is open
+  // Handle mounting and prevent body scroll when modal is open
   useEffect(() => {
+    setMounted(true)
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = 'unset'
@@ -287,7 +290,9 @@ export default function AskBridezillaVendorModal({
   const globalClarifications = clarifications.filter(c => c.operation_index === undefined)
   const currentOperationClarifications = clarifications.filter(c => c.operation_index === currentOperationIndex)
 
-  return (
+  if (!mounted) return null
+
+  return createPortal(
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
       <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[95vh] border border-stone-200 overflow-hidden flex flex-col">
         {/* Header */}
@@ -591,6 +596,7 @@ export default function AskBridezillaVendorModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { X, Link as LinkIcon, Mail } from 'lucide-react'
 import { supabase } from '@/lib/supabase-client'
 import type { CreatePlannerCoupleInput, PlannerCouple } from '@/types/planner'
@@ -159,7 +160,10 @@ export default function InviteCoupleModal({ isOpen, onClose, onSuccess, coupleTo
 
   if (!isOpen) return null
 
-  return (
+  // Render modal in portal to avoid stacking context issues
+  if (typeof window === 'undefined') return null
+
+  return createPortal(
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
       <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[95vh] border border-stone-200 overflow-hidden flex flex-col">
         {/* Header */}
@@ -343,6 +347,7 @@ export default function InviteCoupleModal({ isOpen, onClose, onSuccess, coupleTo
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
