@@ -96,8 +96,8 @@ export default function VendorCard({ vendor, mode, onStatusChange, onNoteChange,
   return (
     <div
       className={`group ${theme.cardBackground} rounded-2xl shadow-sm ${theme.border} ${theme.borderWidth} overflow-hidden transition-all duration-300 hover:shadow-lg flex flex-col ${
-        vendor.couple_status === 'booked' ? 'ring-2 ring-emerald-500/20' : ''
-      } ${vendor.couple_status === 'pass' || isSuperseded ? 'opacity-60 grayscale-[0.5]' : ''}`}
+        vendor.couple_status === 'pass' || isSuperseded ? 'opacity-60 grayscale-[0.5]' : ''
+      }`}
     >
       {/* Card Content */}
       <div className="p-6 flex-1 flex flex-col">
@@ -282,18 +282,10 @@ export default function VendorCard({ vendor, mode, onStatusChange, onNoteChange,
           {mode === 'shared' && (
             <div className="relative">
               <label className={`text-xs font-semibold ${theme.textMuted} uppercase tracking-wider mb-3 block`}>
-                {vendor.couple_status === 'booked' ? 'Congratulations!' : 'Your Decision'}
+                Your Decision
               </label>
 
-              {vendor.couple_status === 'booked' ? (
-                /* Booked State - Show Confirmation (no change option) */
-                <div className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-emerald-50 text-emerald-700 border-2 border-emerald-200 rounded-lg font-medium text-sm">
-                  <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  Booked & Confirmed
-                </div>
-              ) : vendor.couple_status === 'pass' ? (
+              {vendor.couple_status === 'pass' ? (
                 /* Declined State - Show Restore Button */
                 <div className="space-y-2">
                   <div className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gray-50 text-gray-500 border-2 border-gray-200 rounded-lg font-medium text-sm">
@@ -357,22 +349,6 @@ export default function VendorCard({ vendor, mode, onStatusChange, onNoteChange,
             </div>
           )}
 
-          {/* Confirm Booking Button (Planner View Only - when approved) */}
-          {mode === 'planner' && vendor.couple_status === 'interested' && (
-            <button
-              onClick={() => {
-                if (onStatusChange) {
-                  onStatusChange(vendor.id, 'booked')
-                }
-              }}
-              className={`w-full flex items-center justify-center gap-2 py-2 px-4 ${theme.primaryButton} ${theme.textOnPrimary} rounded-lg font-medium text-sm ${theme.primaryButtonHover} transition-colors`}
-            >
-              <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              Booked & Confirmed
-            </button>
-          )}
         </div>
       </div>
     </div>
