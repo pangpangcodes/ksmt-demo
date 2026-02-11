@@ -369,7 +369,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
 
   const stats = {
     vendorTypes: new Set(vendors.map(v => v.vendor_type)).size,
-    booked: vendors.filter(v => v.couple_status === 'interested').length,
+    booked: vendors.filter(v => v.couple_status === 'booked').length,
     approved: vendors.filter(v => v.couple_status === 'interested').length,
     inReview: vendors.filter(v => !v.couple_status).length,
   }

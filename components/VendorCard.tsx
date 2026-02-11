@@ -13,9 +13,16 @@ interface VendorCardProps {
   isSuperseded?: boolean // True when another vendor in same category is approved
 }
 
-const STATUS_OPTIONS: { value: VendorStatus; label: string }[] = [
+const STATUS_OPTIONS_COUPLE: { value: VendorStatus; label: string }[] = [
   { value: null, label: 'Review Needed' },
   { value: 'interested' as const, label: 'Approved' },
+  { value: 'pass' as const, label: 'Declined' },
+]
+
+const STATUS_OPTIONS_PLANNER: { value: VendorStatus; label: string }[] = [
+  { value: null, label: 'Review Needed' },
+  { value: 'interested' as const, label: 'Approved' },
+  { value: 'booked' as const, label: 'Booked & Confirmed' },
   { value: 'pass' as const, label: 'Declined' },
 ]
 
@@ -30,13 +37,20 @@ export default function VendorCard({ vendor, mode, onStatusChange, onNoteChange,
   const [showConfirmation, setShowConfirmation] = useState(false)
 
   const handleStatusChange = (newStatus: VendorStatus) => {
-    if (mode === 'shared' && onStatusChange) {
-      // Toggle behavior: if clicking the same status, revert to null (Review Needed)
-      const finalStatus = vendor.couple_status === newStatus ? null : newStatus
-      onStatusChange(vendor.id, finalStatus)
-      // Show confirmation message
-      setShowConfirmation(true)
-      setTimeout(() => setShowConfirmation(false), 3000)
+    if (onStatusChange) {
+      if (mode === 'shared') {
+        // Toggle behavior: if clicking the same status, revert to null (Review Needed)
+        const finalStatus = vendor.couple_status === newStatus ? null : newStatus
+        onStatusChange(vendor.id, finalStatus)
+        // Show confirmation message
+        setShowConfirmation(true)
+        setTimeout(() => setShowConfirmation(false), 3000)
+      } else if (mode === 'planner') {
+        // Planner can update status directly (no toggle behavior)
+        onStatusChange(vendor.id, newStatus)
+        setShowConfirmation(true)
+        setTimeout(() => setShowConfirmation(false), 3000)
+      }
     }
   }
 
@@ -70,6 +84,8 @@ export default function VendorCard({ vendor, mode, onStatusChange, onNoteChange,
     switch (status) {
       case 'interested':
         return 'Approved'
+      case 'booked':
+        return 'Booked & Confirmed'
       case 'pass':
         return 'Declined'
       default:
@@ -87,6 +103,8 @@ export default function VendorCard({ vendor, mode, onStatusChange, onNoteChange,
         return 'bg-slate-100 text-slate-600 border-slate-200'
       case 'interested':
         return 'bg-emerald-50 text-emerald-700 border-emerald-200'
+      case 'booked':
+        return 'bg-emerald-100 text-emerald-800 border-emerald-300 font-semibold'
       case 'pass':
         return 'bg-gray-100 text-gray-400 border-gray-200 line-through opacity-70'
       default:
@@ -349,6 +367,34 @@ export default function VendorCard({ vendor, mode, onStatusChange, onNoteChange,
                   )}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Status Actions (Planner View Only) */}
+          {mode === 'planner' && vendor.couple_status === 'interested' && (
+            <div className="relative">
+              <label className={`text-xs font-semibold ${theme.textMuted} uppercase tracking-wider mb-3 block`}>
+                Planner Actions
+              </label>
+
+              <div className="space-y-2">
+                <button
+                  onClick={() => handleStatusChange('booked')}
+                  className={`w-full flex items-center justify-center gap-2 py-3 px-4 ${theme.primaryButton} ${theme.textOnPrimary} ${theme.primaryButtonHover} rounded-lg font-medium text-sm transition-colors`}
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Mark as Booked & Confirmed
+                </button>
+
+                {/* Confirmation Message */}
+                {showConfirmation && (
+                  <div className={`text-center py-2 px-3 bg-green-50 text-green-700 rounded-lg text-xs animate-in fade-in slide-in-from-top-2`}>
+                    ✓ Vendor marked as Booked & Confirmed
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
