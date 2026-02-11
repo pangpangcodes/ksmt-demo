@@ -30,7 +30,6 @@ export default function SharedWorkspace({ shareLinkId }: SharedWorkspaceProps) {
   }, [vendors])
 
   const stats = useMemo(() => {
-    const bookedCount = vendors.filter(v => v.couple_status === 'interested').length
     const uniqueCategories = new Set(vendors.map(v => v.vendor_type))
     const categoriesWithBooking = new Set(
       vendors.filter(v => v.couple_status === 'interested').map(v => v.vendor_type)
@@ -39,7 +38,7 @@ export default function SharedWorkspace({ shareLinkId }: SharedWorkspaceProps) {
 
     return {
       totalCategories: uniqueCategories.size,
-      bookedCount,
+      bookedCount: categoriesWithBooking.size,
       toHireCount
     }
   }, [vendors])
