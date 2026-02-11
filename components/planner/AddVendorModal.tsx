@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase-client'
 import TagInput from './TagInput'
 import { normalizeTags } from '@/lib/tagUtils'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
+import { VENDOR_TYPES } from '@/lib/vendorTypes'
 
 interface AddVendorModalProps {
   isOpen: boolean
@@ -27,21 +28,6 @@ interface AddVendorModalProps {
     tags?: string[]
   }
 }
-
-const VENDOR_TYPES = [
-  'Venue',
-  'Photographer',
-  'Videographer',
-  'Florist',
-  'Caterer',
-  'DJ/Band',
-  'Hair & Makeup',
-  'Planner',
-  'Transportation',
-  'Rentals',
-  'Stationery',
-  'Other'
-]
 
 export default function AddVendorModal({ isOpen, onClose, onSuccess, coupleId, vendorToEdit }: AddVendorModalProps) {
   const theme = useThemeStyles()

@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase-client'
 import { AnthropicClient } from '@/lib/anthropicClient'
 import { extractTextFromPDF, isPDFParseError } from '@/lib/pdfParser'
 import { VendorParseResult } from '@/types/planner'
-import { VENDOR_TYPES } from '@/types/vendor'
+import { VENDOR_TYPES, isValidVendorType } from '@/lib/vendorTypes'
 import { normalizeTags } from '@/lib/tagUtils'
 
 /**
@@ -248,16 +248,44 @@ Return valid JSON only, no markdown formatting.`
       throw new Error('Invalid AI response format')
     }
 
-    // Normalize tags in all operations
-    const result: VendorParseResult = {
-      operations: aiResponse.operations.map((op: any) => ({
+    // Validate vendor types and normalize tags in all operations
+    const clarifications = [...(aiResponse.clarifications_needed || [])]
+    const operations = aiResponse.operations.map((op: any, index: number) => {
+      const vendorType = op.vendor_data.vendor_type
+      const warnings = [...(op.warnings || [])]
+
+      // Check if vendor type is valid
+      if (vendorType && !isValidVendorType(vendorType)) {
+        warnings.push(`"${vendorType}" is not a recognized vendor category. Set to "Other" - please update if needed.`)
+
+        // Add clarification to alert user
+        clarifications.push({
+          question: `"${vendorType}" is not a valid vendor category. The vendor "${op.vendor_data.vendor_name || 'Unknown'}" has been set to "Other". Please select the correct category from the dropdown.`,
+          field: 'vendor_type',
+          field_type: 'choice',
+          context: `Parsed category: "${vendorType}"`,
+          operation_index: index,
+          required: true,
+          choices: Array.from(VENDOR_TYPES)
+        })
+
+        // Set to "Other" by default
+        op.vendor_data.vendor_type = 'Other'
+      }
+
+      return {
         ...op,
         vendor_data: {
           ...op.vendor_data,
           tags: op.vendor_data.tags ? normalizeTags(op.vendor_data.tags) : undefined
-        }
-      })),
-      clarifications_needed: aiResponse.clarifications_needed || [],
+        },
+        warnings
+      }
+    })
+
+    const result: VendorParseResult = {
+      operations,
+      clarifications_needed: clarifications,
       processing_time_ms: Date.now() - startTime
     }
 
