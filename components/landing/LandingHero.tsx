@@ -13,7 +13,7 @@ const LandingHero: React.FC = () => {
       </div>
 
       <div className="relative z-10 text-center max-w-5xl mx-auto">
-        <div className="flex flex-col items-center gap-4 mb-2">
+        <div className="flex flex-col items-center gap-4 mb-8 sm:mb-12 md:mb-16">
           <div className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-56 md:h-56 animate-bounce-slow">
             <Image
               src="/bridezilla-logo-circle-green.svg?v=8"
@@ -26,7 +26,7 @@ const LandingHero: React.FC = () => {
           </div>
         </div>
 
-        <div className="relative mt-2 sm:mt-4 md:mt-8">
+        <div className="relative mt-8 sm:mt-12 md:mt-16">
           <h1 className="font-vintage text-5xl sm:text-6xl md:text-[10rem] leading-none italic transform -rotate-3 text-[#B76E79] drop-shadow-lg">
             Bridezilla
           </h1>
