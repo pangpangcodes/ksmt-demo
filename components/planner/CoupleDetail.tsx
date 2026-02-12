@@ -504,7 +504,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Breadcrumb */}
-        <div className={`flex items-center gap-2 text-sm mb-6`}>
+        <div className={`flex items-center gap-2 ${theme.typeSectionHeading} mb-6`}>
           <button
             onClick={() => router.push('/planners?view=couples')}
             className={`${theme.textOnPageMuted} hover:text-white transition-colors`}

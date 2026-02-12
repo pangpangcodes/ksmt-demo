@@ -36,6 +36,12 @@ export interface ThemeColors {
   warning: { bg: string; text: string }
   error: { bg: string; text: string }
 
+  // Typography
+  typeSectionHeading: string
+  typeStatValue: string
+  typeStatLabel: string
+  typeStatSubtitle: string
+
   // Colour values (hex) for icons/text
   primaryColor: string
   primaryColorHover: string
@@ -66,6 +72,10 @@ export const themes: Record<ThemeName, ThemeColors> = {
     success: { bg: 'bg-emerald-50', text: 'text-emerald-700' },
     warning: { bg: 'bg-amber-50', text: 'text-amber-700' },
     error: { bg: 'bg-red-50', text: 'text-red-700' },
+    typeSectionHeading: 'font-display text-xl md:text-2xl',
+    typeStatValue: 'text-lg font-semibold',
+    typeStatLabel: 'text-xs font-medium uppercase tracking-widest',
+    typeStatSubtitle: 'text-xs',
     primaryColor: '#EC4899', // bridezilla-pink
     primaryColorHover: '#F97316', // bridezilla-orange
   },
@@ -93,6 +103,10 @@ export const themes: Record<ThemeName, ThemeColors> = {
     success: { bg: 'bg-emerald-50', text: 'text-emerald-700' },
     warning: { bg: 'bg-amber-50', text: 'text-amber-700' },
     error: { bg: 'bg-red-50', text: 'text-red-700' },
+    typeSectionHeading: 'font-display text-xl md:text-2xl',
+    typeStatValue: 'text-lg font-semibold',
+    typeStatLabel: 'text-xs font-medium uppercase tracking-widest',
+    typeStatSubtitle: 'text-xs',
     primaryColor: '#1b3b2b', // dark forest green
     primaryColorHover: '#2F5249', // lighter green
   },

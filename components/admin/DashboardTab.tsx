@@ -247,7 +247,7 @@ export default function DashboardTab() {
           <div className={`${theme.cardBackground} rounded-2xl shadow-md p-4 md:p-6 border ${theme.border} transition-colors`}>
             <div className="flex items-center gap-2 mb-3 md:mb-4">
               <Calendar className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" style={{ color: theme.primaryColor }} />
-              <h3 className={`font-display text-xl md:text-2xl ${theme.textPrimary}`}>
+              <h3 className={`${theme.typeSectionHeading} ${theme.textPrimary}`}>
                 Upcoming Payments
               </h3>
             </div>
@@ -324,7 +324,7 @@ export default function DashboardTab() {
         <div className={`${theme.cardBackground} rounded-2xl shadow-md p-4 md:p-6 border ${theme.border} transition-colors`}>
           <div className="flex items-center gap-2 mb-3 md:mb-4">
             <CheckCircle className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" style={{ color: theme.primaryColor }} />
-            <h3 className={`font-display text-xl md:text-2xl ${theme.textPrimary}`}>
+            <h3 className={`${theme.typeSectionHeading} ${theme.textPrimary}`}>
               Pending Tasks
             </h3>
           </div>

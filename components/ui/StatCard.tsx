@@ -6,6 +6,9 @@ interface StatCardTheme {
   borderWidth: string
   textPrimary: string
   textMuted: string
+  typeStatValue: string
+  typeStatLabel: string
+  typeStatSubtitle: string
 }
 
 interface StatCardProps {
@@ -32,10 +35,10 @@ export function StatCard({
           {icon}
         </div>
         <div className="min-w-0">
-          <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-1`}>{label}</p>
+          <p className={`${theme.typeStatLabel} ${theme.textMuted} mb-1`}>{label}</p>
           <div className="flex items-baseline gap-2">
-            <span className={`text-xl font-semibold ${theme.textPrimary}`}>{value}</span>
-            {subtitle && <span className={`text-xs ${theme.textMuted} truncate`}>{subtitle}</span>}
+            <span className={`${theme.typeStatValue} ${theme.textPrimary}`}>{value}</span>
+            {subtitle && <span className={`${theme.typeStatSubtitle} ${theme.textMuted} truncate`}>{subtitle}</span>}
           </div>
         </div>
       </div>
@@ -50,7 +53,7 @@ export function StatCardSkeleton({ theme }: { theme: Pick<StatCardTheme, 'cardBa
         <div className="w-7 h-7 rounded-lg bg-stone-50 flex-shrink-0" />
         <div className="min-w-0">
           <div className="h-3 rounded w-20 bg-stone-50 mb-1" />
-          <div className="h-6 rounded w-12 bg-stone-50" />
+          <div className="h-5 rounded w-12 bg-stone-50" />
         </div>
       </div>
     </div>
