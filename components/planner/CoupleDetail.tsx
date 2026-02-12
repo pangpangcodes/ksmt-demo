@@ -684,6 +684,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                     <SearchableMultiSelect
                       options={[
                         { value: 'interested', label: 'Approved', count: vendors.filter(v => v.couple_status === 'interested').length },
+                        { value: 'booked', label: 'Booked & Confirmed', count: vendors.filter(v => v.couple_status === 'booked').length },
                         { value: 'in_review', label: 'In Review', count: vendors.filter(v => !v.couple_status).length },
                         { value: 'pass', label: 'Declined', count: vendors.filter(v => v.couple_status === 'pass').length }
                       ].filter(opt => opt.count > 0)}
@@ -743,6 +744,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                     <SearchableMultiSelect
                       options={[
                         { value: 'interested', label: 'Approved', count: vendors.filter(v => v.couple_status === 'interested').length },
+                        { value: 'booked', label: 'Booked & Confirmed', count: vendors.filter(v => v.couple_status === 'booked').length },
                         { value: 'in_review', label: 'In Review', count: vendors.filter(v => !v.couple_status).length },
                         { value: 'pass', label: 'Declined', count: vendors.filter(v => v.couple_status === 'pass').length }
                       ].filter(opt => opt.count > 0)}
