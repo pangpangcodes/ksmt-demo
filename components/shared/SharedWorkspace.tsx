@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { AlertCircle, Calendar, MapPin, Sparkles, ChevronDown, Menu, Lock, MessageCircle, Heart } from 'lucide-react'
+import Image from 'next/image'
 import { format } from 'date-fns'
 import SharedVendorList from './SharedVendorList'
 import AnimatedHearts from '@/components/AnimatedHearts'
@@ -22,6 +23,8 @@ export default function SharedWorkspace({ shareLinkId }: SharedWorkspaceProps) {
   const [activeCategory, setActiveCategory] = useState<string>('All')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'vendors' | 'guestlist' | 'budget'>('vendors')
+  const [aiInsight, setAiInsight] = useState<string | null>(null)
+  const [aiInsightLoading, setAiInsightLoading] = useState(false)
 
   // Calculate categories and stats (MUST be before conditional returns)
   const categories = useMemo(() => {
@@ -85,13 +88,55 @@ export default function SharedWorkspace({ shareLinkId }: SharedWorkspaceProps) {
         .order('vendor_name', { ascending: true })
 
       if (!vendorsError) {
-        setVendors(vendorsData || [])
+        const vList = vendorsData || []
+        setVendors(vList)
+        fetchInsight(shareLinkId, vList)
       }
     } catch (err) {
       console.error('Failed to fetch workspace:', err)
       setError('Failed to load vendor recommendations.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchInsight = async (linkId: string, vendorList: SharedVendor[]) => {
+    const cacheKey = `bridezilla-couple-insight-${linkId}`
+    const hash = vendorList
+      .map(v => `${v.id}:${v.vendor_type}:${v.vendor_name}:${v.couple_status || ''}`)
+      .sort()
+      .join('|')
+
+    // Check cache (production only)
+    const isDev = process.env.NODE_ENV === 'development'
+    if (!isDev) {
+      try {
+        const cached = localStorage.getItem(cacheKey)
+        if (cached) {
+          const parsed = JSON.parse(cached)
+          if (parsed.hash === hash) {
+            setAiInsight(parsed.insight)
+            return
+          }
+        }
+      } catch {}
+    }
+
+    try {
+      setAiInsightLoading(true)
+      const res = await fetch(`/api/shared/${linkId}/insight`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      const data = await res.json()
+      if (data.success) {
+        setAiInsight(data.insight)
+        localStorage.setItem(cacheKey, JSON.stringify({ hash, insight: data.insight }))
+      }
+    } catch (error) {
+      console.error('Failed to fetch AI insight:', error)
+    } finally {
+      setAiInsightLoading(false)
     }
   }
 
@@ -168,16 +213,34 @@ export default function SharedWorkspace({ shareLinkId }: SharedWorkspaceProps) {
             {couple.couple_names}
           </h1>
 
-          {/* Planner's Message Card */}
+          {/* Bridezilla Assistance Card */}
           <div className={`relative ${theme.cardBackground} p-6 rounded-2xl shadow-sm ${theme.border} ${theme.borderWidth} mb-8`}>
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4" style={{ color: theme.primaryColor }}>
-              <MessageCircle size={20} fill="white" />
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white px-2">
+              <Image
+                src="/bridezilla-logo-circle-green.svg"
+                alt="Bridezilla"
+                width={28}
+                height={28}
+                className="object-contain"
+              />
             </div>
-            <p className={`italic ${theme.textPrimary} leading-relaxed`}>
-              "I've curated these vendor recommendations based on your vision. Review each one and let me know your thoughts!"
-            </p>
+            {aiInsightLoading ? (
+              <div className="flex justify-center">
+                <div className="h-3 rounded w-3/4 bg-emerald-50 animate-pulse" />
+              </div>
+            ) : aiInsight ? (
+              <p className={`italic ${theme.textPrimary} leading-relaxed`}>
+                &ldquo;{aiInsight.split(/\*\*/).map((part, i) =>
+                  i % 2 === 1 ? <strong key={i} className="font-semibold">{part}</strong> : part
+                )}&rdquo;
+              </p>
+            ) : (
+              <p className={`italic ${theme.textPrimary} leading-relaxed`}>
+                &ldquo;I&apos;ve curated these vendor recommendations based on your vision. Review each one and let me know your thoughts!&rdquo;
+              </p>
+            )}
             <div className={`mt-3 text-[10px] font-bold ${theme.textMuted} uppercase tracking-widest`}>
-              Your Planner
+              Bridezilla Assistance
             </div>
           </div>
 

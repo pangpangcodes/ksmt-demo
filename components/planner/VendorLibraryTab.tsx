@@ -12,6 +12,7 @@ import Notification from './Notification'
 import SearchableMultiSelect from '../SearchableMultiSelect'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
+import { StatCard, StatCardSkeleton } from '@/components/ui/StatCard'
 
 export default function VendorLibraryTab() {
   const { theme: currentTheme } = useTheme()
@@ -191,72 +192,52 @@ export default function VendorLibraryTab() {
         {loading ? (
           <>
             {[...Array(4)].map((_, i) => (
-              <div key={i} className={`${theme.cardBackground} rounded-2xl ${theme.border} ${theme.borderWidth} p-6`}>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-stone-50 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="h-4 rounded w-24 mb-2 bg-stone-50" />
-                    <div className="h-7 rounded w-16 bg-stone-50" />
-                  </div>
-                </div>
-              </div>
+              <StatCardSkeleton key={i} theme={theme} />
             ))}
           </>
         ) : (
           <>
-            <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-2 rounded-lg bg-stone-50">
-                  <Package className={`w-5 h-5 ${theme.textSecondary}`} />
-                </div>
-              </div>
-              <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Total Vendors</p>
-              <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.total}</p>
-            </div>
+            <StatCard
+              icon={<Package className={`w-4 h-4 ${theme.textSecondary}`} />}
+              label="Total Vendors"
+              value={stats.total}
+              theme={theme}
+            />
 
-            <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-              <div className="flex items-start justify-between mb-4">
-                <div className={`p-2 rounded-lg ${theme.success.bg}`}>
-                  <Clock className={`w-5 h-5 ${theme.success.text}`} />
-                </div>
-              </div>
-              <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Recently Added</p>
-              <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.recentlyAdded}</p>
-              <p className={`text-xs ${theme.textMuted} mt-1`}>Last 7 days</p>
-            </div>
+            <StatCard
+              icon={<Clock className={`w-4 h-4 ${theme.success.text}`} />}
+              iconBg={theme.success.bg}
+              label="Recently Added"
+              value={stats.recentlyAdded}
+              subtitle="Last 7 days"
+              theme={theme}
+            />
 
-            <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-2 rounded-lg bg-stone-50">
-                  <Users className={`w-5 h-5 ${theme.textSecondary}`} />
-                </div>
-              </div>
-              <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Top Types</p>
-              <div className="space-y-1 text-xs">
-                {Object.entries(stats.byType)
+            <StatCard
+              icon={<Users className={`w-4 h-4 ${theme.textSecondary}`} />}
+              label="Top Type"
+              value={(() => {
+                const top = Object.entries(stats.byType)
                   .filter(([_, count]) => count > 0)
-                  .sort((a, b) => b[1] - a[1])
-                  .slice(0, 2)
-                  .map(([type, count]) => (
-                    <div key={type} className={`flex justify-between ${theme.textSecondary}`}>
-                      <span className="truncate">{type}</span>
-                      <span className="font-semibold ml-2">{count}</span>
-                    </div>
-                  ))}
-              </div>
-            </div>
+                  .sort((a, b) => b[1] - a[1])[0]
+                return top ? top[0] : '—'
+              })()}
+              subtitle={(() => {
+                const top = Object.entries(stats.byType)
+                  .filter(([_, count]) => count > 0)
+                  .sort((a, b) => b[1] - a[1])[0]
+                return top ? String(top[1]) : undefined
+              })()}
+              theme={theme}
+            />
 
-            <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-              <div className="flex items-start justify-between mb-4">
-                <div className={`p-2 rounded-lg ${theme.success.bg}`}>
-                  <Users className={`w-5 h-5 ${theme.success.text}`} />
-                </div>
-              </div>
-              <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Total Types</p>
-              <p className={`text-3xl font-semibold ${theme.textPrimary}`}>
-                {Object.values(stats.byType).filter(count => count > 0).length}
-              </p>
-            </div>
+            <StatCard
+              icon={<Users className={`w-4 h-4 ${theme.success.text}`} />}
+              iconBg={theme.success.bg}
+              label="Total Types"
+              value={Object.values(stats.byType).filter(count => count > 0).length}
+              theme={theme}
+            />
           </>
         )}
       </div>
@@ -264,7 +245,7 @@ export default function VendorLibraryTab() {
       {/* Controls */}
       <div className={`${theme.cardBackground} rounded-2xl ${theme.border} ${theme.borderWidth} p-6 mb-6`}>
         {/* Mobile: Stacked Layout */}
-        <div className="md:hidden space-y-3">
+        <div className="lg:hidden space-y-3">
           {/* Search */}
           <div>
             <div className="relative">
@@ -347,8 +328,8 @@ export default function VendorLibraryTab() {
               <Image
                 src="/images/bridezilla-logo-green.png"
                 alt="Bridezilla"
-                width={24}
-                height={24}
+                width={20}
+                height={20}
                 className="object-contain"
               />
               <span>Ask Bridezilla</span>
@@ -357,7 +338,7 @@ export default function VendorLibraryTab() {
         </div>
 
         {/* Desktop: Original Horizontal Layout */}
-        <div className="hidden md:flex flex-wrap gap-2 md:gap-4 items-center justify-between">
+        <div className="hidden lg:flex flex-wrap gap-2 lg:gap-4 items-center justify-between">
           <div className="flex gap-2 flex-wrap flex-1">
             {/* Search */}
             <div className="min-w-[200px]">
@@ -435,8 +416,8 @@ export default function VendorLibraryTab() {
             <Image
               src="/images/bridezilla-logo-green.png"
               alt="Bridezilla"
-              width={24}
-              height={24}
+              width={20}
+              height={20}
               className="object-contain"
             />
             <span className="hidden sm:inline">Ask Bridezilla</span>

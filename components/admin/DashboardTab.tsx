@@ -5,6 +5,7 @@ import { Users, DollarSign, AlertCircle, Calendar, BarChart3, CheckCircle, Clock
 import { formatCurrency, calculateVendorStats } from '@/lib/vendorUtils'
 import { supabase } from '@/lib/supabase'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
+import { StatCard } from '@/components/ui/StatCard'
 
 interface DashboardData {
   rsvpStats: {
@@ -205,61 +206,38 @@ export default function DashboardTab() {
 
       {/* Stats Grid - 4 Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
-        {/* Budget Spent */}
-        <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-          <div className="flex items-start justify-between mb-4">
-            <div className="p-2 rounded-lg bg-stone-50">
-              <DollarSign className={`w-5 h-5 ${theme.textSecondary}`} />
-            </div>
-          </div>
-          <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Budget Spent</p>
-          <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{budgetSpentPercent}%</p>
-          <p className={`text-sm ${theme.textSecondary} mt-2`}>
-            {formatCurrency(data.vendorStats.totalPaid)} / {formatCurrency(data.vendorStats.totalCost)} USD
-          </p>
-        </div>
+        <StatCard
+          icon={<DollarSign className={`w-4 h-4 ${theme.textSecondary}`} />}
+          label="Budget Spent"
+          value={`${budgetSpentPercent}%`}
+          subtitle={`${formatCurrency(data.vendorStats.totalPaid)} / ${formatCurrency(data.vendorStats.totalCost)} USD`}
+          theme={theme}
+        />
 
-        {/* RSVP Confirmed */}
-        <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-          <div className="flex items-start justify-between mb-4">
-            <div className={`p-2 rounded-lg ${theme.success.bg}`}>
-              <Users className={`w-5 h-5 ${theme.success.text}`} />
-            </div>
-          </div>
-          <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Confirmed Guests</p>
-          <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{data.rsvpStats.totalGuests}</p>
-          <p className={`text-sm ${theme.textSecondary} mt-2`}>
-            {data.rsvpStats.attending} attending • {data.rsvpStats.notAttending} not attending
-          </p>
-        </div>
+        <StatCard
+          icon={<Users className={`w-4 h-4 ${theme.success.text}`} />}
+          iconBg={theme.success.bg}
+          label="Confirmed Guests"
+          value={data.rsvpStats.totalGuests}
+          subtitle={`${data.rsvpStats.attending} attending \u2022 ${data.rsvpStats.notAttending} declined`}
+          theme={theme}
+        />
 
-        {/* Vendors Booked */}
-        <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-          <div className="flex items-start justify-between mb-4">
-            <div className="p-2 rounded-lg bg-stone-50">
-              <BarChart3 className={`w-5 h-5 ${theme.textSecondary}`} />
-            </div>
-          </div>
-          <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Vendors Booked</p>
-          <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{data.vendorStats.totalVendors}</p>
-          <p className={`text-sm ${theme.textSecondary} mt-2 truncate`}>
-            Total Cost: {formatCurrency(data.vendorStats.totalCost)} USD
-          </p>
-        </div>
+        <StatCard
+          icon={<BarChart3 className={`w-4 h-4 ${theme.textSecondary}`} />}
+          label="Vendors Booked"
+          value={data.vendorStats.totalVendors}
+          subtitle={`Total: ${formatCurrency(data.vendorStats.totalCost)} USD`}
+          theme={theme}
+        />
 
-        {/* Action Items */}
-        <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-          <div className="flex items-start justify-between mb-4">
-            <div className="p-2 rounded-lg bg-stone-50">
-              <AlertCircle className={`w-5 h-5 ${theme.textSecondary}`} />
-            </div>
-          </div>
-          <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Action Items</p>
-          <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{actionItemsCount}</p>
-          <p className={`text-sm ${theme.textSecondary} mt-2`}>
-            {overduePayments.length} overdue • {upcomingPayments.length} upcoming
-          </p>
-        </div>
+        <StatCard
+          icon={<AlertCircle className={`w-4 h-4 ${theme.textSecondary}`} />}
+          label="Action Items"
+          value={actionItemsCount}
+          subtitle={`${overduePayments.length} overdue \u2022 ${upcomingPayments.length} upcoming`}
+          theme={theme}
+        />
       </div>
 
       {/* Two Column Layout - Upcoming Payments & Pending Tasks */}

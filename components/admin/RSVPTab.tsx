@@ -5,6 +5,7 @@ import { Users, CheckCircle, XCircle, Download, Eye, EyeOff, Copy, Check, Chevro
 import { formatDate, maskEmail, maskPhone, exportToCSV } from '@/lib/format'
 import { supabase } from '@/lib/supabase'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
+import { StatCard, StatCardSkeleton } from '@/components/ui/StatCard'
 
 interface Guest {
   name: string
@@ -118,58 +119,40 @@ export default function RSVPTab() {
         {loading ? (
           <>
             {[...Array(4)].map((_, i) => (
-              <div key={i} className={`${theme.cardBackground} rounded-2xl ${theme.border} ${theme.borderWidth} p-6`}>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-stone-50 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="h-4 rounded w-24 mb-2 bg-stone-50" />
-                    <div className="h-7 rounded w-16 bg-stone-50" />
-                  </div>
-                </div>
-              </div>
+              <StatCardSkeleton key={i} theme={theme} />
             ))}
           </>
         ) : stats && (
           <>
-            <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-2 rounded-lg bg-stone-50">
-                  <Users className={`w-5 h-5 ${theme.textSecondary}`} />
-                </div>
-              </div>
-              <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Total RSVPs</p>
-              <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.total}</p>
-            </div>
+            <StatCard
+              icon={<Users className={`w-4 h-4 ${theme.textSecondary}`} />}
+              label="Total RSVPs"
+              value={stats.total}
+              theme={theme}
+            />
 
-            <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-              <div className="flex items-start justify-between mb-4">
-                <div className={`p-2 rounded-lg ${theme.success.bg}`}>
-                  <CheckCircle className={`w-5 h-5 ${theme.success.text}`} />
-                </div>
-              </div>
-              <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Attending</p>
-              <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.attending}</p>
-            </div>
+            <StatCard
+              icon={<CheckCircle className={`w-4 h-4 ${theme.success.text}`} />}
+              iconBg={theme.success.bg}
+              label="Attending"
+              value={stats.attending}
+              theme={theme}
+            />
 
-            <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-              <div className="flex items-start justify-between mb-4">
-                <div className={`p-2 rounded-lg ${theme.success.bg}`}>
-                  <Users className={`w-5 h-5 ${theme.success.text}`} />
-                </div>
-              </div>
-              <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Total Guests</p>
-              <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.totalGuests}</p>
-            </div>
+            <StatCard
+              icon={<Users className={`w-4 h-4 ${theme.success.text}`} />}
+              iconBg={theme.success.bg}
+              label="Total Guests"
+              value={stats.totalGuests}
+              theme={theme}
+            />
 
-            <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-2 rounded-lg bg-stone-50">
-                  <XCircle className="w-5 h-5 text-gray-400" />
-                </div>
-              </div>
-              <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Not Attending</p>
-              <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.notAttending}</p>
-            </div>
+            <StatCard
+              icon={<XCircle className="w-4 h-4 text-gray-400" />}
+              label="Not Attending"
+              value={stats.notAttending}
+              theme={theme}
+            />
           </>
         )}
       </div>

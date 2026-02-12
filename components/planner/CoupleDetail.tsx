@@ -29,6 +29,7 @@ import {
 import { supabase } from '@/lib/supabase-client'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
+import { StatCard } from '@/components/ui/StatCard'
 import VendorCard from '../VendorCard'
 import SearchableMultiSelect from '../SearchableMultiSelect'
 import SelectVendorsModal from './SelectVendorsModal'
@@ -66,6 +67,8 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
   const [notification, setNotification] = useState<{type: 'success' | 'error' | 'warning', title: string, message: string} | null>(null)
   const [showAskBridezillaModal, setShowAskBridezillaModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [aiInsight, setAiInsight] = useState<string | null>(null)
+  const [aiInsightLoading, setAiInsightLoading] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -94,13 +97,79 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
         if (vendorsError) {
           console.error('Vendors fetch error:', vendorsError)
         } else {
-          setVendors(vendorsData || [])
+          const vList = vendorsData || []
+          setVendors(vList)
+          fetchInsight(coupleData.data, vList)
         }
       }
     } catch (error) {
       console.error('Failed to fetch data:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const computeInsightHash = (coupleData: PlannerCouple, vendorList: SharedVendor[]) => {
+    const signature = vendorList
+      .map(v => `${v.id}:${v.vendor_type}:${v.vendor_name}:${v.couple_status || ''}`)
+      .sort()
+      .join('|')
+    return `${coupleData.id}:${vendorList.length}:${signature}`
+  }
+
+  const fetchInsight = async (coupleData: PlannerCouple, vendorList: SharedVendor[]) => {
+    const cacheKey = `bridezilla-insight-${coupleData.id}`
+    const hash = computeInsightHash(coupleData, vendorList)
+
+    // Check cache (production only)
+    const isDev = process.env.NODE_ENV === 'development'
+    if (!isDev) {
+      try {
+        const cached = localStorage.getItem(cacheKey)
+        if (cached) {
+          const { hash: cachedHash, insight } = JSON.parse(cached)
+          if (cachedHash === hash) {
+            setAiInsight(insight)
+            return
+          }
+        }
+      } catch {}
+    }
+
+    // Data changed or no cache, fetch new insight
+    try {
+      setAiInsightLoading(true)
+      const token = sessionStorage.getItem('planner_auth')
+      const vendorStats = {
+        vendorTypes: new Set(vendorList.map(v => v.vendor_type)).size,
+        booked: vendorList.filter(v => v.couple_status === 'booked').length,
+        approved: vendorList.filter(v => v.couple_status === 'interested').length,
+        inReview: (() => {
+          const byType = vendorList.reduce((acc, v) => {
+            if (!acc[v.vendor_type]) acc[v.vendor_type] = []
+            acc[v.vendor_type].push(v)
+            return acc
+          }, {} as Record<string, SharedVendor[]>)
+          return Object.values(byType).filter(tvs =>
+            !tvs.some(v => v.couple_status === 'booked' || v.couple_status === 'interested') &&
+            tvs.some(v => !v.couple_status)
+          ).length
+        })(),
+      }
+      const res = await fetch(`/api/planner/couples/${coupleData.id}/insight`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ couple: coupleData, vendors: vendorList, stats: vendorStats }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setAiInsight(data.insight)
+        localStorage.setItem(cacheKey, JSON.stringify({ hash, insight: data.insight }))
+      }
+    } catch (error) {
+      console.error('Failed to fetch AI insight:', error)
+    } finally {
+      setAiInsightLoading(false)
     }
   }
 
@@ -476,48 +545,51 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
             {/* Left: Couple Profile Card */}
-            <div className={`${theme.cardBackground} rounded-2xl p-8 ${theme.border} ${theme.borderWidth} shadow-sm flex flex-col items-center text-center h-full`}>
-              <div className="relative mb-6">
-                <div className={`w-32 h-32 rounded-full ${theme.secondaryButton} flex items-center justify-center text-4xl font-serif ${theme.textMuted}`}>
-                  {couple.couple_names.charAt(0)}
+            <div className={`${theme.cardBackground} rounded-2xl p-5 lg:p-8 ${theme.border} ${theme.borderWidth} shadow-sm flex flex-col lg:items-center lg:text-center h-full`}>
+              <div className="flex items-center gap-4 lg:flex-col lg:gap-0 lg:mb-0">
+                <div className="relative mb-0 lg:mb-6">
+                  <div className={`w-16 h-16 lg:w-32 lg:h-32 rounded-full ${theme.secondaryButton} flex items-center justify-center text-2xl lg:text-4xl font-serif ${theme.textMuted}`}>
+                    {couple.couple_names.charAt(0)}
+                  </div>
+                  <button
+                    onClick={() => setShowEditModal(true)}
+                    className={`absolute bottom-0 right-0 p-1.5 lg:p-2 ${theme.cardBackground} rounded-full ${theme.border} ${theme.borderWidth} shadow-sm ${theme.secondaryButtonHover} ${theme.textSecondary}`}
+                  >
+                    <Edit2 size={14} />
+                  </button>
                 </div>
-                <button
-                  onClick={() => setShowEditModal(true)}
-                  className={`absolute bottom-0 right-0 p-2 ${theme.cardBackground} rounded-full ${theme.border} ${theme.borderWidth} shadow-sm ${theme.secondaryButtonHover} ${theme.textSecondary}`}
-                >
-                  <Edit2 size={14} />
-                </button>
+                <div>
+                  <h2 className={`font-display text-xl lg:text-2xl ${theme.textPrimary} mb-0.5 lg:mb-1`}>{couple.couple_names}</h2>
+                  <p className={`${theme.textMuted} text-sm`}>{couple.wedding_location || 'Location TBD'}</p>
+                </div>
               </div>
 
-              <h2 className={`font-display text-2xl ${theme.textPrimary} mb-1`}>{couple.couple_names}</h2>
-              <p className={`${theme.textMuted} text-sm mb-6`}>{couple.wedding_location || 'Location TBD'}</p>
-
-              <div className={`w-full space-y-4 border-t ${theme.border} pt-6`}>
+              <div className={`w-full space-y-3 border-t ${theme.border} pt-4 mt-4 lg:pt-6 lg:mt-6`}>
                 <div className="flex items-center justify-between text-sm">
-                  <span className={`${theme.textMuted} flex items-center gap-2`}>
+                  <span className={`${theme.textMuted} flex items-center gap-2 flex-shrink-0`}>
                     <Calendar size={14} /> Date
                   </span>
-                  <span className={`${theme.textPrimary} font-medium`}>{formatDate(couple.wedding_date)}</span>
+                  <span className={`${theme.textPrimary} font-medium text-right`}>{formatDate(couple.wedding_date)}</span>
                 </div>
                 {couple.couple_email && (
                   <div className="flex items-center justify-between text-sm group">
-                    <span className={`${theme.textMuted} flex items-center gap-2`}>
+                    <span className={`${theme.textMuted} flex items-center gap-2 flex-shrink-0`}>
                       <Mail size={14} /> Email
                     </span>
-                    <div className="flex items-center gap-2">
-                      <span className={`${theme.textPrimary} font-medium`}>{couple.couple_email}</span>
+                    <div className="relative ml-auto">
+                      <span className={`${theme.textPrimary} font-medium text-right`}>{couple.couple_email}</span>
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
                           if (couple.couple_email) handleCopyEmail(couple.couple_email)
                         }}
-                        className={`opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-stone-100 rounded`}
+                        className={`absolute -right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-stone-100 rounded`}
                         title="Copy email"
                       >
                         {copiedEmail === couple.couple_email ? (
-                          <Check className="w-4 h-4 text-green-600" />
+                          <Check className="w-3.5 h-3.5 text-green-600" />
                         ) : (
-                          <Copy className={`w-4 h-4 ${theme.textMuted}`} />
+                          <Copy className={`w-3.5 h-3.5 ${theme.textMuted}`} />
                         )}
                       </button>
                     </div>
@@ -525,7 +597,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                 )}
               </div>
 
-              <div className="mt-auto pt-8 w-full space-y-3">
+              <div className="mt-auto pt-4 lg:pt-8 w-full space-y-2 lg:space-y-3">
                 <button
                   onClick={() => window.open(`/s/${couple.share_link_id}`, '_blank')}
                   className={`w-full py-2.5 ${theme.primaryButton} ${theme.textOnPrimary} rounded-lg text-sm font-medium ${theme.primaryButtonHover} flex items-center justify-center gap-2 shadow-sm transition-all`}
@@ -544,42 +616,79 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
             {/* Right: Notes & Stats */}
             <div className="lg:col-span-2 space-y-6">
 
+              {/* AI Insight Banner */}
+              <div className={`${theme.cardBackground} rounded-2xl p-5 ${theme.border} ${theme.borderWidth} shadow-sm relative overflow-hidden`}>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Image
+                      src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/bridezilla-logo-circle-green.svg'}
+                      alt="Bridezilla"
+                      width={28}
+                      height={28}
+                      className="object-contain"
+                    />
+                    <span className={`text-sm font-semibold ${theme.textPrimary}`}>Bridezilla Assistance</span>
+                    <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${currentTheme === 'pop' ? 'bg-pink-50 text-pink-500' : 'bg-emerald-50 text-emerald-600'}`}>
+                      AI Insight
+                    </span>
+                  </div>
+                  {aiInsightLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className={`h-3 rounded w-3/4 ${currentTheme === 'pop' ? 'bg-pink-50' : 'bg-emerald-50'} animate-pulse`} />
+                    </div>
+                  ) : aiInsight ? (
+                    <p className={`text-sm ${theme.textSecondary} leading-relaxed`}>&ldquo;{aiInsight.split(/\*\*/).map((part, i) =>
+                      i % 2 === 1 ? <strong key={i} className={`font-semibold ${theme.textPrimary}`}>{part}</strong> : part
+                    )}&rdquo;</p>
+                  ) : (
+                    <p className={`text-sm ${theme.textMuted} italic`}>Generating insight...</p>
+                  )}
+                </div>
+                {/* Decorative faded logo */}
+                <div className="absolute -right-4 -bottom-4 opacity-[0.06]">
+                  <Image
+                    src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/bridezilla-logo-circle-green.svg'}
+                    alt=""
+                    width={120}
+                    height={120}
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+
+              {/* Stats Cards */}
+              <div className="grid grid-cols-2 gap-4 md:gap-6">
+                <StatCard
+                  icon={<Wallet className={`w-4 h-4 ${theme.textSecondary}`} />}
+                  label="Vendors Needed"
+                  value={stats.vendorTypes}
+                  theme={theme}
+                />
+
+                <StatCard
+                  icon={<Sparkles className="w-4 h-4 text-emerald-600" />}
+                  iconBg="bg-emerald-50"
+                  label="Booked & Confirmed"
+                  value={stats.booked}
+                  theme={theme}
+                />
+              </div>
+
               {/* Private Notes */}
-              <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} shadow-sm relative overflow-hidden group`}>
-                <div className="flex justify-between items-center mb-4">
+              <div className={`${theme.cardBackground} rounded-2xl p-5 ${theme.border} ${theme.borderWidth} shadow-sm relative overflow-hidden group`}>
+                <div className="flex justify-between items-center mb-2">
                   <h3 className={`text-sm font-bold ${theme.textMuted} uppercase tracking-widest flex items-center gap-2`}>
                     <Lock size={14} /> Private Planner Notes
                   </h3>
                   <span className={`text-xs ${theme.textMuted} italic`}>Visible only to you</span>
                 </div>
                 <textarea
-                  className={`w-full h-32 p-4 ${theme.secondaryButton} rounded-xl border-none focus:ring-2 focus:ring-offset-0 resize-none ${theme.textPrimary} text-sm leading-relaxed`}
+                  className={`w-full p-3 ${theme.secondaryButton} rounded-xl border-none focus:ring-2 focus:ring-offset-0 resize-none ${theme.textPrimary} text-sm leading-relaxed overflow-hidden`}
+                  rows={2}
+                  style={{ fieldSizing: 'content' } as React.CSSProperties}
                   defaultValue={couple.notes || ''}
                   placeholder="Add internal notes about this couple..."
                 />
-              </div>
-
-              {/* Stats Cards */}
-              <div className="grid grid-cols-2 gap-4 md:gap-6">
-                <div className={`${theme.cardBackground} rounded-2xl p-6 border ${theme.border} hover:shadow-sm transition-all`}>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="p-2 rounded-lg bg-stone-50">
-                      <Wallet className={`w-5 h-5 ${theme.textSecondary}`} />
-                    </div>
-                  </div>
-                  <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Vendors Shared</p>
-                  <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{vendors.length}</p>
-                </div>
-
-                <div className={`${theme.cardBackground} rounded-2xl p-6 border ${theme.border} hover:shadow-sm transition-all`}>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="p-2 rounded-lg bg-emerald-50">
-                      <Sparkles className="w-5 h-5 text-emerald-600" />
-                    </div>
-                  </div>
-                  <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Booked & Confirmed</p>
-                  <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.booked}</p>
-                </div>
               </div>
             </div>
           </div>
@@ -591,52 +700,42 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
 
             {/* Status Summary */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              <div className={`${theme.cardBackground} rounded-2xl p-6 border ${theme.border} hover:shadow-sm transition-all`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-2 rounded-lg bg-stone-50">
-                    <Layers className={`w-5 h-5 ${theme.textSecondary}`} />
-                  </div>
-                </div>
-                <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Vendor Types</p>
-                <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.vendorTypes}</p>
-              </div>
+              <StatCard
+                icon={<Layers className={`w-4 h-4 ${theme.textSecondary}`} />}
+                label="Vendors Needed"
+                value={stats.vendorTypes}
+                theme={theme}
+              />
 
-              <div className={`${theme.cardBackground} rounded-2xl p-6 border ${theme.border} hover:shadow-sm transition-all`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-2 rounded-lg bg-emerald-50">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                  </div>
-                </div>
-                <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Booked & Confirmed</p>
-                <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.booked}</p>
-              </div>
+              <StatCard
+                icon={<CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+                iconBg="bg-emerald-50"
+                label="Booked & Confirmed"
+                value={stats.booked}
+                theme={theme}
+              />
 
-              <div className={`${theme.cardBackground} rounded-2xl p-6 border ${theme.border} hover:shadow-sm transition-all`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-2 rounded-lg bg-emerald-50">
-                    <Heart className="w-5 h-5 text-emerald-600" />
-                  </div>
-                </div>
-                <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Approved</p>
-                <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.approved}</p>
-              </div>
+              <StatCard
+                icon={<Heart className="w-4 h-4 text-emerald-600" />}
+                iconBg="bg-emerald-50"
+                label="Approved"
+                value={stats.approved}
+                theme={theme}
+              />
 
-              <div className={`${theme.cardBackground} rounded-2xl p-6 border ${theme.border} hover:shadow-sm transition-all`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-2 rounded-lg bg-stone-50">
-                    <Clock className={`w-5 h-5 ${theme.textSecondary}`} />
-                  </div>
-                </div>
-                <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>In Review</p>
-                <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.inReview}</p>
-              </div>
+              <StatCard
+                icon={<Clock className={`w-4 h-4 ${theme.textSecondary}`} />}
+                label="In Review"
+                value={stats.inReview}
+                theme={theme}
+              />
             </div>
 
             {/* Filter Bar */}
 
               <div className={`${theme.cardBackground} rounded-2xl ${theme.border} ${theme.borderWidth} p-6 mb-6`}>
                 {/* Desktop Layout - unchanged */}
-                <div className="hidden md:flex flex-wrap gap-2 md:gap-4 items-center justify-between">
+                <div className="hidden lg:flex flex-wrap gap-2 lg:gap-4 items-center justify-between">
                   <div className="flex gap-2 flex-wrap flex-1">
                     {/* Search */}
                     <div className="min-w-[200px]">
@@ -703,7 +802,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                     className={`flex items-center gap-2 px-6 py-2.5 ${theme.secondaryButton} rounded-xl text-sm font-medium ${theme.secondaryButtonHover} transition-colors disabled:opacity-50`}
                   >
                     <Plus className="w-4 h-4" />
-                    <span className="hidden sm:inline">Add Manually</span>
+                    <span className="hidden sm:inline">Share Manually</span>
                   </button>
 
                   {/* Ask Bridezilla Button */}
@@ -714,16 +813,16 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                     <Image
                       src="/images/bridezilla-logo-green.png"
                       alt="Bridezilla"
-                      width={32}
-                      height={32}
+                      width={20}
+                      height={20}
                       className="object-contain"
                     />
                     <span className="hidden sm:inline">Ask Bridezilla</span>
                   </button>
                 </div>
 
-                {/* Mobile Layout - dropdowns at top, then controls */}
-                <div className="md:hidden">
+                {/* Mobile/Tablet Layout - dropdowns at top, then controls */}
+                <div className="lg:hidden">
                   <div className="flex flex-col gap-2">
                     {/* Type Filter - full width */}
                     <SearchableMultiSelect
@@ -792,7 +891,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 ${theme.secondaryButton} rounded-xl text-sm font-medium ${theme.secondaryButtonHover} transition-colors disabled:opacity-50`}
                       >
                         <Plus className="w-4 h-4" />
-                        <span>Add Manually</span>
+                        <span>Share Manually</span>
                       </button>
 
                       <button
@@ -802,8 +901,8 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                         <Image
                           src="/images/bridezilla-logo-green.png"
                           alt="Bridezilla"
-                          width={32}
-                          height={32}
+                          width={20}
+                          height={20}
                           className="object-contain"
                         />
                         <span>Ask Bridezilla</span>

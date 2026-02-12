@@ -13,6 +13,7 @@ import PaymentReminderSettingsModal from './PaymentReminderSettingsModal'
 import SearchableMultiSelect from '../SearchableMultiSelect'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
+import { StatCard, StatCardSkeleton } from '@/components/ui/StatCard'
 
 export default function VendorsTab() {
   const { theme: currentTheme } = useTheme()
@@ -253,58 +254,42 @@ export default function VendorsTab() {
         {loading ? (
           <>
             {[...Array(4)].map((_, i) => (
-              <div key={i} className={`${theme.cardBackground} rounded-2xl ${theme.border} ${theme.borderWidth} p-6`}>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-stone-50 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="h-4 rounded w-24 mb-2 bg-stone-50" />
-                    <div className="h-7 rounded w-16 bg-stone-50" />
-                  </div>
-                </div>
-              </div>
+              <StatCardSkeleton key={i} theme={theme} />
             ))}
           </>
         ) : stats && (
           <>
-            <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-2 rounded-lg bg-stone-50">
-                  <Users className={`w-5 h-5 ${theme.textSecondary}`} />
-                </div>
-              </div>
-              <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Total Vendors</p>
-              <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.totalVendors}</p>
-            </div>
+            <StatCard
+              icon={<Users className={`w-4 h-4 ${theme.textSecondary}`} />}
+              label="Total Vendors"
+              value={stats.totalVendors}
+              theme={theme}
+            />
 
-            <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-2 rounded-lg bg-stone-50">
-                  <DollarSign className={`w-5 h-5 ${theme.textSecondary}`} />
-                </div>
-              </div>
-              <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Total Cost</p>
-              <p className={`text-2xl font-semibold ${theme.textPrimary} truncate`}>{formatCurrency(stats.totalCost)} USD</p>
-            </div>
+            <StatCard
+              icon={<DollarSign className={`w-4 h-4 ${theme.textSecondary}`} />}
+              label="Total Cost"
+              value={formatCurrency(stats.totalCost)}
+              subtitle="USD"
+              theme={theme}
+            />
 
-            <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-              <div className="flex items-start justify-between mb-4">
-                <div className={`p-2 rounded-lg ${theme.success.bg}`}>
-                  <DollarSign className={`w-5 h-5 ${theme.success.text}`} />
-                </div>
-              </div>
-              <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Total Paid</p>
-              <p className={`text-2xl font-semibold ${theme.textPrimary} truncate`}>{formatCurrency(stats.totalPaid)} USD</p>
-            </div>
+            <StatCard
+              icon={<DollarSign className={`w-4 h-4 ${theme.success.text}`} />}
+              iconBg={theme.success.bg}
+              label="Total Paid"
+              value={formatCurrency(stats.totalPaid)}
+              subtitle="USD"
+              theme={theme}
+            />
 
-            <div className={`${theme.cardBackground} rounded-2xl p-6 ${theme.border} ${theme.borderWidth} hover:shadow-sm transition-all`}>
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-2 rounded-lg bg-stone-50">
-                  <AlertCircle className={`w-5 h-5 ${theme.textSecondary}`} />
-                </div>
-              </div>
-              <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Total Outstanding</p>
-              <p className={`text-2xl font-semibold ${theme.textPrimary} truncate`}>{formatCurrency(stats.totalOutstanding)} USD</p>
-            </div>
+            <StatCard
+              icon={<AlertCircle className={`w-4 h-4 ${theme.textSecondary}`} />}
+              label="Total Outstanding"
+              value={formatCurrency(stats.totalOutstanding)}
+              subtitle="USD"
+              theme={theme}
+            />
           </>
         )}
       </div>
@@ -312,7 +297,7 @@ export default function VendorsTab() {
       {/* Controls */}
       <div className={`${theme.cardBackground} rounded-xl shadow p-3 md:p-4 mb-4 md:mb-6`}>
         {/* Mobile: Stacked layout with inline dropdown */}
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <div className="flex flex-col gap-2">
             <SearchableMultiSelect
               options={VENDOR_TYPES.map(type => ({ value: type, label: type }))}
@@ -379,7 +364,7 @@ export default function VendorsTab() {
         </div>
 
         {/* Desktop: Original two-group layout */}
-        <div className="hidden md:flex flex-wrap gap-2 md:gap-4 items-center justify-between">
+        <div className="hidden lg:flex flex-wrap gap-2 lg:gap-4 items-center justify-between">
           <div className="flex gap-2 flex-wrap">
             <SearchableMultiSelect
               options={VENDOR_TYPES.map(type => ({ value: type, label: type }))}
@@ -442,7 +427,7 @@ export default function VendorsTab() {
               onClick={() => setShowBulkImport(true)}
               className={`flex items-center justify-center gap-2 px-3 md:px-4 py-2 ${theme.primaryButton} ${theme.primaryButtonHover} ${theme.textOnPrimary} rounded-xl text-sm font-medium transition-colors min-w-[44px]`}
             >
-              <img src="/images/bridezilla-logo-green.png" alt="Bridezilla" className="w-6 h-6 object-contain" />
+              <img src="/images/bridezilla-logo-green.png" alt="Bridezilla" className="w-5 h-5 object-contain" />
               <span className="hidden sm:inline">Ask Bridezilla</span>
             </button>
           </div>

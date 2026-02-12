@@ -10,6 +10,7 @@ import { PlannerCouple } from '@/types/planner'
 import { useRouter } from 'next/navigation'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
+import { StatCard } from '@/components/ui/StatCard'
 import AskBridezillaCoupleModal from './AskBridezillaCoupleModal'
 import InviteCoupleModal from './InviteCoupleModal'
 import CoupleTableRow from './CoupleTableRow'
@@ -402,7 +403,7 @@ export default function CouplesCalendarView() {
     return (
       <>
         {/* Mobile: Compact 3-Row Layout */}
-        <div className="md:hidden space-y-2 mb-3">
+        <div className="lg:hidden space-y-2 mb-3">
           {/* Row 1: Navigation Buttons */}
           <div className="flex items-center justify-center gap-2">
             <button onClick={() => onNavigate('TODAY')} className="px-3 py-1.5 bg-stone-50 hover:bg-stone-100 rounded-lg font-semibold text-xs transition-colors">
@@ -441,7 +442,7 @@ export default function CouplesCalendarView() {
         </div>
 
         {/* Desktop: Original Layout */}
-        <div className="hidden md:flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div className="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-3">
           <div className="flex items-center gap-2">
             <button onClick={() => onNavigate('TODAY')} className="px-4 py-2 bg-stone-50 hover:bg-stone-100 rounded-lg font-semibold text-sm transition-colors">Today</button>
             <button onClick={() => onNavigate('PREV')} className="px-4 py-2 bg-stone-50 hover:bg-stone-100 rounded-lg font-semibold text-sm transition-colors">Back</button>
@@ -485,51 +486,41 @@ export default function CouplesCalendarView() {
     <div className="space-y-6">
       {/* Stats Cards - Theme Aware */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        <div className={`${theme.cardBackground} rounded-2xl p-6 border ${theme.border} hover:shadow-sm transition-all`}>
-          <div className="flex items-start justify-between mb-4">
-            <div className="p-2 rounded-lg bg-stone-50">
-              <Users className={`w-5 h-5 ${theme.textSecondary}`} />
-            </div>
-          </div>
-          <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Total Couples</p>
-          <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.total}</p>
-        </div>
+        <StatCard
+          icon={<Users className={`w-4 h-4 ${theme.textSecondary}`} />}
+          label="Total Couples"
+          value={stats.total}
+          theme={theme}
+        />
 
-        <div className={`${theme.cardBackground} rounded-2xl p-6 border ${theme.border} hover:shadow-sm transition-all`}>
-          <div className="flex items-start justify-between mb-4">
-            <div className="p-2 rounded-lg bg-emerald-50">
-              <CalendarIcon className="w-5 h-5 text-emerald-600" />
-            </div>
-          </div>
-          <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Active This Week</p>
-          <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.activeThisWeek}</p>
-        </div>
+        <StatCard
+          icon={<CalendarIcon className="w-4 h-4 text-emerald-600" />}
+          iconBg="bg-emerald-50"
+          label="Active This Week"
+          value={stats.activeThisWeek}
+          theme={theme}
+        />
 
-        <div className={`${theme.cardBackground} rounded-2xl p-6 border ${theme.border} hover:shadow-sm transition-all`}>
-          <div className="flex items-start justify-between mb-4">
-            <div className="p-2 rounded-lg bg-stone-50">
-              <Clock className={`w-5 h-5 ${theme.textSecondary}`} />
-            </div>
-          </div>
-          <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>Next 3 Months</p>
-          <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.upcomingThreeMonths}</p>
-        </div>
+        <StatCard
+          icon={<Clock className={`w-4 h-4 ${theme.textSecondary}`} />}
+          label="Next 3 Months"
+          value={stats.upcomingThreeMonths}
+          theme={theme}
+        />
 
-        <div className={`${theme.cardBackground} rounded-2xl p-6 border ${theme.border} hover:shadow-sm transition-all`}>
-          <div className="flex items-start justify-between mb-4">
-            <div className="p-2 rounded-lg bg-emerald-50">
-              <Package className="w-5 h-5 text-emerald-600" />
-            </div>
-          </div>
-          <p className={`text-xs font-medium ${theme.textMuted} uppercase tracking-widest mb-2`}>With Vendors</p>
-          <p className={`text-3xl font-semibold ${theme.textPrimary}`}>{stats.withVendors}</p>
-        </div>
+        <StatCard
+          icon={<Package className="w-4 h-4 text-emerald-600" />}
+          iconBg="bg-emerald-50"
+          label="With Vendors"
+          value={stats.withVendors}
+          theme={theme}
+        />
       </div>
 
       {/* Filters and Controls */}
       <div className={`${theme.cardBackground} border ${theme.border} rounded-2xl p-4 md:p-6`}>
         {/* Mobile: Stacked Layout */}
-        <div className="md:hidden space-y-4">
+        <div className="lg:hidden space-y-4">
           <div className="flex items-center justify-between gap-3">
             {/* View Toggle */}
             <div className="flex gap-1 bg-stone-50 rounded-lg p-1">
@@ -563,7 +554,7 @@ export default function CouplesCalendarView() {
                 <Plus className="w-4 h-4" />
               </button>
               <button onClick={() => setShowAddModal(true)} className={`flex items-center justify-center gap-2 px-3 py-2.5 ${theme.primaryButton} text-white rounded-xl text-sm font-medium hover:${theme.primaryButtonHover} transition-colors`}>
-                <Image src="/images/bridezilla-logo-green.png" alt="Bridezilla" width={24} height={24} className="object-contain" />
+                <Image src="/images/bridezilla-logo-green.png" alt="Bridezilla" width={20} height={20} className="object-contain" />
               </button>
             </div>
           </div>
@@ -582,7 +573,7 @@ export default function CouplesCalendarView() {
         </div>
 
         {/* Desktop: Original Horizontal Layout */}
-        <div className="hidden md:flex flex-wrap gap-2 md:gap-4 items-center justify-between">
+        <div className="hidden lg:flex flex-wrap gap-2 lg:gap-4 items-center justify-between">
           {/* View Toggle */}
           <div className="flex gap-1 bg-stone-50 rounded-lg p-1">
             <button
@@ -633,7 +624,7 @@ export default function CouplesCalendarView() {
               <span>Add Manually</span>
             </button>
             <button onClick={() => setShowAddModal(true)} className={`flex items-center gap-2 px-6 py-2.5 ${theme.primaryButton} text-white rounded-xl text-sm font-medium hover:${theme.primaryButtonHover} transition-colors`}>
-              <Image src="/images/bridezilla-logo-green.png" alt="Bridezilla" width={24} height={24} className="object-contain" />
+              <Image src="/images/bridezilla-logo-green.png" alt="Bridezilla" width={20} height={20} className="object-contain" />
               <span>Ask Bridezilla</span>
             </button>
           </div>
