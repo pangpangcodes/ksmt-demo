@@ -49,7 +49,6 @@ Rules:
 - Be cheerful, warm, and celebratory
 - Focus on encouragement + one clear next step
 - Wrap vendor types (e.g. **Photographer**) and vendor names (e.g. **Studio Bloom**) in double asterisks for bold
-- Do NOT mention the wedding date or any specific dates. Keep the urgency about acting now, not about a deadline.
 - No quotes, no prefix
 
 COUPLE: ${couple.couple_names}

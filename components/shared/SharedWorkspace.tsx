@@ -78,6 +78,7 @@ export default function SharedWorkspace({ shareLinkId }: SharedWorkspaceProps) {
       }
 
       setCouple(coupleData)
+      document.title = `${coupleData.couple_names} | Bridezilla`
 
       // Fetch vendors for this couple with library vendor details
       const { data: vendorsData, error: vendorsError } = await supabase
@@ -248,7 +249,7 @@ export default function SharedWorkspace({ shareLinkId }: SharedWorkspaceProps) {
           <div className="grid grid-cols-3 gap-4 md:gap-16 pb-6 max-w-2xl mx-auto">
             <div className="text-center">
               <div className={`text-2xl md:text-4xl font-semibold ${theme.textPrimary} mb-2`}>{stats.totalCategories}</div>
-              <div className={`text-[9px] md:text-[11px] font-semibold ${theme.textMuted} uppercase tracking-[0.12em] md:tracking-[0.15em]`}>Vendor Types</div>
+              <div className={`text-[9px] md:text-[11px] font-semibold ${theme.textMuted} uppercase tracking-[0.12em] md:tracking-[0.15em]`}>Vendors Needed</div>
             </div>
             <div className="text-center">
               <div className="text-2xl md:text-4xl font-semibold mb-2" style={{ color: theme.primaryColor }}>{stats.bookedCount}</div>

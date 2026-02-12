@@ -37,7 +37,10 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Bella & Edward\'s Wedding - Bridezilla Demo',
+  title: {
+    default: 'Bridezilla Demo',
+    template: '%s | Bridezilla',
+  },
   description: 'Demo wedding website - Experience Bridezilla',
 }
 

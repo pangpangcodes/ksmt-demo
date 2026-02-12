@@ -86,6 +86,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
       const coupleData = await coupleResponse.json()
       if (coupleData.success) {
         setCouple(coupleData.data)
+        document.title = `${coupleData.data.couple_names} | Bridezilla`
 
         // Fetch vendors with library vendor details using the couple's UUID
         const { data: vendorsData, error: vendorsError } = await supabase
