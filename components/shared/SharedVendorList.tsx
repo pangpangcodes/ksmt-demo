@@ -31,8 +31,30 @@ export default function SharedVendorList({ vendors, coupleId, onUpdate, activeCa
       groups[type].push(vendor)
     })
 
-    // Sort by type name
-    return Object.entries(groups).sort((a, b) => a[0].localeCompare(b[0]))
+    // Sort by status priority: Review Needed first, Approved next, Booked last
+    return Object.entries(groups).sort((a, b) => {
+      const [, aVendors] = a
+      const [, bVendors] = b
+
+      // Determine priority for each category based on highest status
+      const getPriority = (vendors: SharedVendor[]) => {
+        const hasBooked = vendors.some(v => v.couple_status === 'booked')
+        const hasApproved = vendors.some(v => v.couple_status === 'interested')
+
+        if (hasBooked) return 3 // Booked & Confirmed - show last
+        if (hasApproved) return 2 // Approved - show middle
+        return 1 // Review Needed only - show first
+      }
+
+      const aPriority = getPriority(aVendors)
+      const bPriority = getPriority(bVendors)
+
+      // Sort by priority first, then alphabetically within same priority
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority
+      }
+      return a[0].localeCompare(b[0])
+    })
   }, [localVendors])
 
   const handleStatusChange = async (vendorId: string, status: VendorStatus | null) => {
