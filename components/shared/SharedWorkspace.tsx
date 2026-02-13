@@ -87,7 +87,7 @@ export default function SharedWorkspace({ shareLinkId }: SharedWorkspaceProps) {
       }
 
       setCouple(coupleData)
-      document.title = `${coupleData.couple_names} | Bridezilla`
+      document.title = `${coupleData.couple_names} | Bridezilla Shared Workspace`
 
       // Fetch vendors for this couple with library vendor details
       const { data: vendorsData, error: vendorsError } = await supabase
