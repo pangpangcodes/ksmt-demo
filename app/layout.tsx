@@ -39,20 +39,20 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL('https://bridezilla-demo.vercel.app'),
   title: {
-    default: 'Bridezilla - AI-Powered Wedding Planning',
+    default: 'Bridezilla - The AI Powered Workspace for Modern Wedding Planning',
     template: '%s | Bridezilla',
   },
-  description: 'The modern wedding planner\'s command centre. Manage couples, curate vendors, and share beautiful portals - all powered by AI.',
+  description: 'The AI powered workspace for modern wedding planning. For planners and couples.',
   openGraph: {
-    title: 'Bridezilla - AI-Powered Wedding Planning',
-    description: 'The modern wedding planner\'s command centre. Manage couples, curate vendors, and share beautiful portals - all powered by AI.',
+    title: 'Bridezilla - The AI Powered Workspace for Modern Wedding Planning',
+    description: 'The AI powered workspace for modern wedding planning. For planners and couples.',
     siteName: 'Bridezilla',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bridezilla - AI-Powered Wedding Planning',
-    description: 'The modern wedding planner\'s command centre. Manage couples, curate vendors, and share beautiful portals - all powered by AI.',
+    title: 'Bridezilla - The AI Powered Workspace for Modern Wedding Planning',
+    description: 'The AI powered workspace for modern wedding planning. For planners and couples.',
   },
 }
 
