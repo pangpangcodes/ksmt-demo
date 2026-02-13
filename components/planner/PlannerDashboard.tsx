@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import AnimatedHearts from '@/components/AnimatedHearts'
 import PlannerNavigation from './PlannerNavigation'
@@ -16,6 +16,7 @@ export default function PlannerDashboard() {
   const router = useRouter()
   const [currentView, setCurrentView] = useState<'couples' | 'vendors' | 'settings'>('couples')
   const [firstCoupleId, setFirstCoupleId] = useState<string | null>(null)
+  const setDisplayModeRef = useRef<((mode: 'calendar' | 'list') => void) | null>(null)
 
   // Listen for view changes from URL
   useEffect(() => {
@@ -86,6 +87,8 @@ export default function PlannerDashboard() {
     switch (stepIndex) {
       case 1:
         handleViewChange('couples')
+        setDisplayModeRef.current?.('calendar')
+        setTimeout(() => setDisplayModeRef.current?.('list'), 1500)
         break
       case 2:
         if (firstCoupleId) {
@@ -133,7 +136,7 @@ export default function PlannerDashboard() {
               </div>
 
               {/* Content Views */}
-              {currentView === 'couples' && <CouplesCalendarView />}
+              {currentView === 'couples' && <CouplesCalendarView setDisplayModeRef={setDisplayModeRef} />}
               {currentView === 'vendors' && <VendorLibraryTab />}
               {currentView === 'settings' && <SettingsTab />}
             </div>

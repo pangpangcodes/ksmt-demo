@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, MutableRefObject } from 'react'
 import { Calendar as BigCalendar, dateFnsLocalizer, View } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay, addMonths, subMonths } from 'date-fns'
 import { enUS } from 'date-fns/locale'
@@ -38,7 +38,11 @@ interface CalendarEvent {
   resource: PlannerCouple
 }
 
-export default function CouplesCalendarView() {
+interface CouplesCalendarViewProps {
+  setDisplayModeRef?: MutableRefObject<((mode: 'calendar' | 'list') => void) | null>
+}
+
+export default function CouplesCalendarView({ setDisplayModeRef }: CouplesCalendarViewProps) {
   const router = useRouter()
   const { theme: currentTheme } = useTheme()
   const theme = useThemeStyles()
@@ -55,6 +59,18 @@ export default function CouplesCalendarView() {
   const [selectedVenue, setSelectedVenue] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [initialNavigationDone, setInitialNavigationDone] = useState(false)
+
+  // Expose setDisplayMode to parent via ref
+  useEffect(() => {
+    if (setDisplayModeRef) {
+      setDisplayModeRef.current = setDisplayMode
+    }
+    return () => {
+      if (setDisplayModeRef) {
+        setDisplayModeRef.current = null
+      }
+    }
+  }, [setDisplayModeRef])
 
   // Load saved view preference from localStorage after mount to avoid hydration mismatch
   useEffect(() => {

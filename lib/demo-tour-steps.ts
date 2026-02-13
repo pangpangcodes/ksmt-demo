@@ -10,7 +10,7 @@ export const PLANNER_TOUR_STEPS: DemoStep[] = [
       'Your command centre for managing wedding couples. Let\'s walk through the key features.',
   },
   {
-    title: 'Your Couples Calendar',
+    title: 'Your Couples Database',
     description:
       'All your couples at a glance. Try "Ask Bridezilla" to add a new couple - just paste their details and our AI organizes everything for you.',
   },
