@@ -62,7 +62,7 @@
 - [ ] Form fields: couple names, email, wedding date, location
 - [ ] Generate unique share link (UUID)
 - [ ] API route: `POST /api/planner/couples`
-- [ ] Email invitation (simplified - send to monica.pangz@gmail.com)
+- [ ] Email invitation (simplified - send to your-email@example.com)
 
 ### Task #6: Integrate Ask Bridezilla for Planners
 - [ ] Create `PlannerBulkImportModal.tsx`

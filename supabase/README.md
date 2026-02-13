@@ -71,7 +71,7 @@ After running migrations, test with:
 ```sql
 -- Insert test couple
 INSERT INTO planner_couples (couple_names, couple_email, wedding_date, wedding_location, share_link_id)
-VALUES ('Sarah & Mike', 'monica.pangz@gmail.com', '2026-09-20', 'Marbella, Spain', 'test-link-123');
+VALUES ('Sarah & Mike', 'couple@example.com', '2026-09-20', 'Marbella, Spain', 'test-link-123');
 
 -- Insert test vendor
 INSERT INTO shared_vendors (planner_couple_id, vendor_name, vendor_type, contact_name, instagram, planner_note)

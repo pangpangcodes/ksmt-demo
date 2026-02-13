@@ -41,7 +41,7 @@ npx tsx scripts/setup-database.ts
   - All inline styles for email client compatibility
 - **Environment Variables Added:**
   ```
-  GMAIL_USER=monica.pangz@gmail.com
+  GMAIL_USER=your-email@example.com
   GMAIL_APP_PASSWORD=[PLACEHOLDER - User needs to add]
   NEXT_PUBLIC_SITE_URL=http://localhost:3000
   ```
