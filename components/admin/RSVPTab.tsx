@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, Fragment } from 'react'
-import { Users, CheckCircle, XCircle, Download, Eye, EyeOff, Copy, Check, ChevronDown, ChevronRight } from 'lucide-react'
+import { Users, CheckCircle, XCircle, Download, Eye, EyeOff, Copy, Check, ChevronDown, ChevronRight, AlertCircle, Search } from 'lucide-react'
 import { formatDate, maskEmail, maskPhone, exportToCSV } from '@/lib/format'
 import { supabase } from '@/lib/supabase'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
@@ -32,21 +32,29 @@ interface Stats {
 export default function RSVPTab() {
   const theme = useThemeStyles()
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [rsvps, setRsvps] = useState<RSVP[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
   const [filter, setFilter] = useState<'all' | 'true' | 'false'>('all')
   const [showContactInfo, setShowContactInfo] = useState(true)
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
   const [expandedRsvp, setExpandedRsvp] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     fetchRSVPs('all')
   }, [])
 
   const fetchRSVPs = async (attendingFilter: 'all' | 'true' | 'false') => {
+    setError(null)
     setLoading(true)
     try {
-      const { data: allRsvps } = await supabase.from('rsvps').select('*')
+      const { data: allRsvps, error: supabaseError } = await supabase.from('rsvps').select('*')
+
+      if (supabaseError || !allRsvps) {
+        setError('Could not load RSVPs. Please try refreshing the page.')
+        return
+      }
 
       // Filter based on attending status
       let filteredRsvps = allRsvps || []
@@ -74,6 +82,7 @@ export default function RSVPTab() {
       setStats(stats)
     } catch (err) {
       console.error('Fetch error:', err)
+      setError('Could not load RSVPs. Please try refreshing the page.')
     } finally {
       setLoading(false)
     }
@@ -111,6 +120,18 @@ export default function RSVPTab() {
       console.error('Failed to copy:', err)
     }
   }
+
+  // Client-side search filtering
+  const displayedRsvps = searchQuery.trim()
+    ? rsvps.filter(r => {
+        const q = searchQuery.trim().toLowerCase()
+        return (
+          r.name?.toLowerCase().includes(q) ||
+          r.email?.toLowerCase().includes(q) ||
+          r.guests?.some(g => g.name?.toLowerCase().includes(q))
+        )
+      })
+    : rsvps
 
   return (
     <>
@@ -193,6 +214,27 @@ export default function RSVPTab() {
             </button>
           </div>
 
+          {/* Search */}
+          <div className="relative flex-1 min-w-[180px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`w-full pl-9 pr-9 py-2 border rounded-xl text-sm font-medium focus:outline-none focus:ring-1 transition-all ${theme.border} ${theme.textPrimary}`}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                title="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setShowContactInfo(!showContactInfo)}
@@ -236,14 +278,28 @@ export default function RSVPTab() {
                     Loading...
                   </td>
                 </tr>
-              ) : rsvps.length === 0 ? (
+              ) : error ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-8">
+                    <div className={`${theme.error.bg} border ${theme.border} rounded-2xl p-8`}>
+                      <div className="flex items-start gap-4">
+                        <AlertCircle className={`${theme.error.text} flex-shrink-0`} size={24} />
+                        <div>
+                          <h3 className={`text-lg font-semibold ${theme.textPrimary} mb-1`}>Unable to Load</h3>
+                          <p className={`text-sm ${theme.error.text}`}>{error}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : displayedRsvps.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                    No RSVPs found
+                    {searchQuery ? `No results for "${searchQuery}"` : 'No RSVPs found'}
                   </td>
                 </tr>
               ) : (
-                rsvps.map((rsvp) => (
+                displayedRsvps.map((rsvp) => (
                   <Fragment key={rsvp.id}>
                     <tr
                       className="hover:bg-gray-50 cursor-pointer transition-colors"
