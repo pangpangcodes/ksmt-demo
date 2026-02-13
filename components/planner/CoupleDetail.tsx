@@ -536,7 +536,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Breadcrumb */}
@@ -609,12 +609,12 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                   <span className={`${theme.textPrimary} font-medium text-right`}>{formatDate(couple.wedding_date)}</span>
                 </div>
                 {couple.couple_email && (
-                  <div className="flex items-center justify-between text-sm group">
+                  <div className="flex items-center justify-between text-sm group min-w-0">
                     <span className={`${theme.textMuted} flex items-center gap-2 flex-shrink-0`}>
                       <Mail size={14} /> Email
                     </span>
-                    <div className="relative ml-auto">
-                      <span className={`${theme.textPrimary} font-medium text-right`}>{couple.couple_email}</span>
+                    <div className="relative ml-auto min-w-0">
+                      <span className={`${theme.textPrimary} font-medium text-right block truncate`}>{couple.couple_email}</span>
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
@@ -952,7 +952,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
 
             {/* Category Filters */}
             {vendors.length > 0 && (
-              <div className={`sticky top-20 z-30 ${theme.pageBackground} backdrop-blur py-4 -mx-4 px-4 border-b border-transparent`}>
+              <div className={`sticky top-20 z-30 ${theme.pageBackground} backdrop-blur py-4 -mx-4 px-4 border-b border-transparent overflow-x-hidden`}>
                 <div className="flex justify-center space-x-2 overflow-x-auto no-scrollbar pb-1">
                   <button
                     onClick={() => handleCategoryPillClick('All')}

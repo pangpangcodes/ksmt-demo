@@ -39,7 +39,7 @@ function CoupleDetailContent({ id }: { id: string }) {
         currentView="couples"
         onViewChange={handleViewChange}
       />
-      <main className={`${theme.pageBackground} relative min-h-screen`}>
+      <main className={`${theme.pageBackground} relative min-h-screen overflow-x-hidden`}>
         <AnimatedHearts />
         <div className="relative z-10">
           <CoupleDetail coupleId={id} />
