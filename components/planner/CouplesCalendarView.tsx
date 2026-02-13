@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Calendar as BigCalendar, dateFnsLocalizer, View } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay, addMonths, subMonths } from 'date-fns'
 import { enUS } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, Plus, Search, Calendar as CalendarIcon, Users, Clock, Package, List, Grid } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, Search, Calendar as CalendarIcon, Users, Clock, Package, List, Grid, AlertCircle } from 'lucide-react'
 import Image from 'next/image'
 import { PlannerCouple } from '@/types/planner'
 import { useRouter } from 'next/navigation'
@@ -46,6 +46,7 @@ export default function CouplesCalendarView() {
   const [couples, setCouples] = useState<PlannerCouple[]>([])
   const [filteredCouples, setFilteredCouples] = useState<PlannerCouple[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const [currentDate, setCurrentDate] = useState(new Date())
   const [view, setView] = useState<View>('month')
@@ -176,6 +177,7 @@ export default function CouplesCalendarView() {
   }, [displayMode])
 
   const fetchCouples = async () => {
+    setError(null)
     setLoading(true)
     try {
       const token = sessionStorage.getItem('planner_auth')
@@ -186,46 +188,50 @@ export default function CouplesCalendarView() {
       })
 
       const data = await response.json()
-      if (data.success) {
-        setCouples(data.data)
-
-        // Fetch vendor counts for each couple
-        const counts: Record<string, {total: number, bookedCategories: number, totalCategories: number}> = {}
-        for (const couple of data.data) {
-          const vendorResponse = await fetch(`/api/planner/couples/${couple.id}/vendors`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          })
-          const vendorData = await vendorResponse.json()
-          const vendors = vendorData.data || []
-
-          // Calculate unique categories and booked categories
-          const categoriesMap = new Map<string, boolean>()
-          vendors.forEach((vendor: any) => {
-            const category = vendor.vendor_type
-            const isBooked = vendor.couple_status === 'interested'
-            if (!categoriesMap.has(category)) {
-              categoriesMap.set(category, isBooked)
-            } else if (isBooked) {
-              // If any vendor in the category is booked, mark category as booked
-              categoriesMap.set(category, true)
-            }
-          })
-
-          const totalCategories = categoriesMap.size
-          const bookedCategories = Array.from(categoriesMap.values()).filter(booked => booked).length
-
-          counts[couple.id] = {
-            total: vendors.length,
-            bookedCategories,
-            totalCategories
-          }
-        }
-        setVendorCounts(counts)
+      if (!data.success) {
+        setError('Could not load your couples. Please try refreshing the page.')
+        return
       }
+
+      setCouples(data.data)
+
+      // Fetch vendor counts for each couple
+      const counts: Record<string, {total: number, bookedCategories: number, totalCategories: number}> = {}
+      for (const couple of data.data) {
+        const vendorResponse = await fetch(`/api/planner/couples/${couple.id}/vendors`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        const vendorData = await vendorResponse.json()
+        const vendors = vendorData.data || []
+
+        // Calculate unique categories and booked categories
+        const categoriesMap = new Map<string, boolean>()
+        vendors.forEach((vendor: any) => {
+          const category = vendor.vendor_type
+          const isBooked = vendor.couple_status === 'interested'
+          if (!categoriesMap.has(category)) {
+            categoriesMap.set(category, isBooked)
+          } else if (isBooked) {
+            // If any vendor in the category is booked, mark category as booked
+            categoriesMap.set(category, true)
+          }
+        })
+
+        const totalCategories = categoriesMap.size
+        const bookedCategories = Array.from(categoriesMap.values()).filter(booked => booked).length
+
+        counts[couple.id] = {
+          total: vendors.length,
+          bookedCategories,
+          totalCategories
+        }
+      }
+      setVendorCounts(counts)
     } catch (error) {
       console.error('Failed to fetch couples:', error)
+      setError('Could not load your couples. Please try refreshing the page.')
     } finally {
       setLoading(false)
     }
@@ -521,9 +527,9 @@ export default function CouplesCalendarView() {
       <div className={`${theme.cardBackground} border ${theme.border} rounded-2xl p-4 md:p-6`}>
         {/* Mobile: Stacked Layout */}
         <div className="lg:hidden space-y-4">
-          <div className="flex items-center justify-between gap-3">
-            {/* View Toggle */}
-            <div className="flex gap-1 bg-stone-50 rounded-lg p-1">
+          {/* Row 1: View Toggle + Search */}
+          <div className="flex items-center gap-3">
+            <div className="flex gap-1 bg-stone-50 rounded-lg p-1 flex-shrink-0">
               <button
                 onClick={() => handleDisplayModeChange('calendar')}
                 className={`flex items-center justify-center p-2 rounded-md transition-all ${
@@ -549,27 +555,30 @@ export default function CouplesCalendarView() {
                 <List size={18} />
               </button>
             </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => setShowManualInvite(true)} className={`flex items-center justify-center gap-2 px-3 py-2.5 ${theme.cardBackground} border ${theme.border} rounded-xl text-sm font-medium hover:bg-stone-50 transition-colors`}>
-                <Plus className="w-4 h-4" /> Add
-              </button>
-              <button onClick={() => setShowAddModal(true)} className={`flex items-center justify-center gap-2 px-3 py-2.5 ${theme.primaryButton} text-white rounded-xl text-sm font-medium hover:${theme.primaryButtonHover} transition-colors`}>
-                <Image src="/images/bridezilla-logo-green.png" alt="Bridezilla" width={20} height={20} className="object-contain" /> Ask Bridezilla
-              </button>
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input type="text" placeholder="Search couples..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className={`w-full pl-10 pr-10 py-2 border rounded-xl text-sm font-medium focus:outline-none focus:ring-1 transition-all ${theme.border} ${theme.textPrimary}`} />
+              {searchQuery && (<button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" title="Clear search">✕</button>)}
             </div>
           </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input type="text" placeholder="Search couples..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className={`w-full pl-10 pr-10 py-2 border rounded-xl text-sm font-medium focus:outline-none focus:ring-1 transition-all ${theme.border} ${theme.textPrimary}`} />
-            {searchQuery && (<button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" title="Clear search">✕</button>)}
-          </div>
           {searchQuery && (<div className="text-xs text-gray-600 -mt-2">Showing {filteredCouples.length} of {couples.length} couples</div>)}
+          {/* Row 2: Year Filter */}
           <select value={selectedYear} onChange={(e) => { const year = parseInt(e.target.value); const newDate = new Date(year, currentDate.getMonth(), 1); setSelectedYear(year); setCurrentDate(newDate); if (typeof window !== 'undefined') localStorage.setItem('couplesCalendarLastDate', newDate.toISOString()); }} className={`w-full px-4 py-2 border rounded-xl text-sm font-medium ${theme.cardBackground} hover:bg-stone-50 transition-colors ${theme.border} ${theme.textPrimary}`}>
             {years.map(year => (<option key={year} value={year}>{year}</option>))}
           </select>
+          {/* Row 3: Venue Filter */}
           {venues.length > 0 && (
             <SearchableMultiSelect options={venues.map(venue => ({ value: venue, label: venue }))} selectedValues={selectedVenue} onChange={handleVenueChange} placeholder="Filter by venue..." allLabel="All Venues" className="w-full" inlineOnMobile={true} />
           )}
+          {/* Row 4: Add + Ask Bridezilla */}
+          <div className="flex items-center gap-2">
+            <button onClick={() => setShowManualInvite(true)} className={`flex items-center justify-center gap-2 px-3 py-2.5 ${theme.cardBackground} border ${theme.border} rounded-xl text-sm font-medium hover:bg-stone-50 transition-colors flex-1`}>
+              <Plus className="w-4 h-4" /> Add
+            </button>
+            <button onClick={() => setShowAddModal(true)} className={`flex items-center justify-center gap-2 px-3 py-2.5 ${theme.primaryButton} text-white rounded-xl text-sm font-medium hover:${theme.primaryButtonHover} transition-colors flex-1`}>
+              <Image src="/images/bridezilla-logo-green.png" alt="Bridezilla" width={20} height={20} className="object-contain" /> Ask Bridezilla
+            </button>
+          </div>
         </div>
 
         {/* Desktop: Original Horizontal Layout */}
@@ -632,7 +641,17 @@ export default function CouplesCalendarView() {
       </div>
 
       {/* Calendar or List View */}
-      {loading ? (
+      {error && !loading ? (
+        <div className={`${theme.error.bg} border ${theme.border} rounded-2xl p-8`}>
+          <div className="flex items-start gap-4">
+            <AlertCircle className={`${theme.error.text} flex-shrink-0`} size={24} />
+            <div>
+              <h3 className={`text-lg font-semibold ${theme.textPrimary} mb-1`}>Unable to Load</h3>
+              <p className={`text-sm ${theme.error.text}`}>{error}</p>
+            </div>
+          </div>
+        </div>
+      ) : loading ? (
         <div className={`${theme.cardBackground} p-12 rounded-xl border ${theme.border} text-center text-gray-500`}>
           Loading...
         </div>
