@@ -55,7 +55,7 @@ export const COUPLES_TOUR_STEPS: DemoStep[] = [
   {
     title: 'Your Vendor Team',
     description:
-      'Manage all your wedding vendors in one place - track contracts, payments, and contact details. Try "Ask Bridezilla" to add vendors instantly from any website or email.',
+      'Manage all your wedding vendors in one place - track contracts, payments, and contact details. Try "Ask Bridezilla" to add the details of a vendor you just hired.',
   },
   {
     title: 'You\'re All Set!',
