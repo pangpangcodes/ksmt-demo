@@ -133,17 +133,20 @@ export default function DemoControlPanel({
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
   const [arrowDirection, setArrowDirection] = useState<'left' | 'right' | 'up' | 'down'>('right')
   const spotlightIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  // When a non-actionRequired highlighted element is clicked, pause spotlight
-  // and wait for the modal to close before advancing
+  // When a highlighted element is clicked, pause spotlight:
+  // - actionRequired: hide panel while page navigates (new page takes over)
+  // - non-actionRequired: hide spotlight while modal is open, advance on close
   const [spotlightPaused, setSpotlightPaused] = useState(false)
+  const [panelHidden, setPanelHidden] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Reset paused state when step changes
+  // Reset paused/hidden state when step changes
   useEffect(() => {
     setSpotlightPaused(false)
+    setPanelHidden(false)
   }, [currentStep])
 
   // Find and track the highlighted element
@@ -205,6 +208,7 @@ export default function DemoControlPanel({
       const highlightEl = document.getElementById(step.highlightId!)
       if (highlightEl && (highlightEl === target || highlightEl.contains(target))) {
         if (step.actionRequired) {
+          setPanelHidden(true)
           onAdvance()
         } else {
           // Non-actionRequired: pause spotlight, advance after modal closes
@@ -241,7 +245,7 @@ export default function DemoControlPanel({
     return () => clearInterval(checkModalClosed)
   }, [spotlightPaused, isOpen, currentStep, steps, onAdvance])
 
-  if (!mounted || !isOpen) return null
+  if (!mounted || !isOpen || panelHidden) return null
 
   const step = steps[currentStep]
   if (!step) return null
