@@ -332,26 +332,38 @@ export default function VendorCard({ vendor, mode, onStatusChange, onNoteChange,
                 <div className="space-y-2">
                   <div className="grid grid-cols-2 gap-3">
                     <button
-                      onClick={() => handleStatusChange('interested')}
+                      onClick={() => vendor.couple_status !== 'booked' && handleStatusChange('interested')}
+                      disabled={vendor.couple_status === 'booked'}
                       className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
-                        vendor.couple_status === 'interested'
-                          ? `${theme.primaryButton} ${theme.textOnPrimary} ${theme.primaryButtonHover}`
-                          : `${theme.secondaryButton} ${theme.textSecondary} ${theme.secondaryButtonHover}`
+                        vendor.couple_status === 'booked'
+                          ? `${theme.primaryButton} ${theme.textOnPrimary} opacity-50 cursor-not-allowed`
+                          : vendor.couple_status === 'interested'
+                            ? `${theme.primaryButton} ${theme.textOnPrimary} ${theme.primaryButtonHover}`
+                            : `${theme.secondaryButton} ${theme.textSecondary} ${theme.secondaryButtonHover}`
                       }`}
-                      title={vendor.couple_status === 'interested' ? 'Click again to unapprove' : 'Mark as interested'}
+                      title={vendor.couple_status === 'booked' ? 'Booked & Confirmed' : vendor.couple_status === 'interested' ? 'Click again to unapprove' : 'Mark as interested'}
                     >
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                      </svg>
-                      {vendor.couple_status === 'interested' ? 'Approved ✓' : 'Approve'}
+                      {vendor.couple_status === 'booked' ? (
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                      {vendor.couple_status === 'booked' || vendor.couple_status === 'interested' ? 'Approved ✓' : 'Approve'}
                     </button>
 
                     <button
-                      onClick={() => handleStatusChange('pass' as VendorStatus)}
+                      onClick={() => vendor.couple_status !== 'booked' && handleStatusChange('pass' as VendorStatus)}
+                      disabled={vendor.couple_status === 'booked'}
                       className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
-                        isPassStatus(vendor.couple_status)
-                          ? `bg-gray-100 text-gray-600 border border-gray-300`
-                          : `${theme.secondaryButton} ${theme.textSecondary} ${theme.secondaryButtonHover}`
+                        vendor.couple_status === 'booked'
+                          ? `${theme.secondaryButton} ${theme.textMuted} opacity-50 cursor-not-allowed`
+                          : isPassStatus(vendor.couple_status)
+                            ? `bg-gray-100 text-gray-600 border border-gray-300`
+                            : `${theme.secondaryButton} ${theme.textSecondary} ${theme.secondaryButtonHover}`
                       }`}
                     >
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
