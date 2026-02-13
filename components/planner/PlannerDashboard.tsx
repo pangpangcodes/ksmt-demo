@@ -59,7 +59,12 @@ export default function PlannerDashboard() {
         })
         const data = await res.json()
         if (data.success && data.data?.length > 0) {
-          setFirstCoupleId(data.data[0].id)
+          // Find Bella & Edward specifically for the tour, fall back to first couple
+          const bellaEdward = data.data.find((c: any) =>
+            c.couple_names?.toLowerCase().includes('bella') &&
+            c.couple_names?.toLowerCase().includes('edward')
+          )
+          setFirstCoupleId(bellaEdward?.id || data.data[0].id)
         }
       } catch {
         // Silently fail — tour will fall back

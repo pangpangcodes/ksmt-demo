@@ -17,7 +17,7 @@ export const PLANNER_TOUR_STEPS: DemoStep[] = [
   {
     title: 'Inside a Couple\'s File',
     description:
-      'Here\'s Bella & Edward\'s wedding - budget tracking, vendor team, and AI-powered insights. This is where you manage each couple\'s journey.',
+      'Here\'s Bella & Edward\'s wedding - vendor team, and AI-powered insights. This is where you manage each couple\'s journey.',
   },
   {
     title: 'The Shared Portal',
