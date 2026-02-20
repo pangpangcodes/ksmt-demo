@@ -5,6 +5,7 @@ const config: Config = {
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './lib/**/*.{js,ts,jsx,tsx}',
   ],
   safelist: [
     // Pop theme text colors for blue background
@@ -15,6 +16,10 @@ const config: Config = {
     'hover:text-white',
     // Pop theme navigation colors
     'text-bridezilla-orange',
+    // Heirloom theme button colors
+    'bg-ksmt-brown',
+    'hover:bg-ksmt-brown-hover',
+    'text-ksmt-crimson',
   ],
   theme: {
     extend: {
@@ -24,6 +29,14 @@ const config: Config = {
         'bridezilla-orange': '#f97316',
         'bridezilla-light-pink': '#FDE6F1',
         'bridezilla-light-blue': '#E3F2FD',
+        'ksmt': {
+          brown:          '#2b2421',
+          'brown-hover':  '#3d342e',
+          crimson:        '#922b24',
+          slate:          '#2B2D42',
+          mist:           '#8D99AE',
+          cream:          '#FAF9F6',
+        },
         'everafter': {
           cream: '#FAF9F6',
           stone: {
@@ -91,6 +104,9 @@ const config: Config = {
         playful: ['var(--font-fredoka)', 'system-ui', 'sans-serif'],
         heading: ['var(--font-bebas)', 'system-ui', 'sans-serif'],
         body: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        cormorant: ['var(--font-cormorant)', 'Cormorant Garamond', 'serif'],
+        montserrat: ['var(--font-montserrat)', 'Montserrat', 'sans-serif'],
+        bodoni: ["'Bodoni FLF'", "'Bodoni 72'", "'Bodoni MT'", 'serif'],
       },
     },
   },

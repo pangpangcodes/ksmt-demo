@@ -15,6 +15,14 @@
   }
 }
 
+/* Bodoni 72 (local) */
+@font-face {
+  font-family: 'Bodoni FLF';
+  src: url('/fonts/Bodoni72.ttc') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* Vintage fonts for landing page */
 .font-vintage {
   font-family: var(--font-playfair), 'Playfair Display', serif;

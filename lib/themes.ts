@@ -45,6 +45,13 @@ export interface ThemeColors {
   // Colour values (hex) for icons/text
   primaryColor: string
   primaryColorHover: string
+
+  // Landing page tokens
+  selectionBg: string       // hex for ::selection background
+  ctaSelectionBg: string    // hex for ::selection inside CTAs
+  landingPageBg: string     // hex for page background (inline style)
+  brandText: string         // Tailwind class e.g. 'text-ksmt-slate'
+  decorativeAccent: string  // Tailwind class for subtle decorative colour
 }
 
 export const themes: Record<ThemeName, ThemeColors> = {
@@ -78,12 +85,17 @@ export const themes: Record<ThemeName, ThemeColors> = {
     typeStatSubtitle: 'text-xs',
     primaryColor: '#EC4899', // bridezilla-pink
     primaryColorHover: '#F97316', // bridezilla-orange
+    selectionBg: '#8D99AE',
+    ctaSelectionBg: '#8D99AE',
+    landingPageBg: '#5B9BD5',
+    brandText: 'text-white',
+    decorativeAccent: 'text-white/30',
   },
   heirloom: {
-    pageBackground: 'bg-[#FAF9F6]',
+    pageBackground: 'bg-ksmt-cream',
     cardBackground: 'bg-white',
-    primaryButton: 'bg-[#1b3b2b]',
-    primaryButtonHover: 'hover:bg-[#2F5249]',
+    primaryButton: 'bg-ksmt-brown',
+    primaryButtonHover: 'hover:bg-ksmt-brown-hover',
     secondaryButton: 'bg-white border border-stone-200',
     secondaryButtonHover: 'hover:bg-stone-50',
     border: 'border-stone-200',
@@ -97,7 +109,7 @@ export const themes: Record<ThemeName, ThemeColors> = {
     textOnPagePrimary: 'text-stone-900',
     textOnPageSecondary: 'text-stone-600',
     textOnPageMuted: 'text-stone-400',
-    navActive: 'text-[#B76E79]',
+    navActive: 'text-ksmt-crimson',
     navInactive: 'text-stone-500',
     navHover: 'hover:text-stone-700',
     success: { bg: 'bg-emerald-50', text: 'text-emerald-700' },
@@ -107,7 +119,12 @@ export const themes: Record<ThemeName, ThemeColors> = {
     typeStatValue: 'text-base font-semibold',
     typeStatLabel: 'text-xs font-medium uppercase tracking-widest',
     typeStatSubtitle: 'text-xs',
-    primaryColor: '#1b3b2b', // dark forest green
-    primaryColorHover: '#2F5249', // lighter green
+    primaryColor: '#2b2421',
+    primaryColorHover: '#3d342e',
+    selectionBg: '#922b24',
+    ctaSelectionBg: '#8D99AE',
+    landingPageBg: '#FAF9F6',
+    brandText: 'text-ksmt-slate',
+    decorativeAccent: 'text-ksmt-mist',
   },
 }

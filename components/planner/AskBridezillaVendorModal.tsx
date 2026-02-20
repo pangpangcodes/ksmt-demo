@@ -298,7 +298,7 @@ export default function AskBridezillaVendorModal({
         {/* Header */}
         <div className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
           <h3 className={`font-display text-2xl md:text-3xl ${theme.textPrimary}`}>
-            Ask Bridezilla
+            Ask AI
           </h3>
           <button
             onClick={onClose}

@@ -325,20 +325,20 @@ export default function VendorLibraryTab() {
               <span>Add</span>
             </button>
 
-            {/* Ask Bridezilla Button */}
+            {/* Ask AI Button */}
             <button
               id="tour-ask-bridezilla-vendors-mobile"
               onClick={() => setShowAddModal(true)}
-              className={`flex items-center justify-center gap-2 px-3 py-2.5 ${theme.primaryButton} ${theme.primaryButtonHover} ${theme.textOnPrimary} rounded-xl text-sm font-medium transition-colors flex-1 min-w-0`}
+              className="flex items-center justify-center gap-2 px-3 py-[7px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors flex-1 min-w-0"
             >
               <Image
-                src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/images/bridezilla-logo-simple.svg'}
-                alt="Bridezilla"
-                width={20}
-                height={20}
+                src="/ksmt-logo.svg"
+                alt="ksmt"
+                width={26}
+                height={26}
                 className="object-contain flex-shrink-0"
               />
-              <span className="truncate">Ask Bridezilla</span>
+              <span className="truncate">Ask AI</span>
             </button>
           </div>
         </div>
@@ -414,20 +414,20 @@ export default function VendorLibraryTab() {
             <span className="hidden sm:inline">Add Manually</span>
           </button>
 
-          {/* Ask Bridezilla Button */}
+          {/* Ask AI Button */}
           <button
             id="tour-ask-bridezilla-vendors"
             onClick={() => setShowAddModal(true)}
-            className={`flex items-center gap-2 px-6 py-2.5 ${theme.primaryButton} ${theme.primaryButtonHover} ${theme.textOnPrimary} rounded-xl text-sm font-medium transition-colors`}
+            className="flex items-center gap-2 px-6 py-[7px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors"
           >
             <Image
-              src="/images/bridezilla-logo-green.png"
-              alt="Bridezilla"
-              width={20}
-              height={20}
+              src="/ksmt-logo.svg"
+              alt="ksmt"
+              width={26}
+              height={26}
               className="object-contain"
             />
-            <span className="hidden sm:inline">Ask Bridezilla</span>
+            <span className="hidden sm:inline">Ask AI</span>
           </button>
         </div>
       </div>
@@ -498,7 +498,7 @@ export default function VendorLibraryTab() {
         />
       )}
 
-      {/* Ask Bridezilla Modal */}
+      {/* Ask AI Modal */}
       {showAddModal && (
         <AskBridezillaVendorModal
           existingVendors={vendors}

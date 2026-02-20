@@ -352,7 +352,7 @@ export default function VendorsTab() {
               </div>
             </div>
 
-            {/* Bottom row: Export + Add + Ask Bridezilla */}
+            {/* Bottom row: Export + Add + Ask AI */}
             <div className="flex gap-2">
               <button
                 onClick={handleExportCSV}
@@ -370,10 +370,10 @@ export default function VendorsTab() {
               <button
                 id="tour-ask-bridezilla-vendors-couples-mobile"
                 onClick={() => setShowBulkImport(true)}
-                className={`flex items-center justify-center gap-2 px-3 py-2 ${theme.primaryButton} ${theme.primaryButtonHover} ${theme.textOnPrimary} rounded-xl text-sm font-medium transition-colors flex-1 min-w-0`}
+                className="flex items-center justify-center gap-2 px-3 py-[5px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors flex-1 min-w-0"
               >
-                <img src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/images/bridezilla-logo-simple.svg'} alt="Bridezilla" className="w-5 h-5 object-contain flex-shrink-0" />
-                <span className="truncate">Ask Bridezilla</span>
+                <img src="/ksmt-logo.svg" alt="ksmt" className="w-[26px] h-[26px] object-contain flex-shrink-0" />
+                <span className="truncate">Ask AI</span>
               </button>
             </div>
           </div>
@@ -442,10 +442,10 @@ export default function VendorsTab() {
             <button
               id="tour-ask-bridezilla-vendors-couples"
               onClick={() => setShowBulkImport(true)}
-              className={`flex items-center justify-center gap-2 px-3 md:px-4 py-2 ${theme.primaryButton} ${theme.primaryButtonHover} ${theme.textOnPrimary} rounded-xl text-sm font-medium transition-colors min-w-[44px]`}
+              className="flex items-center justify-center gap-2 px-3 md:px-4 py-[5px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors min-w-[44px]"
             >
-              <img src="/images/bridezilla-logo-green.png" alt="Bridezilla" className="w-5 h-5 object-contain" />
-              <span className="hidden sm:inline">Ask Bridezilla</span>
+              <img src="/ksmt-logo.svg" alt="ksmt" className="w-[26px] h-[26px] object-contain" />
+              <span className="hidden sm:inline">Ask AI</span>
             </button>
           </div>
         </div>

@@ -22,10 +22,7 @@ export default function PlannerNavigation({ currentView, onViewChange, onStartTo
     setMobileMenuOpen(false)
   }
 
-  // Use different logo for each theme
-  const logoSrc = currentTheme === 'pop'
-    ? '/images/bridezilla-logo-circle.svg'  // Pink logo for Pop
-    : '/images/bridezilla-logo-simple.svg'   // Green logo for Heirloom
+  const logoSrc = '/ksmt-logo.svg'
 
   return (
     <nav className={`${theme.cardBackground} sticky top-0 z-40 border-b ${theme.border}`}>
@@ -39,11 +36,11 @@ export default function PlannerNavigation({ currentView, onViewChange, onStartTo
             className="object-contain md:w-[40px] md:h-[40px]"
           />
           <div className="flex items-baseline gap-2">
-            <span className={`font-heading text-base sm:text-xl md:text-2xl lg:text-3xl tracking-[0.2em] sm:tracking-[0.3em] uppercase ${theme.textPrimary}`}>
-              BRIDEZILLA
+            <span className={`font-bodoni text-base sm:text-xl md:text-2xl lg:text-3xl ${theme.textPrimary}`}>
+              ksmt
             </span>
-            <span className={`${theme.textMuted} text-xs md:text-sm`}>|</span>
-            <span className={`font-heading text-xs md:text-sm uppercase tracking-wider ${theme.textSecondary}`}>
+            <span className="text-ksmt-slate opacity-30">|</span>
+            <span className="font-montserrat text-[7px] sm:text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-ksmt-slate opacity-50">
               Planners
             </span>
           </div>

@@ -865,19 +865,19 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                     <span className="hidden sm:inline">Share Manually</span>
                   </button>
 
-                  {/* Ask Bridezilla Button */}
+                  {/* Ask AI Button */}
                   <button
                     onClick={() => setShowAskBridezillaModal(true)}
-                    className={`flex items-center gap-2 px-6 py-2.5 ${theme.primaryButton} ${theme.primaryButtonHover} ${theme.textOnPrimary} rounded-xl text-sm font-medium transition-colors`}
+                    className="flex items-center gap-2 px-6 py-[7px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors"
                   >
                     <Image
-                      src="/images/bridezilla-logo-green.png"
+                      src="/ksmt-logo.svg"
                       alt="Bridezilla"
-                      width={20}
-                      height={20}
+                      width={26}
+                      height={26}
                       className="object-contain"
                     />
-                    <span className="hidden sm:inline">Ask Bridezilla</span>
+                    <span className="hidden sm:inline">Ask AI</span>
                   </button>
                 </div>
 
@@ -956,16 +956,16 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
 
                       <button
                         onClick={() => setShowAskBridezillaModal(true)}
-                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 ${theme.primaryButton} ${theme.primaryButtonHover} ${theme.textOnPrimary} rounded-xl text-sm font-medium transition-colors`}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-[7px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors"
                       >
                         <Image
-                          src="/images/bridezilla-logo-green.png"
+                          src="/ksmt-logo.svg"
                           alt="Bridezilla"
-                          width={20}
-                          height={20}
+                          width={26}
+                          height={26}
                           className="object-contain"
                         />
-                        <span>Ask Bridezilla</span>
+                        <span>Ask AI</span>
                       </button>
                     </div>
                   </div>
@@ -1171,7 +1171,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
         )
       })()}
 
-      {/* Ask Bridezilla Modal */}
+      {/* Ask AI Modal */}
       {showAskBridezillaModal && (
         <AskBridezillaVendorModal
           existingVendors={vendorLibrary}

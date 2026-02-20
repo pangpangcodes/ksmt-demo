@@ -3,21 +3,29 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useTheme } from '@/contexts/ThemeContext'
+import { themes } from '@/lib/themes'
+import { ArrowRight } from 'lucide-react'
 
 const LandingHero: React.FC = () => {
+  const { theme } = useTheme()
+  const t = themes[theme]
+
   return (
-    <section className="relative h-screen flex flex-col items-center justify-center py-8 md:py-32 px-4 overflow-hidden text-[#2B2D42]">
+    <section className="relative h-screen flex flex-col items-center justify-center py-8 md:py-32 px-4 overflow-hidden text-ksmt-slate">
       {/* Subtle background decoration */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] opacity-[0.02] pointer-events-none">
-        <div className="absolute inset-0 border-[40px] border-[#8D99AE] rounded-full"></div>
+        <div className="absolute inset-0 border-[40px] border-ksmt-mist rounded-full"></div>
       </div>
 
       <div className="relative z-10 text-center max-w-5xl mx-auto">
-        <div className="flex flex-col items-center gap-4 mb-8 sm:mb-12 md:mb-16">
-          <div className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-56 md:h-56 animate-bounce-slow">
+
+        {/* Logo */}
+        <div className="flex flex-col items-center gap-4 mb-8 sm:mb-12 md:mb-16 mt-8 sm:mt-12 md:mt-16">
+          <div className="relative w-[125px] h-[125px] sm:w-[166px] sm:h-[166px] md:w-[291px] md:h-[291px] animate-bounce-slow">
             <Image
-              src="/bridezilla-logo-circle-green.svg?v=8"
-              alt="Bridezilla Logo"
+              src="/ksmt-logo.svg"
+              alt="ksmt"
               fill
               className="object-contain"
               priority
@@ -26,35 +34,43 @@ const LandingHero: React.FC = () => {
           </div>
         </div>
 
-        <div className="relative mt-8 sm:mt-12 md:mt-16">
-          <h1 className="font-vintage text-5xl sm:text-6xl md:text-[10rem] leading-none italic transform -rotate-3 text-[#B76E79] drop-shadow-lg">
-            Bridezilla
+        {/* Headline */}
+        <div className="relative -mt-4 sm:-mt-6 md:-mt-10">
+          <h1 className="font-cormorant italic font-light text-5xl sm:text-7xl md:text-[9rem] text-ksmt-slate opacity-90">
+            <span className="block leading-none">Meet Your</span>
+            <span className="block leading-none -mt-3 sm:-mt-6 md:-mt-12">Kismet.</span>
           </h1>
         </div>
 
-        <div className="mt-6 sm:mt-12 md:mt-24">
-          <p className="font-heading text-xl sm:text-2xl md:text-5xl uppercase tracking-wide sm:tracking-widest mb-6 sm:mb-10 text-[#2B2D42] max-w-4xl mx-auto leading-tight px-4">
+        {/* Subtitle + CTAs */}
+        <div className="mt-8 sm:mt-10 md:mt-12">
+          <p className="font-montserrat text-sm sm:text-base md:text-lg mb-8 sm:mb-10 md:mb-12 text-ksmt-slate max-w-3xl mx-auto leading-relaxed px-4 opacity-80">
             The AI powered workspace for modern wedding planning.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
+
+          <div className="flex flex-col md:flex-row gap-4 justify-center px-4">
             <Link
               href="/planners"
-              className="bg-[#2F5249] text-white px-8 sm:px-12 py-3 sm:py-5 rounded-full font-heading text-lg sm:text-2xl hover:bg-[#3d6960] transition-all shadow-lg tracking-wide sm:tracking-widest uppercase inline-block text-center"
+              className="text-white px-10 py-5 rounded-full font-montserrat font-medium tracking-wide transition-colors w-full md:w-auto text-center text-base selection:bg-ksmt-mist selection:text-white"
+              style={{ backgroundColor: t.primaryColor }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = t.primaryColorHover)}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = t.primaryColor)}
             >
               For Planners
             </Link>
             <Link
               href="/couples"
-              className="border-2 border-[#2F5249] text-[#2F5249] px-8 sm:px-12 py-3 sm:py-5 rounded-full font-heading text-lg sm:text-2xl hover:bg-[#2F5249] hover:text-white transition-all tracking-wide sm:tracking-widest uppercase"
+              className="flex items-center justify-center gap-2 px-10 py-5 rounded-full border font-montserrat font-medium tracking-wide transition-colors w-full md:w-auto text-base selection:bg-ksmt-mist selection:text-white"
+              style={{ borderColor: t.primaryColor, color: t.primaryColor }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = t.primaryColor; (e.currentTarget as HTMLElement).style.color = 'white' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = ''; (e.currentTarget as HTMLElement).style.color = t.primaryColor }}
             >
               For Couples
             </Link>
           </div>
         </div>
 
-        <div className="mt-6 sm:mt-12 opacity-60 font-heading tracking-[0.2em] sm:tracking-[0.4em] text-xs sm:text-sm uppercase px-4">
-          DIGITAL PLANNING • VENDOR AI • BUDGET BOSS
-        </div>
+
       </div>
     </section>
   )
