@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Fredoka, Nunito, Playfair_Display, Bebas_Neue, Inter } from 'next/font/google'
+import { Fredoka, Nunito, Playfair_Display, Bebas_Neue, Inter, Cormorant_Garamond, Montserrat } from 'next/font/google'
 import './globals.css'
 import { DevToolsLoader } from '@/components/DevToolsLoader'
 import { ValidationNotifications } from '@/components/ValidationNotifications'
@@ -36,6 +36,19 @@ const inter = Inter({
   weight: ['300', '400', '500', '600', '700', '800'],
 })
 
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  variable: '--font-cormorant',
+  weight: ['300', '400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+})
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  variable: '--font-montserrat',
+  weight: ['300', '400', '500', '600', '700'],
+})
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://bridezilla-demo.vercel.app'),
   title: {
@@ -63,7 +76,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${fredoka.variable} ${nunito.variable} ${playfair.variable} ${bebasNeue.variable} ${inter.variable} font-sans antialiased`}>
+      <body className={`${fredoka.variable} ${nunito.variable} ${playfair.variable} ${bebasNeue.variable} ${inter.variable} ${cormorant.variable} ${montserrat.variable} font-sans antialiased`}>
         <Providers>
           <DevToolsLoader />
           <ValidationNotifications />
