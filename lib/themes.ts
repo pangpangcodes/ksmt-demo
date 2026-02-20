@@ -1,4 +1,4 @@
-export type ThemeName = 'pop' | 'heirloom'
+export type ThemeName = 'heirloom'
 
 export interface ThemeColors {
   // Backgrounds
@@ -55,42 +55,6 @@ export interface ThemeColors {
 }
 
 export const themes: Record<ThemeName, ThemeColors> = {
-  pop: {
-    pageBackground: 'bg-bridezilla-blue',
-    cardBackground: 'bg-white',
-    primaryButton: 'bg-bridezilla-pink',
-    primaryButtonHover: 'hover:bg-bridezilla-orange',
-    secondaryButton: 'bg-white border border-stone-200',
-    secondaryButtonHover: 'hover:bg-stone-50',
-    border: 'border-stone-200',
-    borderWidth: 'border',
-    // Text inside cards (dark on white)
-    textPrimary: 'text-stone-900',
-    textSecondary: 'text-stone-600',
-    textMuted: 'text-stone-400',
-    textOnPrimary: 'text-white',
-    // Text on blue page background (light on blue)
-    textOnPagePrimary: 'text-white',
-    textOnPageSecondary: 'text-white/90',
-    textOnPageMuted: 'text-white/60',
-    navActive: 'text-bridezilla-orange',
-    navInactive: 'text-white/70',
-    navHover: 'hover:text-white',
-    success: { bg: 'bg-emerald-50', text: 'text-emerald-700' },
-    warning: { bg: 'bg-amber-50', text: 'text-amber-700' },
-    error: { bg: 'bg-red-50', text: 'text-red-700' },
-    typeSectionHeading: 'font-display text-xl md:text-2xl',
-    typeStatValue: 'text-base font-semibold',
-    typeStatLabel: 'text-xs font-medium uppercase tracking-widest',
-    typeStatSubtitle: 'text-xs',
-    primaryColor: '#EC4899', // bridezilla-pink
-    primaryColorHover: '#F97316', // bridezilla-orange
-    selectionBg: '#8D99AE',
-    ctaSelectionBg: '#8D99AE',
-    landingPageBg: '#5B9BD5',
-    brandText: 'text-white',
-    decorativeAccent: 'text-white/30',
-  },
   heirloom: {
     pageBackground: 'bg-ksmt-cream',
     cardBackground: 'bg-white',

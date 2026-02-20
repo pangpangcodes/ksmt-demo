@@ -104,20 +104,6 @@ export default function AdminNavigation({ currentView, onViewChange, onLogout, o
               Vendor Management
             </a>
             <a
-              href="/couples?view=settings"
-              onClick={(e) => {
-                e.preventDefault()
-                onViewChange('settings')
-              }}
-              className={`transition-colors ${
-                currentView === 'settings'
-                  ? theme.navActive
-                  : `${theme.navInactive} ${theme.navHover}`
-              }`}
-            >
-              Settings
-            </a>
-            <a
               id="tour-nav-view-website"
               href="/demo"
               target="_blank"
@@ -208,20 +194,6 @@ export default function AdminNavigation({ currentView, onViewChange, onLogout, o
               }`}
             >
               Vendor Management
-            </a>
-            <a
-              href="/couples?view=settings"
-              onClick={(e) => {
-                e.preventDefault()
-                handleViewChange('settings')
-              }}
-              className={`block w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                currentView === 'settings'
-                  ? `bg-stone-100 ${theme.navActive}`
-                  : `${theme.textSecondary} hover:bg-stone-50`
-              }`}
-            >
-              Settings
             </a>
             <a
               id="tour-nav-view-website-mobile"

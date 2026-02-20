@@ -141,13 +141,11 @@ export default function AdminDashboard() {
                     {currentView === 'dashboard' && 'Dashboard'}
                     {currentView === 'rsvp' && 'RSVP Tracking'}
                     {currentView === 'vendors' && 'Vendor Management'}
-                    {currentView === 'settings' && 'Settings'}
                   </h2>
                   <p className={`${theme.textSecondary} font-body`}>
                     {currentView === 'dashboard' && 'Overview of your wedding planning progress.'}
                     {currentView === 'rsvp' && 'Manage guest responses and attendance.'}
                     {currentView === 'vendors' && 'Track vendors, contracts, and payments.'}
-                    {currentView === 'settings' && 'Configure your admin workspace preferences.'}
                   </p>
                 </div>
               </div>

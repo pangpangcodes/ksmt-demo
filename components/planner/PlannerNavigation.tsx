@@ -87,20 +87,6 @@ export default function PlannerNavigation({ currentView, onViewChange, onStartTo
             >
               Vendors
             </a>
-            <a
-              href="/planners?view=settings"
-              onClick={(e) => {
-                e.preventDefault()
-                onViewChange('settings')
-              }}
-              className={`transition-colors ${
-                currentView === 'settings'
-                  ? theme.navActive
-                  : `${theme.textSecondary} hover:${theme.textPrimary}`
-              }`}
-            >
-              Settings
-            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -159,20 +145,6 @@ export default function PlannerNavigation({ currentView, onViewChange, onStartTo
               }`}
             >
               Vendors
-            </a>
-            <a
-              href="/planners?view=settings"
-              onClick={(e) => {
-                e.preventDefault()
-                handleViewChange('settings')
-              }}
-              className={`block w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                currentView === 'settings'
-                  ? `bg-stone-100 ${theme.navActive}`
-                  : `${theme.textSecondary} hover:bg-stone-50 hover:${theme.textPrimary}`
-              }`}
-            >
-              Settings
             </a>
           </div>
         </div>

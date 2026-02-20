@@ -160,12 +160,10 @@ export default function PlannerDashboard() {
                   <h2 className={`text-3xl md:text-4xl font-display mb-2 ${theme.textOnPagePrimary}`}>
                     {currentView === 'couples' && 'Couples'}
                     {currentView === 'vendors' && 'Vendors'}
-                    {currentView === 'settings' && 'Settings'}
                   </h2>
                   <p className={`${theme.textOnPageSecondary} font-body`}>
                     {currentView === 'couples' && 'Manage your wedding couples and their celebration details.'}
                     {currentView === 'vendors' && 'Your curated collection of trusted wedding vendors.'}
-                    {currentView === 'settings' && 'Configure your planner workspace preferences.'}
                   </p>
                 </div>
               </div>

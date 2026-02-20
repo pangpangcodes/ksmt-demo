@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
-type ThemeName = 'pop' | 'heirloom'
+type ThemeName = 'heirloom'
 
 interface ThemeContextType {
   theme: ThemeName
@@ -27,7 +27,7 @@ export function ThemeProvider({ children, storageKey = 'bridezilla_theme' }: The
     }
 
     const saved = localStorage.getItem(storageKey)
-    if (saved === 'pop' || saved === 'heirloom') {
+    if (saved === 'heirloom') {
       setThemeState(saved)
     }
   }, [storageKey])
