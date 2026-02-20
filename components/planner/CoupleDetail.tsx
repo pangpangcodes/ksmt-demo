@@ -681,20 +681,20 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-2">
                     <Image
-                      src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/bridezilla-logo-circle-green.svg'}
+                      src="/bridezilla-logo-circle-green.svg"
                       alt="Bridezilla"
                       width={28}
                       height={28}
                       className="object-contain"
                     />
                     <span className={`text-sm font-semibold ${theme.textPrimary}`}>Bridezilla Assistance</span>
-                    <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${currentTheme === 'pop' ? 'bg-pink-50 text-pink-500' : 'bg-emerald-50 text-emerald-600'}`}>
+                    <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600`}>
                       AI Insight
                     </span>
                   </div>
                   {aiInsightLoading ? (
                     <div className="flex items-center gap-2">
-                      <div className={`h-3 rounded w-3/4 ${currentTheme === 'pop' ? 'bg-pink-50' : 'bg-emerald-50'} animate-pulse`} />
+                      <div className={`h-3 rounded w-3/4 bg-emerald-50 animate-pulse`} />
                     </div>
                   ) : aiInsight ? (
                     <p className={`text-sm ${theme.textSecondary} leading-relaxed`}>&ldquo;{aiInsight.split(/\*\*/).map((part, i) =>
@@ -707,7 +707,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                 {/* Decorative faded logo */}
                 <div className="absolute -right-4 -bottom-4 opacity-[0.06]">
                   <Image
-                    src={currentTheme === 'pop' ? '/images/bridezilla-logo-circle.svg' : '/bridezilla-logo-circle-green.svg'}
+                    src="/bridezilla-logo-circle-green.svg"
                     alt=""
                     width={120}
                     height={120}
