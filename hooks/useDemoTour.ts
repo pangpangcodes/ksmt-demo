@@ -31,6 +31,9 @@ export function useDemoTour(storageKey: string, totalSteps: number) {
 
   // Auto-show logic on mount
   useEffect(() => {
+    // Never auto-open on mobile — tour can still be launched manually via the Tour button
+    if (typeof window !== 'undefined' && window.innerWidth < 768) return
+
     const saved = readState(storageKey)
 
     if (isDev) {

@@ -12,7 +12,7 @@ const LandingHero: React.FC = () => {
   const t = themes[theme]
 
   return (
-    <section className="relative h-screen flex flex-col items-center justify-center py-8 md:py-32 px-4 overflow-hidden text-ksmt-slate">
+    <section className="relative h-screen flex flex-col items-center justify-start md:justify-center pt-24 sm:pt-28 md:py-32 px-4 overflow-hidden text-ksmt-slate">
       {/* Subtle background decoration */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] opacity-[0.02] pointer-events-none">
         <div className="absolute inset-0 border-[40px] border-ksmt-mist rounded-full"></div>
@@ -21,7 +21,7 @@ const LandingHero: React.FC = () => {
       <div className="relative z-10 text-center max-w-5xl mx-auto">
 
         {/* Logo */}
-        <div className="flex flex-col items-center gap-4 mb-8 sm:mb-12 md:mb-16 mt-8 sm:mt-12 md:mt-16">
+        <div className="flex flex-col items-center gap-4 mb-4 sm:mb-8 md:mb-16 md:mt-16">
           <div className="relative w-[125px] h-[125px] sm:w-[166px] sm:h-[166px] md:w-[291px] md:h-[291px] animate-bounce-slow">
             <Image
               src="/ksmt-logo.svg"

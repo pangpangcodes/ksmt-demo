@@ -51,7 +51,7 @@ const LandingNavbar: React.FC = () => {
 
       <button
         onClick={() => setShowWaitlist(true)}
-        className="text-white px-7 py-3.5 rounded-full font-montserrat font-medium tracking-wide transition-colors whitespace-nowrap text-sm selection:bg-ksmt-mist selection:text-white"
+        className="text-white px-4 py-2 sm:px-7 sm:py-3.5 rounded-full font-montserrat font-medium tracking-wide transition-colors whitespace-nowrap text-xs sm:text-sm selection:bg-ksmt-mist selection:text-white"
         style={{ backgroundColor: t.primaryColor }}
         onMouseEnter={e => (e.currentTarget.style.backgroundColor = t.primaryColorHover)}
         onMouseLeave={e => (e.currentTarget.style.backgroundColor = t.primaryColor)}
