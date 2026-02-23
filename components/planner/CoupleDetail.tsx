@@ -683,8 +683,8 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                     <Image
                       src="/ksmt-logo.svg"
                       alt="ksmt"
-                      width={28}
-                      height={28}
+                      width={36}
+                      height={36}
                       className="object-contain"
                     />
                     <span className={`text-sm font-semibold ${theme.textPrimary}`}>ksmt Assistant</span>

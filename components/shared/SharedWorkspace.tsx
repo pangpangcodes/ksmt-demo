@@ -225,12 +225,12 @@ export default function SharedWorkspace({ shareLinkId }: SharedWorkspaceProps) {
 
           {/* ksmt Assistance Card */}
           <div className={`relative ${theme.cardBackground} p-6 rounded-2xl shadow-sm ${theme.border} ${theme.borderWidth} mb-8`}>
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white px-2">
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-white px-2">
               <Image
                 src="/ksmt-logo.svg"
                 alt="ksmt"
-                width={28}
-                height={28}
+                width={36}
+                height={36}
                 className="object-contain"
               />
             </div>

@@ -130,7 +130,7 @@ export default function AdminDashboard() {
         onStartTour={startTour}
       />
 
-      <div className="relative z-10 pb-12">
+      <div className="relative pb-12">
         <section className="py-12 font-body">
           <div className="mx-auto px-6">
             <div className="max-w-7xl mx-auto space-y-10">
