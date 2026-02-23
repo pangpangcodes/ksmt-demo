@@ -681,13 +681,13 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-2">
                     <Image
-                      src="/ksmt-logo-circle-green.svg"
+                      src="/ksmt-logo.svg"
                       alt="ksmt"
                       width={28}
                       height={28}
                       className="object-contain"
                     />
-                    <span className={`text-sm font-semibold ${theme.textPrimary}`}>ksmt Assistance</span>
+                    <span className={`text-sm font-semibold ${theme.textPrimary}`}>ksmt Assistant</span>
                     <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600`}>
                       AI Insight
                     </span>
@@ -707,7 +707,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                 {/* Decorative faded logo */}
                 <div className="absolute -right-4 -bottom-4 opacity-[0.06]">
                   <Image
-                    src="/ksmt-logo-circle-green.svg"
+                    src="/ksmt-logo.svg"
                     alt=""
                     width={120}
                     height={120}

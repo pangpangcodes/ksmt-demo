@@ -31,7 +31,7 @@ export default function Footer() {
             <div className="flex items-center justify-center gap-2">
               <p className="text-xs text-gray-500">Made with love by ksmt</p>
               <Image
-                src="/images/ksmt-logo-circle.svg"
+                src="/ksmt-logo.svg"
                 alt="ksmt"
                 width={20}
                 height={20}
@@ -44,7 +44,7 @@ export default function Footer() {
 
     {/* Contact Modal */}
     {showContactModal && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
         <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 relative">
           <button
             onClick={() => setShowContactModal(false)}

@@ -195,7 +195,7 @@ export default function Navigation() {
                   className="text-gray-400 hover:text-gray-600 hover:bg-gray-50 font-medium transition-colors py-2 px-4 text-sm border-t border-gray-200 mt-1 pt-3 flex items-center gap-2"
                 >
                   <Image
-                    src="/images/ksmt-logo-circle.svg"
+                    src="/ksmt-logo.svg"
                     alt="Admin"
                     width={16}
                     height={16}
@@ -246,7 +246,7 @@ export default function Navigation() {
                       className="text-gray-400 hover:text-gray-600 font-medium transition-colors py-2 border-y border-gray-200 my-2 py-3 flex items-center gap-2"
                     >
                       <Image
-                        src="/images/ksmt-logo-circle.svg"
+                        src="/ksmt-logo.svg"
                         alt="Admin"
                         width={16}
                         height={16}
