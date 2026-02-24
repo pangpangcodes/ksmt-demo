@@ -1,25 +1,58 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Edit2, Check, X, Trash2 } from 'lucide-react'
-import { ParsedVendorLibraryOperation } from '@/types/planner'
+import { ParsedVendorLibraryOperation, VendorLibrary } from '@/types/planner'
 import { formatCurrency } from '@/lib/vendorUtils'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
 
+const DIFF_FIELDS: { key: string; label: string }[] = [
+  { key: 'vendor_name', label: 'Name' },
+  { key: 'vendor_type', label: 'Type' },
+  { key: 'contact_name', label: 'Contact' },
+  { key: 'email', label: 'Email' },
+  { key: 'phone', label: 'Phone' },
+  { key: 'website', label: 'Website' },
+  { key: 'instagram', label: 'Instagram' },
+  { key: 'location', label: 'Location' },
+  { key: 'description', label: 'Description' },
+  { key: 'pricing', label: 'Pricing' },
+]
+
+function truncate(str: string, len = 55) {
+  return str.length > len ? str.slice(0, len) + '...' : str
+}
+
 interface VendorLibraryOperationCardProps {
   operation: ParsedVendorLibraryOperation
+  existingVendor?: VendorLibrary
   onEdit: (updated: ParsedVendorLibraryOperation) => void
   onRemove: () => void
 }
 
 export default function VendorLibraryOperationCard({
   operation,
+  existingVendor,
   onEdit,
   onRemove
 }: VendorLibraryOperationCardProps) {
   const theme = useThemeStyles()
   const [isEditing, setIsEditing] = useState(false)
   const [editedData, setEditedData] = useState(operation.vendor_data)
+
+  const diffChanges = useMemo(() => {
+    if (!existingVendor || operation.action !== 'update') return null
+    const changes: { label: string; old: string; new: string }[] = []
+    for (const { key, label } of DIFF_FIELDS) {
+      const oldVal = String((existingVendor as any)[key] ?? '')
+      const newVal = String((editedData as any)[key] ?? '')
+      if (oldVal !== newVal) changes.push({ label, old: oldVal, new: newVal })
+    }
+    const oldTags = (existingVendor.tags ?? []).join(', ')
+    const newTags = (editedData.tags ?? []).join(', ')
+    if (oldTags !== newTags) changes.push({ label: 'Tags', old: oldTags, new: newTags })
+    return changes
+  }, [existingVendor, editedData, operation.action])
 
   const isUpdate = operation.action === 'update'
 
@@ -82,12 +115,49 @@ export default function VendorLibraryOperationCard({
         </div>
       </div>
 
-      {/* Update Warning */}
+      {/* Update Warning + Diff */}
       {isUpdate && (
-        <div className="text-sm font-medium text-emerald-700 mb-3 bg-emerald-50 px-3 py-2 rounded-lg">
-          {operation.matched_vendor_name
-            ? `Updating existing vendor: ${operation.matched_vendor_name}`
-            : `⚠ Updating vendor - please verify this is correct (ID: ${operation.vendor_id?.substring(0, 8)}...)`}
+        <div className="mb-3 bg-emerald-50 border border-emerald-200 px-3 py-2.5 rounded-lg">
+          <p className="text-sm font-medium text-emerald-700">
+            {operation.matched_vendor_name
+              ? `Updating existing vendor: ${operation.matched_vendor_name}`
+              : (
+                <>
+                  {'Updating vendor (ID: '}
+                  <a
+                    href={`/planners?view=vendors&vendor=${operation.vendor_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-emerald-900 transition-colors"
+                  >
+                    {operation.vendor_id}
+                  </a>
+                  {')'}
+                </>
+              )}
+          </p>
+
+          {diffChanges !== null && (
+            <div className="mt-2">
+              {diffChanges.length === 0 ? (
+                <p className="text-xs text-emerald-600">No changes from existing record - data is identical.</p>
+              ) : (
+                <div className="space-y-1 mt-1">
+                  <p className="text-xs font-semibold text-emerald-700">
+                    {diffChanges.length} field{diffChanges.length !== 1 ? 's' : ''} will change:
+                  </p>
+                  {diffChanges.map(({ label, old, new: newVal }) => (
+                    <div key={label} className="text-xs text-emerald-800">
+                      <span className="font-medium">{label}:</span>{' '}
+                      <span className="text-stone-400 line-through">{truncate(old) || '(empty)'}</span>
+                      {' -> '}
+                      <span className="font-medium">{truncate(newVal) || '(empty)'}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -330,38 +400,41 @@ export default function VendorLibraryOperationCard({
         </div>
       )}
 
-      {/* Warnings */}
-      {operation.warnings && operation.warnings.length > 0 && (
-        <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm font-semibold text-yellow-900 mb-1">Warnings:</p>
-          <ul className="text-sm text-yellow-800 list-disc list-inside space-y-1">
-            {operation.warnings.map((warning, idx) => (
-              <li key={idx}>{warning}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* Warnings + Confidence (view mode only) */}
+      {!isEditing && (
+        <>
+          {operation.warnings && operation.warnings.length > 0 && (
+            <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm font-semibold text-yellow-900 mb-1">Warnings:</p>
+              <ul className="text-sm text-yellow-800 list-disc list-inside space-y-1">
+                {operation.warnings.map((warning, idx) => (
+                  <li key={idx}>{warning}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-      {/* Confidence */}
-      {operation.confidence !== undefined && (
-        <div className="mt-3 flex items-center gap-2">
-          <span className={`text-xs ${theme.textSecondary}`}>AI Confidence:</span>
-          <div className="flex-1 bg-stone-200 h-2 rounded-full overflow-hidden">
-            <div
-              className={`h-full transition-all ${
-                operation.confidence > 0.8
-                  ? 'bg-emerald-600'
-                  : operation.confidence > 0.6
-                  ? 'bg-yellow-500'
-                  : 'bg-orange-500'
-              }`}
-              style={{ width: `${operation.confidence * 100}%` }}
-            />
-          </div>
-          <span className={`text-xs font-semibold ${theme.textSecondary}`}>
-            {Math.round(operation.confidence * 100)}%
-          </span>
-        </div>
+          {operation.confidence !== undefined && (
+            <div className="mt-3 flex items-center gap-2">
+              <span className={`text-xs ${theme.textSecondary}`}>AI Confidence:</span>
+              <div className="flex-1 bg-stone-200 h-2 rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-all ${
+                    operation.confidence > 0.8
+                      ? 'bg-emerald-600'
+                      : operation.confidence > 0.6
+                      ? 'bg-yellow-500'
+                      : 'bg-orange-500'
+                  }`}
+                  style={{ width: `${operation.confidence * 100}%` }}
+                />
+              </div>
+              <span className={`text-xs font-semibold ${theme.textSecondary}`}>
+                {Math.round(operation.confidence * 100)}%
+              </span>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

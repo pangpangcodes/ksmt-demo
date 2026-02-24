@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import AnimatedHearts from '@/components/AnimatedHearts'
 import PlannerNavigation from './PlannerNavigation'
 import CouplesCalendarView from './CouplesCalendarView'
-import VendorLibraryTab from './VendorLibraryTab'
-import SettingsTab from './SettingsTab'
+import VendorLibraryPage from './VendorLibraryPage'
+import SettingsPage from './SettingsPage'
 import DemoControlPanel from '@/components/shared/DemoControlPanel'
 import { PLANNER_TOUR_STEPS } from '@/lib/demo-tour-steps'
 import { useDemoTour } from '@/hooks/useDemoTour'
@@ -65,7 +65,7 @@ export default function PlannerDashboard() {
       try {
         const token = sessionStorage.getItem('planner_auth')
         if (!token) return
-        const res = await fetch('/api/planner/couples', {
+        const res = await fetch('/api/planners/couples', {
           headers: { 'Authorization': `Bearer ${token}` },
         })
         const data = await res.json()
@@ -170,8 +170,8 @@ export default function PlannerDashboard() {
 
               {/* Content Views */}
               {currentView === 'couples' && <CouplesCalendarView setDisplayModeRef={setDisplayModeRef} />}
-              {currentView === 'vendors' && <VendorLibraryTab />}
-              {currentView === 'settings' && <SettingsTab />}
+              {currentView === 'vendors' && <VendorLibraryPage />}
+              {currentView === 'settings' && <SettingsPage />}
             </div>
           </div>
         </section>

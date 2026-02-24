@@ -50,8 +50,8 @@ export default function TagInput({
 
         // If vendor type is provided, fetch type-specific tags; otherwise fetch all tags
         const url = vendorType
-          ? `/api/planner/vendor-library/tags?vendor_type=${encodeURIComponent(vendorType)}`
-          : '/api/planner/vendor-library/tags'
+          ? `/api/planners/vendor-library/tags?vendor_type=${encodeURIComponent(vendorType)}`
+          : '/api/planners/vendor-library/tags'
 
         const response = await fetch(url, {
           headers: { Authorization: `Bearer ${token}` }
@@ -114,7 +114,7 @@ export default function TagInput({
         const token = localStorage.getItem('auth_token')
         if (!token) return
 
-        const response = await fetch('/api/planner/vendor-library/tags/suggest', {
+        const response = await fetch('/api/planners/vendor-library/tags/suggest', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

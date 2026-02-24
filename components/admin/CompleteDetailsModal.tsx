@@ -117,7 +117,7 @@ export default function CompleteDetailsModal({ vendors, onClose, onComplete }: C
 
       // Only make API call if there are updates
       if (Object.keys(updates).length > 0) {
-        const response = await fetch(`/api/admin/vendors/${currentVendor.id}`, {
+        const response = await fetch(`/api/couples/vendors/${currentVendor.id}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ export default function CompleteDetailsModal({ vendors, onClose, onComplete }: C
       const token = sessionStorage.getItem('admin_auth')
 
       // Mark this vendor to not be prompted again
-      const response = await fetch(`/api/admin/vendors/${currentVendor.id}`, {
+      const response = await fetch(`/api/couples/vendors/${currentVendor.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

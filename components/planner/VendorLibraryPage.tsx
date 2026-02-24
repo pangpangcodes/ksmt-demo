@@ -14,10 +14,16 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
 import { StatCard, StatCardSkeleton } from '@/components/ui/StatCard'
 
-export default function VendorLibraryTab() {
+export default function VendorLibraryPage() {
   const { theme: currentTheme } = useTheme()
   const theme = useThemeStyles()
   const [vendors, setVendors] = useState<VendorLibrary[]>([])
+  const [expandedVendorId, setExpandedVendorId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('vendor')
+    if (id) setExpandedVendorId(id)
+  }, [])
   const [filteredVendors, setFilteredVendors] = useState<VendorLibrary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -74,7 +80,7 @@ export default function VendorLibraryTab() {
       const token = sessionStorage.getItem('planner_auth')
       if (!token) return
 
-      const response = await fetch('/api/planner/vendor-library', {
+      const response = await fetch('/api/planners/vendor-library', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -100,7 +106,7 @@ export default function VendorLibraryTab() {
       const token = sessionStorage.getItem('planner_auth')
       if (!token) return
 
-      const response = await fetch('/api/planner/vendor-library/tags', {
+      const response = await fetch('/api/planners/vendor-library/tags', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -476,6 +482,7 @@ export default function VendorLibraryTab() {
                   <VendorLibraryCard
                     key={vendor.id}
                     vendor={vendor}
+                    defaultExpanded={vendor.id === expandedVendorId}
                     onUpdate={handleVendorUpdated}
                     onDelete={handleVendorDeleted}
                   />

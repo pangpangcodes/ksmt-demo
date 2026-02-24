@@ -73,7 +73,7 @@ export default function CoupleTableRow({
       const token = sessionStorage.getItem('planner_auth')
       if (!token) return
 
-      const response = await fetch(`/api/planner/couples/${couple.id}`, {
+      const response = await fetch(`/api/planners/couples/${couple.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -129,10 +129,10 @@ export default function CoupleTableRow({
 
       // Parallel fetch
       const [libraryRes, sharedRes] = await Promise.all([
-        fetch('/api/planner/vendor-library', {
+        fetch('/api/planners/vendor-library', {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch(`/api/planner/couples/${couple.id}/vendors`, {
+        fetch(`/api/planners/couples/${couple.id}/vendors`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ])
@@ -205,7 +205,7 @@ export default function CoupleTableRow({
       const token = sessionStorage.getItem('planner_auth')
 
       // Step 1: Share vendors
-      const shareResponse = await fetch(`/api/planner/couples/${couple.id}/vendors/bulk-share`, {
+      const shareResponse = await fetch(`/api/planners/couples/${couple.id}/vendors/bulk-share`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -224,7 +224,7 @@ export default function CoupleTableRow({
       }
 
       // Step 2: Send email
-      const emailResponse = await fetch(`/api/planner/couples/${couple.id}/invite`, {
+      const emailResponse = await fetch(`/api/planners/couples/${couple.id}/invite`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       })

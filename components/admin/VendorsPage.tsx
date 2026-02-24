@@ -15,7 +15,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
 import { StatCard, StatCardSkeleton } from '@/components/ui/StatCard'
 
-export default function VendorsTab() {
+export default function VendorsPage() {
   const { theme: currentTheme } = useTheme()
   const theme = useThemeStyles()
   const [loading, setLoading] = useState(true)
@@ -1081,19 +1081,9 @@ export default function VendorsTab() {
                               </thead>
                               <tbody>
                                 {[...vendor.payments].sort((a, b) => {
-                                  const seqOrder = (desc: string) => {
-                                    const d = (desc || '').toLowerCase()
-                                    if (d.includes('final') || d.includes('balance')) return 90
-                                    if (d.match(/\b3rd\b|\bthird\b/)) return 30
-                                    if (d.match(/\b2nd\b|\bsecond\b/)) return 20
-                                    if (d.match(/\b1st\b|\bdeposit\b|\bfirst\b/)) return 10
-                                    return 50
-                                  }
-                                  const seqDiff = seqOrder(a.description) - seqOrder(b.description)
-                                  if (seqDiff !== 0) return seqDiff
                                   if (!a.due_date && !b.due_date) return 0
-                                  if (!a.due_date) return -1
-                                  if (!b.due_date) return 1
+                                  if (!a.due_date) return 1
+                                  if (!b.due_date) return -1
                                   return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
                                 }).map((payment, index) => (
                                   <tr key={index} className="text-sm border-b border-gray-100 last:border-0">

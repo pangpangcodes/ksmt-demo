@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Fragment } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import { Mail, Phone, Globe, Instagram, MapPin, Edit2, Trash2, ChevronRight, ChevronDown } from 'lucide-react'
 import { VendorLibrary } from '@/types/planner'
 import AddVendorModal from './AddVendorModal'
@@ -8,16 +8,21 @@ import { useThemeStyles } from '@/hooks/useThemeStyles'
 
 interface VendorLibraryCardProps {
   vendor: VendorLibrary
+  defaultExpanded?: boolean
   onUpdate: () => void
   onDelete: (vendorId: string) => void
 }
 
-export default function VendorLibraryCard({ vendor, onUpdate, onDelete }: VendorLibraryCardProps) {
+export default function VendorLibraryCard({ vendor, defaultExpanded = false, onUpdate, onDelete }: VendorLibraryCardProps) {
   const theme = useThemeStyles()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(defaultExpanded)
+
+  useEffect(() => {
+    if (defaultExpanded) setExpanded(true)
+  }, [defaultExpanded])
 
   const handleDelete = async () => {
     setDeleting(true)
@@ -25,7 +30,7 @@ export default function VendorLibraryCard({ vendor, onUpdate, onDelete }: Vendor
       const token = sessionStorage.getItem('planner_auth')
       if (!token) return
 
-      const response = await fetch(`/api/planner/vendor-library/${vendor.id}`, {
+      const response = await fetch(`/api/planners/vendor-library/${vendor.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

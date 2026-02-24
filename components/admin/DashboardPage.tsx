@@ -32,7 +32,7 @@ interface DashboardData {
   }>
 }
 
-export default function DashboardTab() {
+export default function DashboardPage() {
   const theme = useThemeStyles()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

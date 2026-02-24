@@ -31,7 +31,7 @@ const DEFAULT_SETTINGS: WeddingSettings = {
   exchange_rate: 0.9259,
 }
 
-export default function SettingsTab() {
+export default function SettingsPage() {
   const theme = useThemeStyles()
   const [settings, setSettings] = useState<WeddingSettings>(DEFAULT_SETTINGS)
   const [loading, setLoading] = useState(true)

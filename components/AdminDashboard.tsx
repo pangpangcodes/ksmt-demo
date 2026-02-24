@@ -3,10 +3,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import AnimatedHearts from './AnimatedHearts'
 import AdminNavigation from './admin/AdminNavigation'
-import DashboardTab from './admin/DashboardTab'
-import RSVPTab from './admin/RSVPTab'
-import VendorsTab from './admin/VendorsTab'
-import SettingsTab from './admin/SettingsTab'
+import DashboardPage from './admin/DashboardPage'
+import RSVPPage from './admin/RSVPPage'
+import VendorsPage from './admin/VendorsPage'
+import SettingsPage from './admin/SettingsPage'
 import DemoControlPanel from '@/components/shared/DemoControlPanel'
 import { COUPLES_TOUR_STEPS } from '@/lib/demo-tour-steps'
 import { useDemoTour } from '@/hooks/useDemoTour'
@@ -145,10 +145,10 @@ export default function AdminDashboard() {
               </div>
 
               {/* Content Views */}
-              {currentView === 'dashboard' && <DashboardTab />}
-              {currentView === 'rsvp' && <RSVPTab />}
-              {currentView === 'vendors' && <VendorsTab />}
-              {currentView === 'settings' && <SettingsTab />}
+              {currentView === 'dashboard' && <DashboardPage />}
+              {currentView === 'rsvp' && <RSVPPage />}
+              {currentView === 'vendors' && <VendorsPage />}
+              {currentView === 'settings' && <SettingsPage />}
             </div>
           </div>
         </section>

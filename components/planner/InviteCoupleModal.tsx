@@ -98,8 +98,8 @@ export default function InviteCoupleModal({ isOpen, onClose, onSuccess, coupleTo
       }
 
       const url = isEditMode
-        ? `/api/planner/couples/${coupleToEdit.id}`
-        : '/api/planner/couples'
+        ? `/api/planners/couples/${coupleToEdit.id}`
+        : '/api/planners/couples'
 
       const method = isEditMode ? 'PATCH' : 'POST'
 

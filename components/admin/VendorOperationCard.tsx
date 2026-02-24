@@ -49,7 +49,7 @@ export default function VendorOperationCard({ operation, onEdit, onRemove }: Ven
         <div className={`text-xs font-medium ${theme.warning.text} ${theme.warning.bg} border ${theme.border} px-3 py-1.5 rounded-lg mb-3`}>
           {operation.matched_vendor_name
             ? `Updating existing ${operation.matched_vendor_name}`
-            : `Updating vendor - please verify this is the correct vendor (ID: ${operation.vendor_id?.substring(0, 8)}...)`
+            : `Updating vendor - please verify this is the correct vendor (ID: ${operation.vendor_id})`
           }
         </div>
       )}
@@ -105,19 +105,9 @@ export default function VendorOperationCard({ operation, onEdit, onRemove }: Ven
               <span className={`font-medium ${theme.textSecondary} text-xs block mb-1`}>Payments:</span>
               <div className="space-y-1 pl-2">
                 {[...operation.vendor_data.payments].sort((a: any, b: any) => {
-                  const seqOrder = (desc: string) => {
-                    const d = (desc || '').toLowerCase()
-                    if (d.includes('final') || d.includes('balance')) return 90
-                    if (d.match(/\b3rd\b|\bthird\b/)) return 30
-                    if (d.match(/\b2nd\b|\bsecond\b/)) return 20
-                    if (d.match(/\b1st\b|\bdeposit\b|\bfirst\b/)) return 10
-                    return 50
-                  }
-                  const seqDiff = seqOrder(a.description) - seqOrder(b.description)
-                  if (seqDiff !== 0) return seqDiff
                   if (!a.due_date && !b.due_date) return 0
-                  if (!a.due_date) return -1
-                  if (!b.due_date) return 1
+                  if (!a.due_date) return 1
+                  if (!b.due_date) return -1
                   return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
                 }).map((payment: any, idx: number) => (
                   <div key={idx} className={`text-xs ${theme.textSecondary} space-y-0.5`}>
@@ -221,19 +211,9 @@ export default function VendorOperationCard({ operation, onEdit, onRemove }: Ven
             {editedData.payments && Array.isArray(editedData.payments) && editedData.payments.length > 0 ? (
               <div className="space-y-3">
                 {[...editedData.payments].sort((a: any, b: any) => {
-                  const seqOrder = (desc: string) => {
-                    const d = (desc || '').toLowerCase()
-                    if (d.includes('final') || d.includes('balance')) return 90
-                    if (d.match(/\b3rd\b|\bthird\b/)) return 30
-                    if (d.match(/\b2nd\b|\bsecond\b/)) return 20
-                    if (d.match(/\b1st\b|\bdeposit\b|\bfirst\b/)) return 10
-                    return 50
-                  }
-                  const seqDiff = seqOrder(a.description) - seqOrder(b.description)
-                  if (seqDiff !== 0) return seqDiff
                   if (!a.due_date && !b.due_date) return 0
-                  if (!a.due_date) return -1
-                  if (!b.due_date) return 1
+                  if (!a.due_date) return 1
+                  if (!b.due_date) return -1
                   return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
                 }).map((payment: any) => {
                   const updatePayment = (fields: Record<string, any>) => {

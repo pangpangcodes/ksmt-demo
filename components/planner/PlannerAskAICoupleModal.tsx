@@ -56,7 +56,7 @@ export default function PlannerAskAICoupleModal({
 
     try {
       const token = sessionStorage.getItem('planner_auth')
-      const response = await fetch('/api/planner/couples/parse', {
+      const response = await fetch('/api/planners/couples/parse', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,8 +104,8 @@ export default function PlannerAskAICoupleModal({
         const shareLinkId = operation.action === 'create' ? uuidv4() : undefined
 
         const url = operation.action === 'create'
-          ? '/api/planner/couples'
-          : `/api/planner/couples/${operation.couple_id}`
+          ? '/api/planners/couples'
+          : `/api/planners/couples/${operation.couple_id}`
 
         const method = operation.action === 'create' ? 'POST' : 'PATCH'
 

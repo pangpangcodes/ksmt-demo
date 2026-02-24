@@ -29,7 +29,7 @@ interface Stats {
   totalGuests: number
 }
 
-export default function RSVPTab() {
+export default function RSVPPage() {
   const theme = useThemeStyles()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

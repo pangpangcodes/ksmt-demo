@@ -118,7 +118,7 @@ export default function PlannerAskAIVendorModal({
 
       console.log('Client sending token:', token ? 'present' : 'missing')
 
-      const response = await fetch('/api/planner/vendor-library/parse', {
+      const response = await fetch('/api/planners/vendor-library/parse', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -177,7 +177,7 @@ export default function PlannerAskAIVendorModal({
 
     try {
       const token = sessionStorage.getItem('planner_auth')
-      const response = await fetch('/api/planner/vendor-library/parse', {
+      const response = await fetch('/api/planners/vendor-library/parse', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -254,8 +254,8 @@ export default function PlannerAskAIVendorModal({
 
       for (const operation of operations) {
         const url = operation.action === 'create'
-          ? '/api/planner/vendor-library'
-          : `/api/planner/vendor-library/${operation.vendor_id}`
+          ? '/api/planners/vendor-library'
+          : `/api/planners/vendor-library/${operation.vendor_id}`
 
         const method = operation.action === 'create' ? 'POST' : 'PATCH'
 
@@ -486,17 +486,15 @@ export default function PlannerAskAIVendorModal({
           {operations.length > 0 && (
             <div className="space-y-4">
               {/* Progress */}
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className={`text-sm ${theme.textSecondary}`}>
-                    Reviewing vendor {currentOperationIndex + 1} of {operations.length}
-                  </p>
-                  <div className="w-full bg-stone-200 h-2 rounded-full mt-2">
-                    <div
-                      className="bg-emerald-600 h-2 rounded-full transition-all"
-                      style={{ width: `${((currentOperationIndex + 1) / operations.length) * 100}%` }}
-                    />
-                  </div>
+              <div className="mb-4">
+                <p className={`text-sm ${theme.textSecondary}`}>
+                  Reviewing vendor {currentOperationIndex + 1} of {operations.length}
+                </p>
+                <div className="w-full bg-stone-200 h-2 rounded-full mt-2">
+                  <div
+                    className="bg-emerald-600 h-2 rounded-full transition-all"
+                    style={{ width: `${((currentOperationIndex + 1) / operations.length) * 100}%` }}
+                  />
                 </div>
               </div>
 
@@ -505,6 +503,11 @@ export default function PlannerAskAIVendorModal({
                 <VendorLibraryOperationCard
                   key={`vendor-${currentOperationIndex}-${currentOperation.vendor_data.vendor_name}`}
                   operation={currentOperation}
+                  existingVendor={
+                    currentOperation.action === 'update' && currentOperation.vendor_id
+                      ? existingVendors.find(v => v.id === currentOperation.vendor_id)
+                      : undefined
+                  }
                   onEdit={(updated) => handleEditOperation(currentOperationIndex, updated)}
                   onRemove={() => handleRemoveOperation(currentOperationIndex)}
                 />

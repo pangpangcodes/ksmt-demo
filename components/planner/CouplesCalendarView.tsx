@@ -197,7 +197,7 @@ export default function CouplesCalendarView({ setDisplayModeRef }: CouplesCalend
     setLoading(true)
     try {
       const token = sessionStorage.getItem('planner_auth')
-      const response = await fetch('/api/planner/couples', {
+      const response = await fetch('/api/planners/couples', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -214,7 +214,7 @@ export default function CouplesCalendarView({ setDisplayModeRef }: CouplesCalend
       // Fetch vendor counts for each couple
       const counts: Record<string, {total: number, bookedCategories: number, totalCategories: number}> = {}
       for (const couple of data.data) {
-        const vendorResponse = await fetch(`/api/planner/couples/${couple.id}/vendors`, {
+        const vendorResponse = await fetch(`/api/planners/couples/${couple.id}/vendors`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

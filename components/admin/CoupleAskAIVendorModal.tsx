@@ -111,7 +111,7 @@ export default function CoupleAskAIVendorModal({ onClose, onImport }: BulkImport
         sessionStorage.setItem('admin_auth', 'admin')
         token = 'admin'
       }
-      const response = await fetch('/api/admin/vendors/parse', {
+      const response = await fetch('/api/couples/vendors/parse', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -160,7 +160,7 @@ export default function CoupleAskAIVendorModal({ onClose, onImport }: BulkImport
         sessionStorage.setItem('admin_auth', 'admin')
         token = 'admin'
       }
-      const result = await fetch('/api/admin/vendors/parse', {
+      const result = await fetch('/api/couples/vendors/parse', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -240,8 +240,8 @@ export default function CoupleAskAIVendorModal({ onClose, onImport }: BulkImport
 
       for (const operation of operations) {
         const url = operation.action === 'create'
-          ? '/api/admin/vendors'
-          : `/api/admin/vendors/${operation.vendor_id}`
+          ? '/api/couples/vendors'
+          : `/api/couples/vendors/${operation.vendor_id}`
 
         const method = operation.action === 'create' ? 'POST' : 'PATCH'
 

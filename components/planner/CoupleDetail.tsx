@@ -96,7 +96,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
       const token = sessionStorage.getItem('planner_auth')
 
       // Fetch couple
-      const coupleResponse = await fetch(`/api/planner/couples/${coupleId}`, {
+      const coupleResponse = await fetch(`/api/planners/couples/${coupleId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const coupleData = await coupleResponse.json()
@@ -177,7 +177,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
           ).length
         })(),
       }
-      const res = await fetch(`/api/planner/couples/${coupleData.id}/insight`, {
+      const res = await fetch(`/api/planners/couples/${coupleData.id}/insight`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ couple: coupleData, vendors: vendorList, stats: vendorStats }),
@@ -286,10 +286,10 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
 
       // Parallel fetch
       const [libraryRes, sharedRes] = await Promise.all([
-        fetch('/api/planner/vendor-library', {
+        fetch('/api/planners/vendor-library', {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch(`/api/planner/couples/${couple.id}/vendors`, {
+        fetch(`/api/planners/couples/${couple.id}/vendors`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ])
@@ -352,7 +352,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
       const token = sessionStorage.getItem('planner_auth')
 
       // Step 1: Share vendors
-      const shareResponse = await fetch(`/api/planner/couples/${couple.id}/vendors/bulk-share`, {
+      const shareResponse = await fetch(`/api/planners/couples/${couple.id}/vendors/bulk-share`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -377,7 +377,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
         .forEach(v => categoryMap.set(v.vendor_type, (categoryMap.get(v.vendor_type) || 0) + 1))
       const vendorCategories = Array.from(categoryMap.entries()).map(([type, count]) => ({ type, count }))
 
-      const emailResponse = await fetch(`/api/planner/couples/${couple.id}/invite`, {
+      const emailResponse = await fetch(`/api/planners/couples/${couple.id}/invite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

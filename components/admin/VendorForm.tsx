@@ -149,8 +149,8 @@ export default function VendorForm({ vendor, onClose, onSave }: VendorFormProps)
     try {
       const token = sessionStorage.getItem('admin_auth')
       const url = vendor
-        ? `/api/admin/vendors/${vendor.id}`
-        : '/api/admin/vendors'
+        ? `/api/couples/vendors/${vendor.id}`
+        : '/api/couples/vendors'
 
       const method = vendor ? 'PATCH' : 'POST'
 
