@@ -7,6 +7,7 @@ import { X, Loader2, Sparkles, CheckCircle, Calendar } from 'lucide-react'
 import { PlannerCouple, ParsedCoupleOperation, CoupleParseResult } from '@/types/planner'
 import { v4 as uuidv4 } from 'uuid'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
+import { useModalSize, getModalClasses } from '@/hooks/useModalSize'
 
 interface AskAICoupleModalProps {
   existingCouples: PlannerCouple[]
@@ -29,6 +30,9 @@ export default function AskAICoupleModal({
   const [executing, setExecuting] = useState(false)
   const [error, setError] = useState('')
   const [mounted, setMounted] = useState(false)
+
+  const { headerRef, contentRef, isLargeModal } = useModalSize(mounted)
+  const { overlay: overlayClass, maxH: maxHClass } = getModalClasses(isLargeModal)
 
   // Handle mounting and prevent body scroll when modal is open
   useEffect(() => {
@@ -162,10 +166,10 @@ export default function AskAICoupleModal({
   if (!mounted) return null
 
   return createPortal(
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
-      <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[95vh] border border-stone-200 overflow-hidden flex flex-col">
+    <div className={`${overlayClass} bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4`} style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
+      <div className={`bg-white rounded-2xl shadow-xl max-w-2xl w-full ${maxHClass} border border-stone-200 overflow-hidden flex flex-col`}>
         {/* Header */}
-        <div className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
+        <div ref={headerRef} className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
           <h3 className={`font-display text-2xl md:text-3xl ${theme.textPrimary}`}>
             Ask AI
           </h3>
@@ -178,7 +182,7 @@ export default function AskAICoupleModal({
         </div>
 
         {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-8 py-8">
+        <div ref={contentRef} className="flex-1 overflow-y-auto px-8 py-8">
           {/* Step 1: Input */}
           {operations.length === 0 && (
             <div className="space-y-4">

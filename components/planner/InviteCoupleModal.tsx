@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase-client'
 import type { CreatePlannerCoupleInput, PlannerCouple } from '@/types/planner'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput'
+import { useModalSize, getModalClasses } from '@/hooks/useModalSize'
 
 interface InviteCoupleModalProps {
   isOpen: boolean
@@ -29,6 +30,9 @@ export default function InviteCoupleModal({ isOpen, onClose, onSuccess, coupleTo
   const [error, setError] = useState('')
   const [shareLink, setShareLink] = useState('')
   const [showSuccess, setShowSuccess] = useState(false)
+
+  const { headerRef, contentRef, isLargeModal } = useModalSize(isOpen)
+  const { overlay: overlayClass, maxH: maxHClass } = getModalClasses(isLargeModal)
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -176,10 +180,10 @@ export default function InviteCoupleModal({ isOpen, onClose, onSuccess, coupleTo
   if (typeof window === 'undefined') return null
 
   return createPortal(
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
-      <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[95vh] border border-stone-200 overflow-hidden flex flex-col">
+    <div className={`${overlayClass} bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4`} style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
+      <div className={`bg-white rounded-2xl shadow-xl max-w-2xl w-full ${maxHClass} border border-stone-200 overflow-hidden flex flex-col`}>
         {/* Header */}
-        <div className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
+        <div ref={headerRef} className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
           <h3 className={`font-display text-2xl md:text-3xl ${theme.textPrimary}`}>
             {showSuccess
               ? 'Couple Created!'
@@ -197,7 +201,7 @@ export default function InviteCoupleModal({ isOpen, onClose, onSuccess, coupleTo
         </div>
 
         {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-8 py-8">
+        <div ref={contentRef} className="flex-1 overflow-y-auto px-8 py-8">
           {!showSuccess ? (
             // Invite form
             <form onSubmit={handleSubmit} className="space-y-4">
