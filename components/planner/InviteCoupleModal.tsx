@@ -180,7 +180,7 @@ export default function InviteCoupleModal({ isOpen, onClose, onSuccess, coupleTo
   if (typeof window === 'undefined') return null
 
   return createPortal(
-    <div className={`${overlayClass} bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4`} style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
+    <div className={`${overlayClass} bg-black/60 z-[9999] flex items-center justify-center p-4`}>
       <div className={`bg-white rounded-2xl shadow-xl max-w-2xl w-full ${maxHClass} border border-stone-200 overflow-hidden flex flex-col`}>
         {/* Header */}
         <div ref={headerRef} className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
@@ -200,8 +200,9 @@ export default function InviteCoupleModal({ isOpen, onClose, onSuccess, coupleTo
           </button>
         </div>
 
-        {/* Content - Scrollable */}
-        <div ref={contentRef} className="flex-1 overflow-y-auto px-8 py-8">
+        {/* Content - Scrollable outer, unconstrained inner for size measurement */}
+        <div className="flex-1 overflow-y-auto">
+        <div ref={contentRef} className="px-8 py-8">
           {!showSuccess ? (
             // Invite form
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -362,6 +363,7 @@ export default function InviteCoupleModal({ isOpen, onClose, onSuccess, coupleTo
               </button>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>,

@@ -12,7 +12,7 @@ export default function Accommodation() {
               Accommodation
             </h2>
             <p className="text-lg text-gray-600">
-              Where you'll stay during our celebration
+              Where you&apos;ll stay during our celebration
             </p>
           </div>
 
@@ -27,7 +27,7 @@ export default function Accommodation() {
             </div>
             <div className="md:ml-14">
               <p className="text-gray-600 mb-4">
-                We appreciate you coming and have hand-picked a venue that can house most, <i>if not all</i>, of our guests for all 3 nights. If you won't be joining us for all 3 nights, please let us know so we can plan accordingly.
+                We appreciate you coming and have hand-picked a venue that can house most, <i>if not all</i>, of our guests for all 3 nights. If you won&apos;t be joining us for all 3 nights, please let us know so we can plan accordingly.
               </p>
             </div>
 
@@ -114,7 +114,7 @@ export default function Accommodation() {
 
             <div className="mt-8 p-4 bg-primary-50 rounded-lg">
               <p className="text-sm text-gray-700">
-                <strong>Note:</strong> We'll be making room arrangements in 2026 and will let you know accommodation plans ahead of time.
+                <strong>Note:</strong> We&apos;ll be making room arrangements in 2026 and will let you know accommodation plans ahead of time.
               </p>
             </div>
           </div>

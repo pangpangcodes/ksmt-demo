@@ -15,7 +15,7 @@ interface AskAICoupleModalProps {
   onSuccess: () => void
 }
 
-export default function AskAICoupleModal({
+export default function PlannerAskAICoupleModal({
   existingCouples,
   onClose,
   onSuccess
@@ -166,7 +166,7 @@ export default function AskAICoupleModal({
   if (!mounted) return null
 
   return createPortal(
-    <div className={`${overlayClass} bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4`} style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
+    <div className={`${overlayClass} bg-black/60 z-[9999] flex items-center justify-center p-4`}>
       <div className={`bg-white rounded-2xl shadow-xl max-w-2xl w-full ${maxHClass} border border-stone-200 overflow-hidden flex flex-col`}>
         {/* Header */}
         <div ref={headerRef} className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
@@ -181,8 +181,9 @@ export default function AskAICoupleModal({
           </button>
         </div>
 
-        {/* Content - Scrollable */}
-        <div ref={contentRef} className="flex-1 overflow-y-auto px-8 py-8">
+        {/* Content - Scrollable outer, unconstrained inner for size measurement */}
+        <div className="flex-1 overflow-y-auto">
+        <div ref={contentRef} className="px-8 py-8">
           {/* Step 1: Input */}
           {operations.length === 0 && (
             <div className="space-y-4">
@@ -475,6 +476,7 @@ export default function AskAICoupleModal({
               </div>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>,

@@ -25,6 +25,23 @@ function writeState(storageKey: string, state: TourState) {
   localStorage.setItem(storageKey, JSON.stringify(state))
 }
 
+const SESSION_DISMISSED_SUFFIX = '-session-dismissed'
+
+function isSessionDismissed(storageKey: string): boolean {
+  if (typeof window === 'undefined') return false
+  return sessionStorage.getItem(storageKey + SESSION_DISMISSED_SUFFIX) === '1'
+}
+
+function setSessionDismissed(storageKey: string) {
+  if (typeof window === 'undefined') return
+  sessionStorage.setItem(storageKey + SESSION_DISMISSED_SUFFIX, '1')
+}
+
+function clearSessionDismissed(storageKey: string) {
+  if (typeof window === 'undefined') return
+  sessionStorage.removeItem(storageKey + SESSION_DISMISSED_SUFFIX)
+}
+
 export function useDemoTour(storageKey: string, totalSteps: number) {
   const [isOpen, setIsOpen] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
@@ -37,9 +54,13 @@ export function useDemoTour(storageKey: string, totalSteps: number) {
     const saved = readState(storageKey)
 
     if (isDev) {
-      // Dev mode: always show. Read saved position for cross-page
-      // continuity (e.g. PlannerDashboard -> CoupleDetail), but
-      // ignore allCompleted so the tour always appears.
+      // Dev mode: show unless manually dismissed this session.
+      // sessionStorage clears when the browser session ends, so the tour
+      // reappears the next time localhost is opened fresh.
+      if (isSessionDismissed(storageKey)) return
+
+      // Read saved position for cross-page continuity
+      // (e.g. PlannerDashboard -> CoupleDetail).
       if (saved && saved.completedUpTo >= 0 && !saved.allCompleted) {
         const resumeAt = saved.completedUpTo + 1
         if (resumeAt < totalSteps) {
@@ -99,10 +120,12 @@ export function useDemoTour(storageKey: string, totalSteps: number) {
   }, [currentStep, storageKey])
 
   const dismissTour = useCallback(() => {
+    if (isDev) setSessionDismissed(storageKey)
     setIsOpen(false)
-  }, [])
+  }, [storageKey])
 
   const startTour = useCallback(() => {
+    clearSessionDismissed(storageKey)
     writeState(storageKey, { completedUpTo: -1, allCompleted: false })
     setCurrentStep(0)
     setIsOpen(true)
@@ -110,6 +133,7 @@ export function useDemoTour(storageKey: string, totalSteps: number) {
 
   const resetTour = useCallback(() => {
     if (typeof window === 'undefined') return
+    clearSessionDismissed(storageKey)
     localStorage.removeItem(storageKey)
     setCurrentStep(0)
     setIsOpen(false)

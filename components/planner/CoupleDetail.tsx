@@ -38,7 +38,7 @@ import VendorCard from '../VendorCard'
 import SearchableMultiSelect from '../SearchableMultiSelect'
 import SelectVendorsModal from './SelectVendorsModal'
 import EmailPreviewModal from './EmailPreviewModal'
-import AskAIVendorModal from './AskAIVendorModal'
+import PlannerAskAIVendorModal from './PlannerAskAIVendorModal'
 import InviteCoupleModal from './InviteCoupleModal'
 import Notification from './Notification'
 import type { PlannerCouple, SharedVendor, VendorStatus, VendorLibrary } from '@/types/planner'
@@ -370,10 +370,23 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
         throw new Error(shareData.error || 'Failed to share vendors')
       }
 
-      // Step 2: Send email
+      // Step 2: Send email — pass vendor categories so the email matches the preview
+      const categoryMap = new Map<string, number>()
+      vendorLibrary
+        .filter(v => selectedVendors.vendorIds.includes(v.id))
+        .forEach(v => categoryMap.set(v.vendor_type, (categoryMap.get(v.vendor_type) || 0) + 1))
+      const vendorCategories = Array.from(categoryMap.entries()).map(([type, count]) => ({ type, count }))
+
       const emailResponse = await fetch(`/api/planner/couples/${couple.id}/invite`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          vendorCategories,
+          customMessage: selectedVendors.customMessage || undefined,
+        })
       })
 
       const emailData = await emailResponse.json()
@@ -1173,7 +1186,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
 
       {/* Ask AI Modal */}
       {showAskAIModal && (
-        <AskAIVendorModal
+        <PlannerAskAIVendorModal
           existingVendors={vendorLibrary}
           onClose={() => setShowAskAIModal(false)}
           onSuccess={() => {

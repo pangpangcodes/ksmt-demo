@@ -6,6 +6,7 @@ import { X, Send, Loader2, Mail } from 'lucide-react'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
 import type { PlannerCouple } from '@/types/planner'
 import VendorInviteEmailTemplate from './VendorInviteEmailTemplate'
+import { useModalSize, getModalClasses } from '@/hooks/useModalSize'
 
 interface VendorCategory {
   type: string
@@ -34,6 +35,8 @@ export default function EmailPreviewModal({
   onClose
 }: EmailPreviewModalProps) {
   const theme = useThemeStyles()
+  const { headerRef, contentRef, footerRef, isLargeModal } = useModalSize(true)
+  const { overlay: overlayClass, maxH: maxHClass } = getModalClasses(isLargeModal)
   const [sending, setSending] = useState(false)
 
   // Prevent body scroll when modal is open
@@ -54,10 +57,10 @@ export default function EmailPreviewModal({
   }
 
   const modalContent = (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-[9999] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}>
-      <div className={`${theme.cardBackground} rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-stone-200`}>
+    <div className={`${overlayClass} bg-black/60 z-[9999] flex items-center justify-center p-4`}>
+      <div className={`${theme.cardBackground} rounded-2xl shadow-2xl max-w-4xl w-full ${maxHClass} flex flex-col overflow-hidden border border-stone-200`}>
         {/* Modal Header */}
-        <div className={`${theme.cardBackground} border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0`}>
+        <div ref={headerRef} className={`${theme.cardBackground} border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0`}>
           <h3 className={`font-display text-2xl md:text-3xl ${theme.textPrimary}`}>
             Email Preview
           </h3>
@@ -71,7 +74,7 @@ export default function EmailPreviewModal({
 
         {/* Email Preview Content */}
         <div className="flex-1 overflow-y-auto px-8 py-8 bg-stone-50">
-          <div className="max-w-2xl mx-auto">
+          <div ref={contentRef} className="max-w-2xl mx-auto">
             {/* Info Box */}
             <div className="bg-stone-50 border-2 border-stone-200 rounded-xl p-4 mb-6">
               <div className="flex items-start gap-3">
@@ -104,7 +107,7 @@ export default function EmailPreviewModal({
         </div>
 
         {/* Footer Actions - Sticky CTA Buttons */}
-        <div className="border-t border-stone-200 px-8 py-6 bg-white flex-shrink-0">
+        <div ref={footerRef} className="border-t border-stone-200 px-8 py-6 bg-white flex-shrink-0">
           <div className="flex gap-3 max-w-2xl mx-auto">
             <button
               onClick={onBack}

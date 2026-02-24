@@ -1,4 +1,16 @@
 import nodemailer from 'nodemailer'
+import fs from 'fs'
+import path from 'path'
+
+function getLogoDataUri(): string {
+  try {
+    const logoPath = path.join(process.cwd(), 'public', 'images', 'ksmt-logo.jpg')
+    const data = fs.readFileSync(logoPath)
+    return `data:image/jpeg;base64,${data.toString('base64')}`
+  } catch {
+    return ''
+  }
+}
 
 if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
   console.warn('Warning: Gmail credentials not set. Email sending will fail.')
@@ -12,54 +24,134 @@ const transporter = nodemailer.createTransport({
   },
 })
 
+interface VendorCategory {
+  type: string
+  count: number
+}
+
 export async function sendSharedWorkspaceInvitation(
   toEmail: string,
   coupleNames: string,
   shareLinkId: string,
-  plannerName: string = 'Jane'
+  plannerName: string = 'La Bella Novia Wedding Planning',
+  vendorCategories: VendorCategory[] = [],
+  customMessage?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    const workspaceLink = `${siteUrl}/shared/${shareLinkId}`
+    const workspaceLink = `${siteUrl}/s/${shareLinkId}`
+    const logoUrl = getLogoDataUri()
 
     const emailFrom = process.env.GMAIL_USER || 'noreply@example.com'
 
-    // ksmt-branded HTML email
+    const bodyFont = 'Nunito, -apple-system, BlinkMacSystemFont, sans-serif'
+    const headingFont = '"Playfair Display", Georgia, serif'
+    const green = '#1b3b2b'
+
+    const vendorListHtml = vendorCategories.length > 0
+      ? vendorCategories.map(cat =>
+          `<tr>
+            <td style="padding: 0 0 12px 0; vertical-align: top; width: 24px;">
+              <span style="font-weight: 600; font-size: 16px; color: ${green};">&#10003;</span>
+            </td>
+            <td style="padding: 0 0 12px 0; font-size: 14px; color: #44403c; line-height: 1.625; font-family: ${bodyFont};">
+              ${cat.count} vendor${cat.count !== 1 ? 's' : ''} for ${cat.type}
+            </td>
+          </tr>`
+        ).join('')
+      : `<tr>
+          <td style="padding: 0 0 12px 0; vertical-align: top; width: 24px;"><span style="font-weight: 600; font-size: 16px; color: ${green};">&#10003;</span></td>
+          <td style="padding: 0 0 12px 0; font-size: 14px; color: #44403c; line-height: 1.625; font-family: ${bodyFont};">Vendor contact information</td>
+        </tr>
+        <tr>
+          <td style="padding: 0 0 12px 0; vertical-align: top; width: 24px;"><span style="font-weight: 600; font-size: 16px; color: ${green};">&#10003;</span></td>
+          <td style="padding: 0 0 12px 0; font-size: 14px; color: #44403c; line-height: 1.625; font-family: ${bodyFont};">Pricing estimates</td>
+        </tr>
+        <tr>
+          <td style="padding: 0 0 12px 0; vertical-align: top; width: 24px;"><span style="font-weight: 600; font-size: 16px; color: ${green};">&#10003;</span></td>
+          <td style="padding: 0 0 12px 0; font-size: 14px; color: #44403c; line-height: 1.625; font-family: ${bodyFont};">Personal recommendations</td>
+        </tr>
+        <tr>
+          <td style="padding: 0; vertical-align: top; width: 24px;"><span style="font-weight: 600; font-size: 16px; color: ${green};">&#10003;</span></td>
+          <td style="padding: 0; font-size: 14px; color: #44403c; line-height: 1.625; font-family: ${bodyFont};">Easy status tracking</td>
+        </tr>`
+
+    const customMessageHtml = customMessage ? `
+      <div style="background-color: #fafaf9; border: 1px solid #e7e5e4; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+        <p style="font-size: 12px; font-weight: 600; color: #57534e; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 12px 0; font-family: ${bodyFont};">Note from your planner:</p>
+        <p style="font-size: 14px; color: #44403c; line-height: 1.625; font-style: italic; margin: 0; font-family: ${bodyFont};">"${customMessage}"</p>
+      </div>` : ''
+
     const emailHtml = `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #fdf2f8; margin: 0; padding: 20px;">
-<div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-<div style="background: linear-gradient(135deg, #ec4899 0%, #f97316 100%); padding: 30px; text-align: center;">
-<h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">💕 ksmt</h1>
-<p style="color: rgba(255, 255, 255, 0.9); margin: 8px 0 0 0; font-size: 14px;">Your Wedding Planning Workspace</p>
-</div>
-<div style="padding: 30px;">
-<p style="font-size: 16px; color: #374151; margin: 0 0 8px 0;">Hi ${coupleNames}!</p>
-<p style="font-size: 16px; color: #374151; line-height: 1.5; margin: 0 0 20px 0;">${plannerName} from La Bella Novia Wedding Planning has shared a curated list of vendors for your wedding. Click below to view and review them:</p>
-<div style="text-align: center; margin: 30px 0;">
-<a href="${workspaceLink}" style="display: inline-block; background: linear-gradient(135deg, #ec4899 0%, #f97316 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 9999px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(236, 72, 153, 0.3);">View My Vendors</a>
-</div>
-<div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin: 20px 0;">
-<p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.5;"><strong>What you can do:</strong><br>• Mark vendors as Interested, Contacted, or Booked<br>• Add private notes about each vendor<br>• Contact vendors directly using provided info</p>
-</div>
-<p style="font-size: 14px; color: #6b7280; line-height: 1.5; margin: 20px 0 0 0;">This is your private workspace - only you and your planner can see your notes and status updates.</p>
-</div>
-<div style="background-color: #1f2937; padding: 20px; text-align: center;">
-<p style="font-size: 14px; color: white; margin: 0;">💕 Happy Planning!</p>
-<p style="font-size: 12px; color: #9ca3af; margin: 8px 0 0 0;">Sent with love from La Bella Novia Wedding Planning</p>
-</div>
+<body style="margin: 0; padding: 0; background-color: #f5f5f4;">
+<div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 12px; overflow: hidden;">
+
+  <!-- Header -->
+  <div style="background-color: ${green}; padding: 24px;">
+    <table cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        ${logoUrl ? `<td style="padding-right: 12px; vertical-align: middle;">
+          <img src="${logoUrl}" alt="ksmt" width="40" height="40" style="display: block; border-radius: 4px;" />
+        </td>` : ''}
+        <td style="vertical-align: middle;">
+          <span style="font-size: 24px; font-family: ${headingFont}; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: white;">KSMT</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Body -->
+  <div style="padding: 32px; background-color: white;">
+
+    <!-- Greeting -->
+    <h1 style="font-size: 30px; font-weight: 600; color: #111827; margin: 0 0 24px 0; font-family: ${headingFont};">Hi ${coupleNames}!</h1>
+
+    <!-- Main message -->
+    <p style="font-size: 16px; color: #374151; line-height: 1.625; margin: 0 0 24px 0; font-family: ${bodyFont};">
+      ${plannerName ? `Your planner at ${plannerName} has curated some wonderful vendor recommendations for your special day. Check them out in your private workspace!` : `I've curated some wonderful vendor recommendations for your special day. Check them out in your private workspace!`}
+    </p>
+
+    ${customMessageHtml}
+
+    <!-- What's Included box -->
+    <div style="background-color: #fafaf9; border: 1px solid #e7e5e4; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+      <p style="font-size: 12px; font-weight: 600; color: #57534e; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 16px 0; font-family: ${bodyFont};">What's Included:</p>
+      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
+        ${vendorListHtml}
+      </table>
+    </div>
+
+    <!-- CTA Button -->
+    <div style="padding: 8px 0 24px 0;">
+      <a href="${workspaceLink}" style="display: inline-block; padding: 12px 24px; color: white; font-size: 14px; font-weight: 600; border-radius: 8px; text-decoration: none; background-color: ${green}; font-family: ${bodyFont};">View My Vendors</a>
+    </div>
+
+    <!-- Privacy note -->
+    <p style="font-size: 14px; color: #57534e; line-height: 1.625; margin: 0 0 24px 0; font-family: ${bodyFont};">
+      This is your private workspace - only you can see and manage these vendors.
+    </p>
+
+    <!-- Footer -->
+    <div style="padding-top: 24px; border-top: 1px solid #e7e5e4;">
+      <p style="font-size: 14px; color: #57534e; line-height: 1.625; margin: 0; font-family: ${bodyFont};">
+        Happy Planning!<br />${plannerName}
+      </p>
+    </div>
+
+  </div>
 </div>
 </body>
 </html>`
 
     await transporter.sendMail({
-      from: `"${plannerName} - ksmt" <${emailFrom}>`,
+      from: `"ksmt" <${emailFrom}>`,
       to: toEmail,
-      subject: `${coupleNames}: Your Wedding Vendor Recommendations 💕`,
+      subject: `${coupleNames}: Your Wedding Vendor Recommendations`,
       html: emailHtml,
     })
 

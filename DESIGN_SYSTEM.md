@@ -1,7 +1,7 @@
 # Bridezilla Design System (v3.0 - Optimized for Claude Code)
 
-**Last Updated:** February 11, 2026
-**Version:** 3.3
+**Last Updated:** February 24, 2026
+**Version:** 3.4
 
 ---
 
@@ -294,41 +294,112 @@ const theme = useThemeStyles()
 
 ### Modals
 
+All modals use the **adaptive overlay system** via `useModalSize` + `getModalClasses`. This measures the modal's natural content height and classifies it as small or large relative to the viewport, keeping the implementation future-proof.
+
+**Overlay behaviour (both small and large):**
+- `fixed inset-0` - covers the full viewport including nav
+- `bg-black/60` - semi-transparent dark scrim
+- No backdrop blur on either size
+- `z-[9999]` - above all page content
+- Modal card: `max-h-[95vh]`, scrollable content area
+
+**Required setup:**
+- Always use `createPortal(..., document.body)` to escape parent stacking contexts
+- Add a `mounted` state and `if (!mounted) return null` guard before the portal
+- Declare `mounted` state **before** calling `useModalSize(mounted)`
+
 ```tsx
-const theme = useThemeStyles()
+'use client'
 
-<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-  <div className={`${theme.cardBackground} rounded-2xl shadow-2xl
-                  max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden`}>
-    {/* Header */}
-    <div className={`sticky top-0 ${theme.cardBackground} border-b
-                    ${theme.border} px-6 py-4 flex items-center justify-between`}>
-      <h2 className={`text-xl font-bold ${theme.textPrimary}`}>
-        Modal Title
-      </h2>
-      <button className={`${theme.textSecondary} hover:${theme.textPrimary}`}>
-        <X className="w-6 h-6" />
-      </button>
-    </div>
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
+import { X } from 'lucide-react'
+import { useThemeStyles } from '@/hooks/useThemeStyles'
+import { useModalSize, getModalClasses } from '@/hooks/useModalSize'
 
-    {/* Content */}
-    <div className="p-6">
-      <p className={theme.textSecondary}>Modal content</p>
-    </div>
+interface MyModalProps {
+  onClose: () => void
+}
 
-    {/* Footer */}
-    <div className={`border-t ${theme.border} px-6 py-4 flex gap-3 justify-end`}>
-      <button className={`${theme.secondaryButton} ${theme.textSecondary}
-                         ${theme.secondaryButtonHover} px-4 py-2 rounded-lg`}>
-        Cancel
-      </button>
-      <button className={`${theme.primaryButton} ${theme.textOnPrimary}
-                         ${theme.primaryButtonHover} px-4 py-2 rounded-lg`}>
-        Confirm
-      </button>
-    </div>
-  </div>
-</div>
+export default function MyModal({ onClose }: MyModalProps) {
+  const theme = useThemeStyles()
+  const [mounted, setMounted] = useState(false)
+  const { headerRef, contentRef, footerRef, isLargeModal } = useModalSize(mounted)
+  const { overlay: overlayClass, maxH: maxHClass } = getModalClasses(isLargeModal)
+
+  useEffect(() => {
+    setMounted(true)
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = 'unset' }
+  }, [])
+
+  if (!mounted) return null
+
+  return createPortal(
+    <div
+      className={`${overlayClass} bg-black/60 z-[9999] flex items-center justify-center p-4`}
+      onClick={onClose}
+    >
+      <div
+        className={`${theme.cardBackground} rounded-2xl shadow-2xl max-w-2xl w-full ${maxHClass} border ${theme.border} overflow-hidden flex flex-col`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header - measured for size detection */}
+        <div ref={headerRef} className={`${theme.cardBackground} border-b ${theme.border} px-8 py-6 flex justify-between items-center flex-shrink-0`}>
+          <h3 className={`font-display text-2xl md:text-3xl ${theme.textPrimary}`}>
+            Modal Title
+          </h3>
+          <button onClick={onClose} className={`${theme.textMuted} hover:${theme.textSecondary} transition-colors`}>
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Inner wrapper measured for size detection - NOT the flex-1 outer */}
+          <div ref={contentRef} className="px-8 py-8 space-y-4">
+            <p className={theme.textSecondary}>Modal content here</p>
+          </div>
+        </div>
+
+        {/* Footer - measured for size detection */}
+        <div ref={footerRef} className={`${theme.cardBackground} border-t ${theme.border} px-8 py-6 flex gap-3 justify-end flex-shrink-0`}>
+          <button
+            onClick={onClose}
+            className={`px-6 py-2.5 ${theme.secondaryButton} ${theme.textSecondary} ${theme.secondaryButtonHover} rounded-xl text-sm font-medium transition-colors`}
+          >
+            Cancel
+          </button>
+          <button
+            className={`px-6 py-2.5 ${theme.primaryButton} ${theme.textOnPrimary} ${theme.primaryButtonHover} rounded-xl text-sm font-medium transition-colors`}
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  )
+}
+```
+
+**Key rules:**
+- `ref={headerRef}` on the header div (flex-shrink-0)
+- `ref={contentRef}` on the **inner** wrapper div inside `flex-1 overflow-y-auto` — not the outer flex-1 div (its clientHeight reflects flex-assigned height, not content height)
+- `ref={footerRef}` on the sticky footer div (flex-shrink-0), omit if no separate footer
+- If modal has no `isOpen` prop (always rendered when mounted), use `useModalSize(mounted)`
+- If modal has an `isOpen` prop, use `useModalSize(isOpen)` instead of the mounted pattern
+
+**Anti-patterns:**
+```tsx
+// ❌ WRONG - hardcoded overlay, no portal, blur
+<div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]">
+
+// ✅ RIGHT - adaptive overlay, portal, no blur
+return createPortal(
+  <div className={`${overlayClass} bg-black/60 z-[9999] ...`}>,
+  document.body
+)
 ```
 
 ### Forms
@@ -1190,6 +1261,12 @@ The planner tour spans PlannerDashboard and CoupleDetail. Both mount `DemoContro
 ---
 
 ## 📝 Changelog
+
+**v3.4 (Feb 24, 2026)** - Adaptive Modal Overlay System
+- Replaced old hardcoded modal pattern with `useModalSize` + `getModalClasses` system
+- Documented `createPortal` requirement and `mounted` state ordering
+- No blur on any modal size - clean dark scrim only (`bg-black/60`, `z-[9999]`)
+- Documented `contentRef` placement rule (inner wrapper, not the flex-1 container)
 
 **v3.3 (Feb 12, 2026)** - DemoControlPanel (Guided Tour)
 - Added DemoControlPanel component with portal rendering

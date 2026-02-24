@@ -48,23 +48,20 @@ export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showContactModal, setShowContactModal] = useState(false)
-  const [isAdminPage, setIsAdminPage] = useState(false)
-  const [isPlannerPage, setIsPlannerPage] = useState(false)
+  const [isAdminPage, setIsAdminPage] = useState(() =>
+    typeof window !== 'undefined' && window.location.pathname === '/couples'
+  )
+  const [isPlannerPage, setIsPlannerPage] = useState(() =>
+    typeof window !== 'undefined' && window.location.pathname === '/planners'
+  )
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
+    const handleScroll = () => setIsScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   useEffect(() => {
-    // Detect if current page is admin or planner
-    setIsAdminPage(window.location.pathname === '/couples')
-    setIsPlannerPage(window.location.pathname === '/planners')
-
-    // Listen for route changes
     const handleRouteChange = () => {
       setIsAdminPage(window.location.pathname === '/couples')
       setIsPlannerPage(window.location.pathname === '/planners')

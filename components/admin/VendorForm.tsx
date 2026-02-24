@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { X, Plus, Trash2 } from 'lucide-react'
 import { Vendor, VendorFormData, Payment, VENDOR_TYPES, CURRENCIES } from '@/types/vendor'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
+import { useModalSize, getModalClasses } from '@/hooks/useModalSize'
 
 interface VendorFormProps {
   vendor?: Vendor | null
@@ -32,9 +34,14 @@ export default function VendorForm({ vendor, onClose, onSave }: VendorFormProps)
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [mounted, setMounted] = useState(false)
 
-  // Prevent body scroll when modal is open
+  const { headerRef, contentRef, footerRef, isLargeModal } = useModalSize(mounted)
+  const { overlay: overlayClass, maxH: maxHClass } = getModalClasses(isLargeModal)
+
+  // Handle mounting and prevent body scroll when modal is open
   useEffect(() => {
+    setMounted(true)
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = 'unset'
@@ -200,11 +207,13 @@ export default function VendorForm({ vendor, onClose, onSave }: VendorFormProps)
     }
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4" onClick={onClose} style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
-      <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[95vh] border border-stone-200 overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+  if (!mounted) return null
+
+  return createPortal(
+    <div className={`${overlayClass} bg-black/60 z-[9999] flex items-center justify-center p-4`} onClick={onClose}>
+      <div className={`bg-white rounded-2xl shadow-xl max-w-3xl w-full ${maxHClass} border border-stone-200 overflow-hidden flex flex-col`} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
+        <div ref={headerRef} className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
           <h3 className={`font-display text-2xl md:text-3xl ${theme.textPrimary}`}>
             {vendor ? 'Edit Vendor' : 'Add Vendor'}
           </h3>
@@ -218,7 +227,8 @@ export default function VendorForm({ vendor, onClose, onSave }: VendorFormProps)
         </div>
 
         {/* Form - Scrollable Content */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-8 py-8 space-y-4">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+        <div ref={contentRef} className="px-8 py-8 space-y-4">
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Vendor Type */}
@@ -701,10 +711,11 @@ export default function VendorForm({ vendor, onClose, onSave }: VendorFormProps)
               {error}
             </div>
           )}
+        </div>
         </form>
 
         {/* Footer - Sticky CTA Buttons */}
-        <div className="bg-white border-t border-stone-200 px-8 py-6 flex gap-3 justify-end flex-shrink-0">
+        <div ref={footerRef} className="bg-white border-t border-stone-200 px-8 py-6 flex gap-3 justify-end flex-shrink-0">
           <button
             type="button"
             onClick={onClose}
@@ -723,6 +734,7 @@ export default function VendorForm({ vendor, onClose, onSave }: VendorFormProps)
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

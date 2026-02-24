@@ -39,6 +39,7 @@ export default function DashboardTab() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [countedDays, setCountedDays] = useState(0)
   const [hasAnimated, setHasAnimated] = useState(false)
+  const [weddingDateStr, setWeddingDateStr] = useState<string>('')
 
   useEffect(() => {
     fetchDashboardData()
@@ -46,8 +47,9 @@ export default function DashboardTab() {
 
   // Animate countdown number
   useEffect(() => {
-    if (!hasAnimated && data && !loading) {
-      const weddingDate = new Date('2026-09-20')
+    if (!hasAnimated && data && !loading && weddingDateStr) {
+      const [y, m, d] = weddingDateStr.split('-').map(Number)
+      const weddingDate = new Date(y, m - 1, d)
       const today = new Date()
       const daysUntilWedding = Math.ceil((weddingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 
@@ -72,7 +74,7 @@ export default function DashboardTab() {
         return () => clearInterval(timer)
       }
     }
-  }, [data, loading, hasAnimated])
+  }, [data, loading, hasAnimated, weddingDateStr])
 
   const fetchDashboardData = async () => {
     setLoading(true)
@@ -80,8 +82,17 @@ export default function DashboardTab() {
 
     try {
       // Fetch data directly from demo supabase
-      const { data: rsvps, error: rsvpsError } = await supabase.from('rsvps').select('*')
-      const { data: vendors, error: vendorsError } = await supabase.from('vendors').select('*')
+      const [
+        { data: rsvps },
+        { data: vendors },
+        { data: weddingSettings },
+      ] = await Promise.all([
+        supabase.from('rsvps').select('*'),
+        supabase.from('vendors').select('*'),
+        supabase.from('wedding_settings').select('wedding_date').single(),
+      ])
+
+      setWeddingDateStr(weddingSettings?.wedding_date ?? '2026-09-20')
 
       // Calculate RSVP stats
       const rsvpStats = {
@@ -178,10 +189,12 @@ export default function DashboardTab() {
   // Action items count
   const actionItemsCount = overduePayments.length + upcomingPayments.length
 
-  // Calculate days until wedding (Sept 20, 2026)
-  const weddingDate = new Date('2026-09-20')
+  // Calculate days until wedding from settings
+  const [wy, wm, wd] = (weddingDateStr || '2026-09-20').split('-').map(Number)
+  const weddingDate = new Date(wy, wm - 1, wd)
   const today = new Date()
   const daysUntilWedding = Math.ceil((weddingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  const weddingDateFormatted = weddingDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 
   // Calculate pending RSVPs
   const pendingRsvps = data.rsvpStats.total - data.rsvpStats.attending - data.rsvpStats.notAttending
@@ -196,7 +209,7 @@ export default function DashboardTab() {
               Welcome back, Bella & Edward
             </h2>
             <p className={theme.textSecondary}>
-              Only <span className={`font-semibold ${theme.textPrimary}`}>{daysUntilWedding}</span> days until your wedding in Seville on <strong>September 20, 2026</strong>!
+              Only <span className={`font-semibold ${theme.textPrimary}`}>{daysUntilWedding}</span> days until your wedding on <strong>{weddingDateFormatted}</strong>!
             </p>
           </div>
           <div className="hidden md:flex items-center gap-3 animate-in fade-in zoom-in-50 duration-700 delay-300">

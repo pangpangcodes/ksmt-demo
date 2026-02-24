@@ -34,11 +34,27 @@ export async function POST(
       )
     }
 
+    // Read optional vendor context from request body
+    let vendorCategories: { type: string; count: number }[] = []
+    let customMessage: string | undefined
+    let plannerName: string | undefined
+    try {
+      const body = await request.json()
+      vendorCategories = body.vendorCategories ?? []
+      customMessage = body.customMessage || undefined
+      plannerName = body.plannerName || undefined
+    } catch {
+      // body is optional - proceed with defaults
+    }
+
     // Send invitation email
     const result = await sendSharedWorkspaceInvitation(
       couple.couple_email,
       couple.couple_names,
-      couple.share_link_id
+      couple.share_link_id,
+      plannerName,
+      vendorCategories,
+      customMessage
     )
 
     if (!result.success) {

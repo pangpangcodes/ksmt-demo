@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
 import { StatCard } from '@/components/ui/StatCard'
-import AskAICoupleModal from './AskAICoupleModal'
+import PlannerAskAICoupleModal from './PlannerAskAICoupleModal'
 import InviteCoupleModal from './InviteCoupleModal'
 import CoupleTableRow from './CoupleTableRow'
 import SearchableMultiSelect from '../SearchableMultiSelect'
@@ -948,7 +948,7 @@ export default function CouplesCalendarView({ setDisplayModeRef }: CouplesCalend
 
       {/* Ask AI Modal */}
       {showAddModal && (
-        <AskAICoupleModal
+        <PlannerAskAICoupleModal
           existingCouples={couples}
           onClose={() => setShowAddModal(false)}
           onSuccess={() => {

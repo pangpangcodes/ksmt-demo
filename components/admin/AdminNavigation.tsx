@@ -28,7 +28,7 @@ export default function AdminNavigation({ currentView, onViewChange, onLogout, o
   return (
     <nav className="bg-white sticky top-0 z-40 border-b border-stone-200">
       <div className="px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-        <a href="https://ksmt-demo.vercel.app/" className="flex items-center gap-2 md:gap-3">
+        <a href="/" className="flex items-center gap-2 md:gap-3">
           <Image
             src={logoSrc}
             alt="ksmt"
@@ -47,9 +47,9 @@ export default function AdminNavigation({ currentView, onViewChange, onLogout, o
           </div>
         </a>
 
-        <div className="flex items-center gap-3 md:gap-8">
+        <div className="flex items-center gap-3 md:gap-5">
           {/* Desktop Navigation */}
-          <div className="hidden md:flex gap-8 text-sm font-medium">
+          <div className="hidden md:flex gap-5 text-sm font-medium">
             {onStartTour && (
               <button
                 onClick={onStartTour}
@@ -102,6 +102,20 @@ export default function AdminNavigation({ currentView, onViewChange, onLogout, o
               }`}
             >
               Vendor Management
+            </a>
+            <a
+              href="/couples?view=settings"
+              onClick={(e) => {
+                e.preventDefault()
+                onViewChange('settings')
+              }}
+              className={`transition-colors ${
+                currentView === 'settings'
+                  ? theme.navActive
+                  : `${theme.navInactive} ${theme.navHover}`
+              }`}
+            >
+              Settings
             </a>
             <a
               id="tour-nav-view-website"
@@ -194,6 +208,20 @@ export default function AdminNavigation({ currentView, onViewChange, onLogout, o
               }`}
             >
               Vendor Management
+            </a>
+            <a
+              href="/couples?view=settings"
+              onClick={(e) => {
+                e.preventDefault()
+                handleViewChange('settings')
+              }}
+              className={`block w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                currentView === 'settings'
+                  ? `bg-stone-100 ${theme.navActive}`
+                  : `${theme.textSecondary} hover:bg-stone-50`
+              }`}
+            >
+              Settings
             </a>
             <a
               id="tour-nav-view-website-mobile"

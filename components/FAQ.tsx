@@ -92,7 +92,7 @@ export default function FAQ() {
 
           <div className="mt-8 text-center">
             <p className="text-gray-600 mb-4">
-              Still have questions? Don't hesitate to ask!
+              Still have questions? Don&apos;t hesitate to ask!
             </p>
             <button
               onClick={() => setShowContactModal(true)}

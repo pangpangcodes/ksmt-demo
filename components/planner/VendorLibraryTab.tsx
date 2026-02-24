@@ -6,7 +6,7 @@ import { Plus, Users, Package, Clock, Search, AlertCircle } from 'lucide-react'
 import { VendorLibrary, TagWithCount } from '@/types/planner'
 import { VENDOR_TYPES } from '@/lib/vendorTypes'
 import VendorLibraryCard from './VendorLibraryCard'
-import AskAIVendorModal from './AskAIVendorModal'
+import PlannerAskAIVendorModal from './PlannerAskAIVendorModal'
 import AddVendorModal from './AddVendorModal'
 import Notification from './Notification'
 import SearchableMultiSelect from '../SearchableMultiSelect'
@@ -500,7 +500,7 @@ export default function VendorLibraryTab() {
 
       {/* Ask AI Modal */}
       {showAddModal && (
-        <AskAIVendorModal
+        <PlannerAskAIVendorModal
           existingVendors={vendors}
           onClose={() => setShowAddModal(false)}
           onSuccess={() => {

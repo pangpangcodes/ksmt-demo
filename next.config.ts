@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
 
   // Turbopack config to specify correct workspace root
   turbopack: {
-    root: '/Users/monica.pang/Documents/monica-pang/bridezilla',
+    root: '/Users/monica.pang/Documents/monica-pang/ksmt',
   },
 
   // Use webpack mode explicitly since Turbopack doesn't fully support serverExternalPackages

@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { X, Settings } from 'lucide-react'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
 import { supabase } from '@/lib/supabase'
+import { useModalSize, getModalClasses } from '@/hooks/useModalSize'
 
 interface ReminderTypes {
   overdue: boolean
@@ -28,6 +29,8 @@ interface Props {
 
 export default function PaymentReminderSettingsModal({ isOpen, onClose, onSave }: Props) {
   const theme = useThemeStyles()
+  const { headerRef, contentRef, footerRef, isLargeModal } = useModalSize(isOpen)
+  const { overlay: overlayClass, maxH: maxHClass } = getModalClasses(isLargeModal)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [settings, setSettings] = useState<PaymentReminderSettings | null>(null)
@@ -165,13 +168,13 @@ export default function PaymentReminderSettingsModal({ isOpen, onClose, onSave }
   if (typeof window === 'undefined') return null
 
   return createPortal(
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4" onClick={onClose} style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
+    <div className={`${overlayClass} bg-black/60 z-[9999] flex items-center justify-center p-4`} onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[95vh] border border-stone-200 overflow-hidden flex flex-col"
+        className={`bg-white rounded-2xl shadow-xl max-w-lg w-full ${maxHClass} border border-stone-200 overflow-hidden flex flex-col`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
+        <div ref={headerRef} className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
           <h3 className={`font-display text-2xl md:text-3xl ${theme.textPrimary}`}>
             Payment Reminder Settings
           </h3>
@@ -184,7 +187,8 @@ export default function PaymentReminderSettingsModal({ isOpen, onClose, onSave }
         </div>
 
         {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-8 py-8 space-y-6">
+        <div className="flex-1 overflow-y-auto">
+        <div ref={contentRef} className="px-8 py-8 space-y-6">
           {loading ? (
             <div className="text-center py-8 text-gray-500">Loading settings...</div>
           ) : (
@@ -296,9 +300,10 @@ export default function PaymentReminderSettingsModal({ isOpen, onClose, onSave }
             </>
           )}
         </div>
+        </div>
 
         {/* Footer - Sticky CTA Buttons */}
-        <div className="flex items-center justify-end gap-3 px-8 py-6 border-t border-stone-200 bg-white flex-shrink-0">
+        <div ref={footerRef} className="flex items-center justify-end gap-3 px-8 py-6 border-t border-stone-200 bg-white flex-shrink-0">
           <button
             onClick={onClose}
             disabled={saving}

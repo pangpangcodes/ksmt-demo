@@ -27,7 +27,7 @@ export default function PlannerNavigation({ currentView, onViewChange, onStartTo
   return (
     <nav className={`${theme.cardBackground} sticky top-0 z-40 border-b ${theme.border}`}>
       <div className="px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-        <a href="https://ksmt-demo.vercel.app/" className="flex items-center gap-2 md:gap-3">
+        <a href="/" className="flex items-center gap-2 md:gap-3">
           <Image
             src={logoSrc}
             alt="ksmt"

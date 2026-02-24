@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { X, ChevronRight, CheckCircle, AlertCircle } from 'lucide-react'
 import { Vendor } from '@/types/vendor'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
+import { useModalSize, getModalClasses } from '@/hooks/useModalSize'
 
 interface Clarification {
   question: string
@@ -20,6 +22,9 @@ interface CompleteDetailsModalProps {
 
 export default function CompleteDetailsModal({ vendors, onClose, onComplete }: CompleteDetailsModalProps) {
   const theme = useThemeStyles()
+  const [mounted, setMounted] = useState(false)
+  const { headerRef, contentRef, isLargeModal } = useModalSize(mounted)
+  const { overlay: overlayClass, maxH: maxHClass } = getModalClasses(isLargeModal)
   const [currentVendorIndex, setCurrentVendorIndex] = useState(0)
   const [clarifications, setClarifications] = useState<Clarification[]>([])
   const [answers, setAnswers] = useState<Record<string, string>>({})
@@ -30,6 +35,7 @@ export default function CompleteDetailsModal({ vendors, onClose, onComplete }: C
 
   // Prevent body scroll when modal is open
   useEffect(() => {
+    setMounted(true)
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = 'unset'
@@ -215,16 +221,16 @@ export default function CompleteDetailsModal({ vendors, onClose, onComplete }: C
     setAnswers({ ...answers, [field]: formattedValue })
   }
 
-  if (!currentVendor || clarifications.length === 0) {
-    // No vendors with missing details
+  if (!currentVendor || clarifications.length === 0 || !mounted) {
+    // No vendors with missing details, or not yet mounted
     return null
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
-      <div className={`${theme.cardBackground} rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col`}>
+  return createPortal(
+    <div className={`${overlayClass} bg-black/60 z-[9999] flex items-center justify-center p-4`}>
+      <div className={`${theme.cardBackground} rounded-2xl shadow-xl max-w-2xl w-full ${maxHClass} overflow-hidden flex flex-col`}>
         {/* Header */}
-        <div className={`${theme.cardBackground} border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0`}>
+        <div ref={headerRef} className={`${theme.cardBackground} border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0`}>
           <h3 className={`font-display text-2xl md:text-3xl ${theme.textPrimary}`}>
             Complete Vendor Details
           </h3>
@@ -237,7 +243,8 @@ export default function CompleteDetailsModal({ vendors, onClose, onComplete }: C
         </div>
 
         {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-8 py-8">
+        <div className="flex-1 overflow-y-auto">
+        <div ref={contentRef} className="px-8 py-8">
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
               <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -317,7 +324,9 @@ export default function CompleteDetailsModal({ vendors, onClose, onComplete }: C
             </button>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

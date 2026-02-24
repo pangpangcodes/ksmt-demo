@@ -1,19 +1,24 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import { X, Upload, AlertCircle, Loader2, ChevronLeft, ChevronRight, CheckCircle, Sparkles } from 'lucide-react'
 import { ParsedVendorOperation } from '@/types/vendor'
 import VendorOperationCard from './VendorOperationCard'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
+import { useModalSize, getModalClasses } from '@/hooks/useModalSize'
 
 interface BulkImportModalProps {
   onClose: () => void
   onImport: (vendors: any[]) => void
 }
 
-export default function BulkImportModal({ onClose, onImport }: BulkImportModalProps) {
+export default function CoupleAskAIVendorModal({ onClose, onImport }: BulkImportModalProps) {
   const theme = useThemeStyles()
+  const [mounted, setMounted] = useState(false)
+  const { headerRef, contentRef, isLargeModal } = useModalSize(mounted)
+  const { overlay: overlayClass, maxH: maxHClass } = getModalClasses(isLargeModal)
   const [pastedData, setPastedData] = useState('')
   const [operations, setOperations] = useState<ParsedVendorOperation[]>([])
   const [currentOperationIndex, setCurrentOperationIndex] = useState(0)
@@ -32,6 +37,7 @@ export default function BulkImportModal({ onClose, onImport }: BulkImportModalPr
 
   // Prevent body scroll when modal is open
   useEffect(() => {
+    setMounted(true)
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = 'unset'
@@ -174,11 +180,13 @@ export default function BulkImportModal({ onClose, onImport }: BulkImportModalPr
     }
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4" onClick={onClose} style={{ WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)' }}>
-      <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[95vh] border border-stone-200 overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+  if (!mounted) return null
+
+  return createPortal(
+    <div className={`${overlayClass} bg-black/60 z-[9999] flex items-center justify-center p-4`} onClick={onClose}>
+      <div className={`bg-white rounded-2xl shadow-xl max-w-2xl w-full ${maxHClass} border border-stone-200 overflow-hidden flex flex-col`} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
+        <div ref={headerRef} className="bg-white border-b border-stone-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
           <h3 className={`font-display text-2xl md:text-3xl ${theme.textPrimary}`}>
             Ask AI
           </h3>
@@ -192,7 +200,8 @@ export default function BulkImportModal({ onClose, onImport }: BulkImportModalPr
         </div>
 
         {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-8 py-8 space-y-4">
+        <div className="flex-1 overflow-y-auto">
+        <div ref={contentRef} className="px-8 py-8 space-y-4">
           <div>
             <label className={`block text-xs font-medium ${theme.textSecondary} uppercase tracking-widest mb-3`}>
               Paste vendor information
@@ -580,7 +589,9 @@ export default function BulkImportModal({ onClose, onImport }: BulkImportModalPr
             </div>
           )}
         </div>
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

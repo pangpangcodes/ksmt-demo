@@ -3,16 +3,15 @@
 import { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react'
 
 /**
- * Determines whether a modal should use a full-page overlay (covering the nav)
- * or a below-nav overlay (leaving the nav visible).
+ * Determines whether a modal is "large" (taller than the viewport minus the nav).
  *
- * - Short modal: overlay starts below the nav, nav stays fully visible
- * - Long modal (taller than the below-nav area): full overlay covers the nav too
+ * Both short and large modals use a full-page overlay (fixed inset-0, bg-black/60, no blur).
+ * The nav always stays crisp and visible. isLargeModal is available for any future distinction.
  *
  * Usage:
  *   const { headerRef, contentRef, footerRef, isLargeModal } = useModalSize(mounted)
  *   - Add ref={headerRef} to the modal header div
- *   - Add ref={contentRef} to the scrollable content div
+ *   - Add ref={contentRef} to an unconstrained inner wrapper inside the scrollable div
  *   - Add ref={footerRef} to the sticky footer div (if any)
  */
 export function useModalSize(active: boolean) {
@@ -26,7 +25,9 @@ export function useModalSize(active: boolean) {
     const navHeight = window.innerWidth >= 768 ? 80 : 64 // md:h-20 = 80px, h-16 = 64px
     const padding = 32 // p-4 overlay = 16px top + 16px bottom
     const headerH = headerRef.current.clientHeight
-    const contentH = contentRef.current.scrollHeight
+    // Use clientHeight (not scrollHeight) on an unconstrained inner wrapper —
+    // scrollHeight of a flex-1 div just reflects its flex-assigned height, not content height
+    const contentH = contentRef.current.clientHeight
     const footerH = footerRef.current?.clientHeight ?? 0
     const naturalHeight = headerH + contentH + footerH
     setIsLargeModal(naturalHeight > window.innerHeight - navHeight - padding)
@@ -59,11 +60,7 @@ export function useModalSize(active: boolean) {
  */
 export function getModalClasses(isLargeModal: boolean) {
   return {
-    overlay: isLargeModal
-      ? 'fixed inset-0'
-      : 'fixed top-16 md:top-20 inset-x-0 bottom-0',
-    maxH: isLargeModal
-      ? 'max-h-[95vh]'
-      : 'max-h-[calc(100vh-6rem)] md:max-h-[calc(100vh-7rem)]',
+    overlay: 'fixed inset-0',
+    maxH: 'max-h-[95vh]',
   }
 }

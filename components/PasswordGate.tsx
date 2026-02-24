@@ -16,12 +16,13 @@ export default function PasswordGate({ children }: PasswordGateProps) {
 
   useEffect(() => {
     setIsClient(true)
-    // Check if password was previously entered
-    const unlocked = localStorage.getItem('wedding-site-unlocked')
-    if (unlocked === 'true') {
-      setIsUnlocked(true)
-    }
   }, [])
+
+  useEffect(() => {
+    if (!isClient) return
+    const unlocked = localStorage.getItem('wedding-site-unlocked')
+    if (unlocked === 'true') setIsUnlocked(true)
+  }, [isClient])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

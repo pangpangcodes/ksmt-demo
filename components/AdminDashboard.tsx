@@ -14,8 +14,18 @@ import { useThemeStyles } from '@/hooks/useThemeStyles'
 
 type AdminView = 'dashboard' | 'rsvp' | 'vendors' | 'settings'
 
+function parseView(search: string): AdminView {
+  const view = new URLSearchParams(search).get('view')
+  return view === 'vendors' ? 'vendors' :
+    view === 'rsvp' ? 'rsvp' :
+    view === 'settings' ? 'settings' :
+    'dashboard'
+}
+
 export default function AdminDashboard() {
-  const [currentView, setCurrentView] = useState<AdminView>('dashboard')
+  const [currentView, setCurrentView] = useState<AdminView>(() =>
+    typeof window !== 'undefined' ? parseView(window.location.search) : 'dashboard'
+  )
   const theme = useThemeStyles()
 
   const {
@@ -28,26 +38,8 @@ export default function AdminDashboard() {
   } = useDemoTour('ksmt_demo_tour_couples', COUPLES_TOUR_STEPS.length)
 
   useEffect(() => {
-    // Read view from URL query parameter
-    const params = new URLSearchParams(window.location.search)
-    const view = params.get('view')
-    setCurrentView(
-      view === 'vendors' ? 'vendors' :
-      view === 'rsvp' ? 'rsvp' :
-      view === 'settings' ? 'settings' :
-      'dashboard'
-    )
-
-    // Listen for URL changes (browser back/forward)
     const handleUrlChange = () => {
-      const params = new URLSearchParams(window.location.search)
-      const view = params.get('view')
-      setCurrentView(
-        view === 'vendors' ? 'vendors' :
-        view === 'rsvp' ? 'rsvp' :
-        view === 'settings' ? 'settings' :
-        'dashboard'
-      )
+      setCurrentView(parseView(window.location.search))
     }
 
     window.addEventListener('popstate', handleUrlChange)
@@ -141,11 +133,13 @@ export default function AdminDashboard() {
                     {currentView === 'dashboard' && 'Dashboard'}
                     {currentView === 'rsvp' && 'RSVP Tracking'}
                     {currentView === 'vendors' && 'Vendor Management'}
+                    {currentView === 'settings' && 'Settings'}
                   </h2>
                   <p className={`${theme.textSecondary} font-body`}>
                     {currentView === 'dashboard' && 'Overview of your wedding planning progress.'}
                     {currentView === 'rsvp' && 'Manage guest responses and attendance.'}
                     {currentView === 'vendors' && 'Track vendors, contracts, and payments.'}
+                    {currentView === 'settings' && 'Configure your budget and currency preferences.'}
                   </p>
                 </div>
               </div>

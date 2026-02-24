@@ -6,6 +6,7 @@ import { X, Search, CheckCircle, Loader2, ChevronDown, ChevronRight, Check } fro
 import { VendorLibrary } from '@/types/planner'
 import { VENDOR_TYPES } from '@/lib/vendorTypes'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
+import { useModalSize, getModalClasses } from '@/hooks/useModalSize'
 
 interface SelectVendorsModalProps {
   coupleId: string
@@ -29,6 +30,8 @@ export default function SelectVendorsModal({
   onContinue
 }: SelectVendorsModalProps) {
   const theme = useThemeStyles()
+  const { headerRef, contentRef, footerRef, isLargeModal } = useModalSize(true)
+  const { overlay: overlayClass, maxH: maxHClass } = getModalClasses(isLargeModal)
   const [selectedVendorIds, setSelectedVendorIds] = useState<Set<string>>(new Set(initialSelectedVendorIds))
   const [customMessage, setCustomMessage] = useState<string>(initialCustomMessage)
   const [searchQuery, setSearchQuery] = useState('')
@@ -126,23 +129,24 @@ export default function SelectVendorsModal({
   const selectedCount = selectedVendorIds.size
 
   const modalContent = (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-[9999] flex items-center justify-center p-4" style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}>
-      <div className={`${theme.cardBackground} rounded-2xl shadow-xl max-w-2xl w-full max-h-[95vh] flex flex-col border ${theme.border} ${theme.borderWidth} overflow-hidden`}>
-        {/* Header */}
-        <div className={`${theme.cardBackground} border-b ${theme.border} px-8 py-6 flex justify-between items-center flex-shrink-0`}>
-          <h3 className={`font-display text-2xl md:text-3xl ${theme.textPrimary}`}>
-            Share Vendors from Library
-          </h3>
-          <button
-            onClick={onClose}
-            className={`${theme.textMuted} hover:${theme.textSecondary} transition-colors`}
-          >
-            <X size={20} />
-          </button>
-        </div>
+    <div className={`${overlayClass} bg-black/60 z-[9999] flex items-center justify-center p-4`}>
+      <div className={`${theme.cardBackground} rounded-2xl shadow-xl max-w-2xl w-full ${maxHClass} flex flex-col border ${theme.border} ${theme.borderWidth} overflow-hidden`}>
+        <div ref={headerRef}>
+          {/* Header */}
+          <div className={`${theme.cardBackground} border-b ${theme.border} px-8 py-6 flex justify-between items-center flex-shrink-0`}>
+            <h3 className={`font-display text-2xl md:text-3xl ${theme.textPrimary}`}>
+              Share Vendors from Library
+            </h3>
+            <button
+              onClick={onClose}
+              className={`${theme.textMuted} hover:${theme.textSecondary} transition-colors`}
+            >
+              <X size={20} />
+            </button>
+          </div>
 
-        {/* Search and Stats */}
-        <div className={`px-8 py-4 border-b ${theme.border} flex-shrink-0`}>
+          {/* Search and Stats */}
+          <div className={`px-8 py-4 border-b ${theme.border} flex-shrink-0`}>
           <p className={`text-sm ${theme.textSecondary} mb-4`}>
             Select vendors to share with {coupleName}
           </p>
@@ -165,11 +169,12 @@ export default function SelectVendorsModal({
           {filteredVendors.length === 0 && (
             <div className={`text-sm ${theme.textSecondary}`}>No vendors match your search</div>
           )}
+          </div>
         </div>
 
         {/* Vendor List */}
         <div className="flex-1 overflow-y-auto px-8 py-4">
-          <div className="space-y-4">
+          <div ref={contentRef} className="space-y-4">
             {VENDOR_TYPES.map(type => {
               const typeVendors = vendorsByType[type]
               if (typeVendors.length === 0) return null
@@ -301,7 +306,7 @@ export default function SelectVendorsModal({
         </div>
 
         {/* Footer - Sticky CTA Buttons */}
-        <div className={`${theme.cardBackground} px-8 py-6 border-t ${theme.border} flex-shrink-0`}>
+        <div ref={footerRef} className={`${theme.cardBackground} px-8 py-6 border-t ${theme.border} flex-shrink-0`}>
           {/* Custom Message Input */}
           <div className="mb-4">
             <label className={`block text-sm font-medium ${theme.textPrimary} mb-2`}>

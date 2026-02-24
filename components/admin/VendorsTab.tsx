@@ -7,7 +7,7 @@ import { Vendor, VendorStats, VENDOR_TYPES } from '@/types/vendor'
 import { formatCurrency, getCurrencySymbol, calculateVendorStats, exportVendorsToCSV } from '@/lib/vendorUtils'
 import { supabase } from '@/lib/supabase'
 import VendorForm from './VendorForm'
-import BulkImportModal from './BulkImportModal'
+import CoupleAskAIVendorModal from './CoupleAskAIVendorModal'
 import CompleteDetailsModal from './CompleteDetailsModal'
 import PaymentReminderSettingsModal from './PaymentReminderSettingsModal'
 import SearchableMultiSelect from '../SearchableMultiSelect'
@@ -24,6 +24,12 @@ export default function VendorsTab() {
   const [stats, setStats] = useState<VendorStats | null>(null)
   const [typeFilter, setTypeFilter] = useState<string[]>([])
   const [currencyDisplay, setCurrencyDisplay] = useState<'eur' | 'cad' | 'both'>('eur')
+  const [weddingSettings, setWeddingSettings] = useState<{
+    wedding_budget: number
+    local_currency: string
+    vendor_currency: string
+    exchange_rate: number
+  } | null>(null)
 
   // Preserve scroll position when filters change
   const preserveScrollPosition = () => {
@@ -53,6 +59,7 @@ export default function VendorsTab() {
   useEffect(() => {
     fetchVendors()
     fetchPaymentReminders()
+    fetchWeddingSettings()
   }, [typeFilter])
 
   // Scroll to vendor after editing
@@ -154,6 +161,22 @@ export default function VendorsTab() {
     } catch (err) {
       console.error('Payment reminders error:', err)
       setPaymentReminders([])
+    }
+  }
+
+  const fetchWeddingSettings = async () => {
+    try {
+      const { data } = await supabase.from('wedding_settings').select('*').single()
+      if (data) {
+        setWeddingSettings({
+          wedding_budget: data.wedding_budget ?? 50000,
+          local_currency: data.local_currency ?? 'USD',
+          vendor_currency: data.vendor_currency ?? 'EUR',
+          exchange_rate: data.exchange_rate ?? 0.9259,
+        })
+      }
+    } catch (err) {
+      console.error('Failed to fetch wedding settings:', err)
     }
   }
 
@@ -471,7 +494,6 @@ export default function VendorsTab() {
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 {(() => {
-                  // Calculate EUR totals if needed
                   const eurTotalCost = vendors.reduce((sum, v) => {
                     return sum + (v.payments || [])
                       .filter(p => !p.refundable)
@@ -507,7 +529,6 @@ export default function VendorsTab() {
             </div>
             <div className={`flex justify-between ${theme.typeStatSubtitle}`}>
               {(() => {
-                // Calculate EUR totals if needed
                 const eurTotalCost = vendors.reduce((sum, v) => {
                   return sum + (v.payments || [])
                     .filter(p => !p.refundable)
@@ -1174,7 +1195,7 @@ export default function VendorsTab() {
 
       {/* AI Import Modal */}
       {showBulkImport && (
-        <BulkImportModal
+        <CoupleAskAIVendorModal
           onClose={() => setShowBulkImport(false)}
           onImport={handleBulkImport}
         />
