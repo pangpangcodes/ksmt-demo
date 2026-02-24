@@ -158,6 +158,7 @@ Each payment object:
 FIELDS TO EXTRACT:
 - vendor_name: business or person name (REQUIRED)
 - vendor_type: one of the VENDOR TYPES above
+- vendor_currency: currency code for this vendor (EUR, USD, GBP, CAD, etc.) - infer from payment amounts or explicitly stated currency
 - contact_name: contact person name
 - email: email address
 - phone: phone number (preserve format)
@@ -194,6 +195,7 @@ RESPONSE FORMAT:
       "vendor_data": {
         "vendor_name": "Venue Name",
         "vendor_type": "Venue",
+        "vendor_currency": "EUR",
         "payments": [
           {
             "id": "new-1",

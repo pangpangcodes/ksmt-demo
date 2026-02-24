@@ -500,22 +500,26 @@ export default function CoupleAskAIVendorModal({ onClose, onImport }: BulkImport
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h4 className={`font-semibold ${theme.textPrimary}`}>
-                  Review Operations
+                  Review Vendors
                 </h4>
-                <div className={`text-sm ${theme.textSecondary}`}>
-                  {currentOperationIndex + 1} of {operations.length}
-                </div>
+                {operations.length > 1 && (
+                  <div className={`text-sm ${theme.textSecondary}`}>
+                    {currentOperationIndex + 1} of {operations.length}
+                  </div>
+                )}
               </div>
 
               {/* Progress Bar */}
-              <div className="mb-4">
-                <div className={`h-2 ${theme.pageBackground} rounded-full overflow-hidden`}>
-                  <div
-                    className="h-full transition-all duration-300 rounded-full"
-                    style={{ width: `${((currentOperationIndex + 1) / operations.length) * 100}%`, backgroundColor: theme.primaryColor }}
-                  />
+              {operations.length > 1 && (
+                <div className="mb-4">
+                  <div className={`h-2 ${theme.pageBackground} rounded-full overflow-hidden`}>
+                    <div
+                      className="h-full transition-all duration-300 rounded-full"
+                      style={{ width: `${((currentOperationIndex + 1) / operations.length) * 100}%`, backgroundColor: theme.primaryColor }}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Current Operation Card */}
               {currentOperation && (
@@ -755,39 +759,41 @@ export default function CoupleAskAIVendorModal({ onClose, onImport }: BulkImport
               )}
 
               {/* Navigation Controls */}
-              <div className="flex items-center justify-between gap-3">
-                <button
-                  onClick={handlePrevious}
-                  disabled={currentOperationIndex === 0}
-                  className={`flex items-center gap-2 px-4 py-2 ${theme.secondaryButton} ${theme.secondaryButtonHover} ${theme.textSecondary} rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Previous
-                </button>
+              {operations.length > 1 && (
+                <div className="flex items-center justify-between gap-3">
+                  <button
+                    onClick={handlePrevious}
+                    disabled={currentOperationIndex === 0}
+                    className={`flex items-center gap-2 px-4 py-2 ${theme.secondaryButton} ${theme.secondaryButtonHover} ${theme.textSecondary} rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Previous
+                  </button>
 
-                <div className="flex gap-1">
-                  {operations.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentOperationIndex(index)}
-                      className={`w-2 h-2 rounded-full transition-colors ${
-                        index !== currentOperationIndex ? 'bg-stone-300 hover:bg-stone-400' : ''
-                      }`}
-                      style={index === currentOperationIndex ? { backgroundColor: theme.primaryColor } : {}}
-                      aria-label={`Go to operation ${index + 1}`}
-                    />
-                  ))}
+                  <div className="flex gap-1">
+                    {operations.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentOperationIndex(index)}
+                        className={`w-2 h-2 rounded-full transition-colors ${
+                          index !== currentOperationIndex ? 'bg-stone-300 hover:bg-stone-400' : ''
+                        }`}
+                        style={index === currentOperationIndex ? { backgroundColor: theme.primaryColor } : {}}
+                        aria-label={`Go to operation ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={handleNext}
+                    disabled={currentOperationIndex === operations.length - 1}
+                    className={`flex items-center gap-2 px-4 py-2 ${theme.secondaryButton} ${theme.secondaryButtonHover} ${theme.textSecondary} rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
-
-                <button
-                  onClick={handleNext}
-                  disabled={currentOperationIndex === operations.length - 1}
-                  className={`flex items-center gap-2 px-4 py-2 ${theme.secondaryButton} ${theme.secondaryButtonHover} ${theme.textSecondary} rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
+              )}
             </div>
           )}
 

@@ -14,6 +14,7 @@ export default function VendorOperationCard({ operation, onEdit, onRemove }: Ven
   const theme = useThemeStyles()
   const [isEditing, setIsEditing] = useState(false)
   const [editedData, setEditedData] = useState(operation.vendor_data)
+  const [notesExpanded, setNotesExpanded] = useState(false)
   const isUpdate = operation.action === 'update'
 
   const handleSave = () => {
@@ -67,9 +68,33 @@ export default function VendorOperationCard({ operation, onEdit, onRemove }: Ven
               displayValue = `${value} USD`
             }
 
+            const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+
+            if (key === 'notes') {
+              const isLong = displayValue.length > 120
+              return (
+                <div key={key} className="flex gap-2">
+                  <span className={`font-medium ${theme.textSecondary} shrink-0`}>{label}:</span>
+                  <div>
+                    <span className={theme.textPrimary}>
+                      {isLong && !notesExpanded ? displayValue.slice(0, 120) + '...' : displayValue}
+                    </span>
+                    {isLong && (
+                      <button
+                        onClick={() => setNotesExpanded(v => !v)}
+                        className={`ml-1 text-xs underline ${theme.textSecondary} hover:${theme.textPrimary}`}
+                      >
+                        {notesExpanded ? 'Show less' : 'Show more'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )
+            }
+
             return (
               <div key={key} className="flex gap-2">
-                <span className={`font-medium ${theme.textSecondary}`}>{key.replace(/_/g, ' ')}:</span>
+                <span className={`font-medium ${theme.textSecondary}`}>{label}:</span>
                 <span className={theme.textPrimary}>{displayValue}</span>
               </div>
             )
@@ -124,9 +149,25 @@ export default function VendorOperationCard({ operation, onEdit, onRemove }: Ven
             if (key === 'payments') return null
             if (value === undefined || value === null) return null
 
+            const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+
+            if (key === 'notes') {
+              return (
+                <div key={key} className="flex gap-2 items-start">
+                  <span className={`font-medium ${theme.textSecondary} w-40 text-xs mt-1.5`}>{label}:</span>
+                  <textarea
+                    value={String(value)}
+                    onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
+                    rows={4}
+                    className={`flex-1 px-2 py-1 text-xs border ${theme.border} ${theme.cardBackground} ${theme.textPrimary} rounded-lg focus:outline-none focus:ring-1 resize-y`}
+                  />
+                </div>
+              )
+            }
+
             return (
               <div key={key} className="flex gap-2 items-center">
-                <span className={`font-medium ${theme.textSecondary} w-40 text-xs`}>{key.replace(/_/g, ' ')}:</span>
+                <span className={`font-medium ${theme.textSecondary} w-40 text-xs`}>{label}:</span>
                 {typeof value === 'boolean' ? (
                   <input
                     type="checkbox"
