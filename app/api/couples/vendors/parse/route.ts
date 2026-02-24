@@ -168,11 +168,11 @@ FIELDS TO EXTRACT:
 - notes: any additional context, address, bank details, or other info worth keeping
 
 MATCHING RULES:
-1. Match vendor names case-insensitively and approximately (e.g., "the photographer" or "John" may refer to an existing vendor)
-2. If a match is found, set action "update" and include the vendor_id
-3. Include matched_vendor_name with the name of the matched vendor
-4. If no clear match exists, set action "create"
-5. If a vendor reference is ambiguous (could be multiple vendors), add to clarifications_needed
+1. A vendor matches an existing vendor ONLY if the distinctive part of the vendor_name (the proper noun / business identifier) is the same or clearly abbreviated. Generic category words like "Catering", "Photography", "Studio", "Events" are NOT distinctive. Examples of CORRECT matches: "SANA CATERING SL" matches "Sana Catering" (same distinctive word "Sana"). Examples of INCORRECT matches: "SANA CATERING SL" does NOT match "Carlos Catering" (completely different distinctive words: "Sana" vs "Carlos").
+2. Vendor type alone is NEVER sufficient for a match. If the only similarity is vendor_type (e.g., both are "Caterer") or a shared generic category word (e.g., both contain "Catering"), always set action "create".
+3. If a name match is found, set action "update" and include the vendor_id and matched_vendor_name.
+4. If no name match exists, set action "create" - even if the vendor_type matches an existing vendor.
+5. If a vendor reference is ambiguous (name could match multiple vendors), add to clarifications_needed.
 
 IMPORTANT RULES:
 - Only include fields explicitly mentioned in the text - do not guess or invent missing fields
