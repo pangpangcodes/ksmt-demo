@@ -2,19 +2,19 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import AnimatedHearts from './AnimatedHearts'
-import AdminNavigation from './admin/AdminNavigation'
-import DashboardPage from './admin/DashboardPage'
-import RSVPPage from './admin/RSVPPage'
-import VendorsPage from './admin/VendorsPage'
-import SettingsPage from './admin/SettingsPage'
+import CouplesNavigation from './couples/CouplesNavigation'
+import DashboardPage from './couples/DashboardPage'
+import RSVPPage from './couples/RSVPPage'
+import VendorsPage from './couples/VendorsPage'
+import SettingsPage from './couples/SettingsPage'
 import DemoControlPanel from '@/components/shared/DemoControlPanel'
 import { COUPLES_TOUR_STEPS } from '@/lib/demo-tour-steps'
 import { useDemoTour } from '@/hooks/useDemoTour'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
 
-type AdminView = 'dashboard' | 'rsvp' | 'vendors' | 'settings'
+type CouplesView = 'dashboard' | 'rsvp' | 'vendors' | 'settings'
 
-function parseView(search: string): AdminView {
+function parseView(search: string): CouplesView {
   const view = new URLSearchParams(search).get('view')
   return view === 'vendors' ? 'vendors' :
     view === 'rsvp' ? 'rsvp' :
@@ -22,8 +22,8 @@ function parseView(search: string): AdminView {
     'dashboard'
 }
 
-export default function AdminDashboard() {
-  const [currentView, setCurrentView] = useState<AdminView>(() =>
+export default function CouplesDashboard() {
+  const [currentView, setCurrentView] = useState<CouplesView>(() =>
     typeof window !== 'undefined' ? parseView(window.location.search) : 'dashboard'
   )
   const theme = useThemeStyles()
@@ -51,7 +51,7 @@ export default function AdminDashboard() {
     window.location.href = '/'
   }
 
-  const handleViewChange = (view: 'dashboard' | 'rsvp' | 'vendors' | 'settings') => {
+  const handleViewChange = (view: CouplesView) => {
     setCurrentView(view)
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href)
@@ -115,7 +115,7 @@ export default function AdminDashboard() {
   return (
     <div className={`min-h-screen ${theme.pageBackground} relative`}>
       <AnimatedHearts />
-      <AdminNavigation
+      <CouplesNavigation
         currentView={currentView}
         onViewChange={handleViewChange}
         onLogout={handleLogout}

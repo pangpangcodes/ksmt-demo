@@ -3,19 +3,19 @@
 import { Users, Briefcase } from 'lucide-react'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
 
-export type AdminTab = 'rsvp' | 'vendors'
+export type CouplesTab = 'rsvp' | 'vendors'
 
-interface AdminTabsProps {
-  activeTab: AdminTab
-  onTabChange: (tab: AdminTab) => void
+interface CouplesTabsProps {
+  activeTab: CouplesTab
+  onTabChange: (tab: CouplesTab) => void
 }
 
-export default function AdminTabs({ activeTab, onTabChange }: AdminTabsProps) {
+export default function CouplesTabs({ activeTab, onTabChange }: CouplesTabsProps) {
   const theme = useThemeStyles()
 
   const tabs = [
-    { id: 'rsvp' as AdminTab, label: 'RSVP Tracking', icon: Users },
-    { id: 'vendors' as AdminTab, label: 'Vendor Management', icon: Briefcase },
+    { id: 'rsvp' as CouplesTab, label: 'RSVP Tracking', icon: Users },
+    { id: 'vendors' as CouplesTab, label: 'Vendor Management', icon: Briefcase },
   ]
 
   return (

@@ -19,7 +19,7 @@ const mainNavItems: NavItem[] = [
   { href: '/demo/faq', label: 'FAQ' },
 ]
 
-const adminNavItems: NavItem[] = [
+const couplesNavItems: NavItem[] = [
   { href: '/couples', label: 'Dashboard' },
   { href: '/couples?view=rsvp', label: 'RSVPs' },
   { href: '/couples?view=vendors', label: 'Vendors' },
@@ -38,7 +38,7 @@ const menuItems = [
   { href: '/demo/rsvp/lookup', label: 'View Your RSVP' },
 ]
 
-const adminMenuItem = {
+const couplesMenuItem = {
   href: '/couples',
   label: `Admin (for ${DEMO_COUPLE.bride.charAt(0)}&${DEMO_COUPLE.groom.charAt(0)})`,
   isMuted: true
@@ -48,7 +48,7 @@ export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showContactModal, setShowContactModal] = useState(false)
-  const [isAdminPage, setIsAdminPage] = useState(() =>
+  const [isCouplesPage, setIsCouplesPage] = useState(() =>
     typeof window !== 'undefined' && window.location.pathname === '/couples'
   )
   const [isPlannerPage, setIsPlannerPage] = useState(() =>
@@ -63,7 +63,7 @@ export default function Navigation() {
 
   useEffect(() => {
     const handleRouteChange = () => {
-      setIsAdminPage(window.location.pathname === '/couples')
+      setIsCouplesPage(window.location.pathname === '/couples')
       setIsPlannerPage(window.location.pathname === '/planners')
     }
     window.addEventListener('popstate', handleRouteChange)
@@ -71,8 +71,8 @@ export default function Navigation() {
   }, [])
 
   // Determine which nav items to show based on route
-  const navItems = isPlannerPage ? plannerNavItems : (isAdminPage ? adminNavItems : mainNavItems)
-  const isWorkspacePage = isAdminPage || isPlannerPage
+  const navItems = isPlannerPage ? plannerNavItems : (isCouplesPage ? couplesNavItems : mainNavItems)
+  const isWorkspacePage = isCouplesPage || isPlannerPage
 
   return (
     <>
@@ -187,7 +187,7 @@ export default function Navigation() {
                   Contact Us
                 </button>
                 <a
-                  href={adminMenuItem.href}
+                  href={couplesMenuItem.href}
                   onClick={() => setIsMenuOpen(false)}
                   className="text-gray-400 hover:text-gray-600 hover:bg-gray-50 font-medium transition-colors py-2 px-4 text-sm border-t border-gray-200 mt-1 pt-3 flex items-center gap-2"
                 >
@@ -198,7 +198,7 @@ export default function Navigation() {
                     height={16}
                     className="object-contain opacity-60"
                   />
-                  {adminMenuItem.label}
+                  {couplesMenuItem.label}
                 </a>
               </div>
             </div>
@@ -238,7 +238,7 @@ export default function Navigation() {
                       </a>
                     ))}
                     <a
-                      href={adminMenuItem.href}
+                      href={couplesMenuItem.href}
                       onClick={() => setIsMenuOpen(false)}
                       className="text-gray-400 hover:text-gray-600 font-medium transition-colors py-2 border-y border-gray-200 my-2 py-3 flex items-center gap-2"
                     >
@@ -249,7 +249,7 @@ export default function Navigation() {
                         height={16}
                         className="object-contain opacity-60"
                       />
-                      {adminMenuItem.label}
+                      {couplesMenuItem.label}
                     </a>
                     <button
                       onClick={() => {

@@ -106,9 +106,9 @@ export default function CoupleAskAIVendorModal({ onClose, onImport }: BulkImport
       const formData = new FormData()
       formData.append('file', selectedFile)
 
-      let token = sessionStorage.getItem('admin_auth')
+      let token = sessionStorage.getItem('couples_auth')
       if (!token) {
-        sessionStorage.setItem('admin_auth', 'admin')
+        sessionStorage.setItem('couples_auth', 'admin')
         token = 'admin'
       }
       const response = await fetch('/api/couples/vendors/parse', {
@@ -155,9 +155,9 @@ export default function CoupleAskAIVendorModal({ onClose, onImport }: BulkImport
     setClarifications([])
 
     try {
-      let token = sessionStorage.getItem('admin_auth')
+      let token = sessionStorage.getItem('couples_auth')
       if (!token) {
-        sessionStorage.setItem('admin_auth', 'admin')
+        sessionStorage.setItem('couples_auth', 'admin')
         token = 'admin'
       }
       const result = await fetch('/api/couples/vendors/parse', {
@@ -231,9 +231,9 @@ export default function CoupleAskAIVendorModal({ onClose, onImport }: BulkImport
     setError('')
 
     try {
-      let token = sessionStorage.getItem('admin_auth')
+      let token = sessionStorage.getItem('couples_auth')
       if (!token) {
-        sessionStorage.setItem('admin_auth', 'admin')
+        sessionStorage.setItem('couples_auth', 'admin')
         token = 'admin'
       }
       const results = []

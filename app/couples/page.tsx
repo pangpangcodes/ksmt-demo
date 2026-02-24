@@ -1,4 +1,4 @@
-import AdminDashboard from '@/components/AdminDashboard'
+import CouplesDashboard from '@/components/CouplesDashboard'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 
 export const metadata = {
@@ -6,10 +6,10 @@ export const metadata = {
   description: 'Your wedding planning hub - manage vendors, track RSVPs, and plan your perfect day.',
 }
 
-export default function AdminPage() {
+export default function CouplesPage() {
   return (
-    <ThemeProvider storageKey="ksmt_admin_theme">
-      <AdminDashboard />
+    <ThemeProvider storageKey="ksmt_couples_theme">
+      <CouplesDashboard />
     </ThemeProvider>
   )
 }

@@ -3,12 +3,12 @@
 import Image from 'next/image'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
 
-interface AdminHeaderProps {
+interface CouplesHeaderProps {
   onLogout?: () => void
   currentView?: 'dashboard' | 'rsvp' | 'vendors' | 'settings'
 }
 
-export default function AdminHeader({ onLogout, currentView = 'dashboard' }: AdminHeaderProps) {
+export default function CouplesHeader({ onLogout, currentView = 'dashboard' }: CouplesHeaderProps) {
   const theme = useThemeStyles()
 
   return (

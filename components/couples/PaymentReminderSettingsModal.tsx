@@ -64,7 +64,7 @@ export default function PaymentReminderSettingsModal({ isOpen, onClose, onSave }
   const fetchSettings = async () => {
     setLoading(true)
     try {
-      const token = sessionStorage.getItem('admin_auth')
+      const token = sessionStorage.getItem('couples_auth')
       const response = await fetch('/api/couples/payment-reminder-settings', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -127,7 +127,7 @@ export default function PaymentReminderSettingsModal({ isOpen, onClose, onSave }
 
     setSaving(true)
     try {
-      const token = sessionStorage.getItem('admin_auth')
+      const token = sessionStorage.getItem('couples_auth')
       const response = await fetch('/api/couples/payment-reminder-settings', {
         method: 'PUT',
         headers: {

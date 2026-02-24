@@ -65,8 +65,8 @@ export default function PlannerAuth({ onAuthenticate, loading, error }: PlannerA
 
               <div className={`text-xs ${theme.textMuted} text-center mt-4`}>
                 For wedding planners only. If you're planning your own wedding, visit{' '}
-                <a href="/admin" className={`${theme.navActive} underline hover:opacity-80`}>
-                  /admin
+                <a href="/couples" className={`${theme.navActive} underline hover:opacity-80`}>
+                  /couples
                 </a>
                 {' '}instead.
               </div>

@@ -147,7 +147,7 @@ export default function VendorForm({ vendor, onClose, onSave }: VendorFormProps)
     setError('')
 
     try {
-      const token = sessionStorage.getItem('admin_auth')
+      const token = sessionStorage.getItem('couples_auth')
       const url = vendor
         ? `/api/couples/vendors/${vendor.id}`
         : '/api/couples/vendors'

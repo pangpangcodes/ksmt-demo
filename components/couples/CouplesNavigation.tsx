@@ -6,14 +6,14 @@ import { Menu, X, ExternalLink, Compass } from 'lucide-react'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
 
-interface AdminNavigationProps {
+interface CouplesNavigationProps {
   currentView: 'dashboard' | 'rsvp' | 'vendors' | 'settings'
   onViewChange: (view: 'dashboard' | 'rsvp' | 'vendors' | 'settings') => void
   onLogout: () => void
   onStartTour?: () => void
 }
 
-export default function AdminNavigation({ currentView, onViewChange, onLogout, onStartTour }: AdminNavigationProps) {
+export default function CouplesNavigation({ currentView, onViewChange, onLogout, onStartTour }: CouplesNavigationProps) {
   const { theme: currentTheme } = useTheme()
   const theme = useThemeStyles()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)

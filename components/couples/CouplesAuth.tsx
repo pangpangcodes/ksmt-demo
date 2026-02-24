@@ -2,13 +2,13 @@
 
 import { useState } from 'react'
 
-interface AdminAuthProps {
+interface CouplesAuthProps {
   onAuthenticate: (password: string) => void
   loading: boolean
   error: string
 }
 
-export default function AdminAuth({ onAuthenticate, loading, error }: AdminAuthProps) {
+export default function CouplesAuth({ onAuthenticate, loading, error }: CouplesAuthProps) {
   const [password, setPassword] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {

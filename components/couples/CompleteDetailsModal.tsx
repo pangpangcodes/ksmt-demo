@@ -104,7 +104,7 @@ export default function CompleteDetailsModal({ vendors, onClose, onComplete }: C
     setError('')
 
     try {
-      const token = sessionStorage.getItem('admin_auth')
+      const token = sessionStorage.getItem('couples_auth')
 
       // Build update object with all filled-in answers
       const updates: Record<string, any> = {}
@@ -164,7 +164,7 @@ export default function CompleteDetailsModal({ vendors, onClose, onComplete }: C
     setError('')
 
     try {
-      const token = sessionStorage.getItem('admin_auth')
+      const token = sessionStorage.getItem('couples_auth')
 
       // Mark this vendor to not be prompted again
       const response = await fetch(`/api/couples/vendors/${currentVendor.id}`, {

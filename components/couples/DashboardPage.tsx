@@ -339,7 +339,7 @@ export default function DashboardPage() {
 
             {data.paymentReminders.length > 5 && (
               <a
-                href="/admin?view=vendors"
+                href="/couples?view=vendors"
                 className="mt-4 inline-flex items-center text-sm font-semibold transition-colors"
                 style={{ color: theme.primaryColor }}
               >
