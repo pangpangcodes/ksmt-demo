@@ -428,7 +428,7 @@ export default function VendorsPage() {
                 onClick={() => setShowBulkImport(true)}
                 className="flex items-center justify-center gap-2 px-3 py-[5px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors flex-1 min-w-0"
               >
-                <img src="/ksmt-logo.svg" alt="ksmt" className="w-[26px] h-[26px] object-contain flex-shrink-0" />
+                <Image src="/ksmt-logo.svg" alt="ksmt" width={26} height={26} className="object-contain flex-shrink-0" />
                 <span className="truncate">Ask AI</span>
               </button>
             </div>
@@ -500,7 +500,7 @@ export default function VendorsPage() {
               onClick={() => setShowBulkImport(true)}
               className="flex items-center justify-center gap-2 px-3 md:px-4 py-[5px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors min-w-[44px]"
             >
-              <img src="/ksmt-logo.svg" alt="ksmt" className="w-[26px] h-[26px] object-contain" />
+              <Image src="/ksmt-logo.svg" alt="ksmt" width={26} height={26} className="object-contain" />
               <span className="hidden sm:inline">Ask AI</span>
             </button>
           </div>

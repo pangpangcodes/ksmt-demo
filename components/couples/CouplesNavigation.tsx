@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Menu, X, ExternalLink, Compass } from 'lucide-react'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
@@ -28,7 +29,7 @@ export default function CouplesNavigation({ currentView, onViewChange, onLogout,
   return (
     <nav className="bg-white sticky top-0 z-40 border-b border-stone-200">
       <div className="px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-        <a href="/" className="flex items-center gap-2 md:gap-3">
+        <Link href="/" className="flex items-center gap-2 md:gap-3">
           <Image
             src={logoSrc}
             alt="ksmt"
@@ -45,7 +46,7 @@ export default function CouplesNavigation({ currentView, onViewChange, onLogout,
               Couples
             </span>
           </div>
-        </a>
+        </Link>
 
         <div className="flex items-center gap-3 md:gap-5">
           {/* Desktop Navigation */}
