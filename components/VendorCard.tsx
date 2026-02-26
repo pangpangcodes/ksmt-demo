@@ -116,6 +116,7 @@ export default function VendorCard({ vendor, mode, onStatusChange, onNoteChange,
 
   return (
     <div
+      id={`vendor-${vendor.id}`}
       className={`group ${theme.cardBackground} rounded-2xl shadow-sm ${theme.border} ${theme.borderWidth} overflow-hidden transition-all duration-300 hover:shadow-lg flex flex-col ${
         vendor.couple_status === 'declined' || isSuperseded ? 'opacity-60 grayscale-[0.5]' : ''
       }`}

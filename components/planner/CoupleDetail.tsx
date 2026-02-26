@@ -55,7 +55,10 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
   const [vendors, setVendors] = useState<SharedVendor[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'overview' | 'vendors'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'vendors'>(() => {
+    if (typeof window === 'undefined') return 'overview'
+    return new URLSearchParams(window.location.search).get('tab') === 'vendors' ? 'vendors' : 'overview'
+  })
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string[]>([])
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string[]>([])
@@ -88,6 +91,28 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
   useEffect(() => {
     fetchData()
   }, [coupleId])
+
+  // Read booking context from chat-triggered bookings (sessionStorage set by ChatPanel before navigation)
+  useEffect(() => {
+    if (!loading && vendors.length > 0) {
+      const raw = sessionStorage.getItem('ksmt_booking_context')
+      if (raw) {
+        sessionStorage.removeItem('ksmt_booking_context')
+        try {
+          const ctx = JSON.parse(raw)
+          setNotification({
+            type: 'success',
+            title: 'Booking Confirmed',
+            message: `${ctx.vendorName} is now Booked & Confirmed.`,
+          })
+          setTimeout(() => {
+            document.getElementById(`vendor-${ctx.vendorId}`)
+              ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }, 300)
+        } catch { /* ignore malformed JSON */ }
+      }
+    }
+  }, [loading, vendors])
 
   const fetchData = async () => {
     try {
@@ -217,6 +242,15 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
       setVendors(prev => prev.map(v =>
         v.id === vendorId ? { ...v, couple_status: status } : v
       ))
+
+      if (status === 'booked') {
+        const vendorName = vendors.find(v => v.id === vendorId)?.vendor_name || 'Vendor'
+        setNotification({
+          type: 'success',
+          title: 'Booking Confirmed',
+          message: `${vendorName} is now Booked & Confirmed.`,
+        })
+      }
     } catch (error) {
       console.error('Error updating status:', error)
     }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MessageCircle, X } from 'lucide-react'
 import ChatPanel from './ChatPanel'
 
@@ -9,7 +9,14 @@ interface ChatBubbleProps {
 }
 
 export default function ChatBubble({ currentView }: ChatBubbleProps) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return sessionStorage.getItem('ksmt_chat_open') === 'true'
+  })
+
+  useEffect(() => {
+    sessionStorage.setItem('ksmt_chat_open', String(isOpen))
+  }, [isOpen])
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">

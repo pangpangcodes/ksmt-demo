@@ -86,14 +86,36 @@ const TOOLS: Anthropic.Tool[] = [
       required: ['url'],
     },
   },
+  {
+    name: 'mark_vendor_booked',
+    description: 'Mark an approved vendor as Booked & Confirmed. Only use when the planner explicitly says they have confirmed the booking. Also navigates to the couple\'s page.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        couple_id: {
+          type: 'string',
+          description: 'The couple_id (UUID) from get_couple_vendor_summary',
+        },
+        vendor_id: {
+          type: 'string',
+          description: 'The vendor_id (UUID) from get_couple_vendor_summary',
+        },
+        share_link_id: {
+          type: 'string',
+          description: 'The couple\'s share_link_id for navigation',
+        },
+      },
+      required: ['couple_id', 'vendor_id', 'share_link_id'],
+    },
+  },
 ]
 
 function isAllowedUrl(url: string): boolean {
   if (['/planners', '/planners?view=couples', '/planners?view=vendors', '/planners?view=settings'].includes(url)) {
     return true
   }
-  // Allow /planners/couples/{id} where id is a UUID or a slug
-  if (/^\/planners\/couples\/[a-zA-Z0-9_-]+$/.test(url)) {
+  // Allow /planners/couples/{id} with optional ?tab= query param
+  if (/^\/planners\/couples\/[a-zA-Z0-9_-]+(\?tab=(overview|vendors))?$/.test(url)) {
     return true
   }
   return false
@@ -116,21 +138,29 @@ PLANNER ACTION (set by the planner in the Vendor Team view):
 - "Booked & Confirmed" = the planner has actively confirmed the booking with this vendor; this is a deliberate planner action, not something the couple sets
 - The "Mark as Booked & Confirmed" button only appears on vendors the couple has already approved - approval is the prerequisite for booking
 
-IMPORTANT:
-- "Approved" and "Booked" are different stages: Approved = couple said yes; Booked = planner confirmed it
-- Couples can only set: Not Reviewed, Approved, Declined
-- Planners can set: Not Reviewed, Approved, Booked & Confirmed, Declined
-- NEVER interpret "Not Reviewed" as a planner task or suggest follow-up unless explicitly asked
-- When a planner confirms a booking, it shows as "Booked & Confirmed" in both the planner's Vendor Team view and the couple's shared workspace
+CATEGORY-LEVEL RULES (determine the state of each vendor category, then follow the matching rule):
+
+1. ALL vendors "Not Reviewed" → list every vendor in the category with "Not Reviewed" status. Do NOT prompt the planner to follow up unless they ask.
+2. One vendor "Approved" → list ONLY the approved vendor. Skip every other vendor in the category. Planner's next step: reach out and lock in the booking, then mark "Booked & Confirmed".
+3. One vendor "Booked" or "Booked & Confirmed" → list the booked vendor with "Booked & Confirmed" status. Category is done; no action needed.
+
+IMPORTANT: always list ALL categories that have vendors, including booked ones. The planner needs to see the full picture - what's confirmed, what's approved, and what's still pending.
+
+SKIP RULE: when a category has an Approved or Booked vendor, the other vendors in that category do not exist for the purpose of this response. Do not list, count, reference, or allude to them - not in the vendor list, not in the summary sentence, not anywhere. Never say "other options", "alternatives pending", "still reviewing", or any language that implies other vendors exist.
 
 FORMATTING RULES (strictly follow these):
 - Format couple names as markdown links using their share_link_id: [Couple Names](/planners/couples/{share_link_id})
 - Use **bold** for vendor names and key status info
 - Use numbered lists when presenting multiple couples; for each couple show date and location as brief sub-lines
-- For status/vendor queries: use exactly this format for the intro line: "[Couple Name link] - [Month D, YYYY], [City, Country]." then add one warm, conversational sentence summarising where things stand (e.g. what's confirmed, what's still in progress); never include venue descriptions, guest counts, budgets, or vibe notes in the intro
+- For status/vendor queries: use exactly this format for the intro line: "[Couple Name link] - [Month D, YYYY], [City, Country]." then add one warm, conversational sentence summarising where things stand based ONLY on the vendors you are listing (respect the SKIP RULE - do not count or reference vendors you skipped); never include venue descriptions, guest counts, budgets, or vibe notes in the intro
 - When listing vendors, ALWAYS name each vendor explicitly - never say "these vendors" or "a photographer" without naming them
-- Vendor list: list ALL vendors regardless of status; format each as "**Vendor Name** (Type) - Status"; only append a note if planner_note or couple_note is present
-- After the vendor list, add one short, friendly closing sentence with the most useful next step or observation (e.g. "Worth nudging them to review the florist before the tasting.")
+- Vendor list: use a two-line format per vendor. Line 1 (no bullet): "**Category** | Status". Line 2 (bullet): "- Vendor Name". Example:
+
+**Photography** | Approved
+- Aurora Photography
+
+Do NOT bold the status word. Only append a note on the vendor name line if planner_note or couple_note is present.
+- After the vendor list, add one short, friendly closing sentence with the most actionable next step. This sentence must also respect the SKIP RULE - only reference vendors you actually listed.
 - Tone: warm and collegial - you are a knowledgeable colleague, not a database printout
 BEHAVIOUR GUIDELINES:
 - For queries about upcoming weddings or planning status, call get_couples_list first, then call get_couple_vendor_summary for each relevant couple
@@ -141,7 +171,7 @@ BEHAVIOUR GUIDELINES:
 - Always call open_couple_modal after parse_couple when adding a couple - don't just describe what you found
 
 QUICK REPLY FORMAT:
-When asking a clarification question with discrete options, append a QUICK_REPLIES block at the end of your response. Format:
+ALWAYS append a QUICK_REPLIES block at the end of your response when there are logical next actions. Format:
 
 [QUICK_REPLIES]
 Short label|Full message to send when clicked
@@ -152,8 +182,19 @@ Rules:
 - Labels: 2-5 words, shown on buttons
 - Prompts: complete sentence the planner would say, that you can act on immediately
 - 2-4 options max
-- Only use for discrete choices, not open-ended questions
-- The block is hidden from the user - they only see buttons`
+- The block is hidden from the user - they only see buttons
+
+When to use quick replies:
+- After asking a yes/no or choice question (e.g. "Check vendors?" -> buttons for each couple)
+- After showing vendor status with approved vendors -> offer "I've confirmed [Vendor Name]" button for each approved vendor
+- After showing a couple overview -> offer "Go to [Couple Name]" buttons
+- The "I've confirmed [Vendor Name]" quick reply MUST use the action format so the frontend can fast-path the booking without extra API calls:
+  Confirm [Vendor Name]|ACTION:book_vendor:[couple_id]:[vendor_id]:[share_link_id]:[vendor_name]
+  You have all four values from prior tool calls (couple_id and vendor_id from get_couple_vendor_summary, share_link_id from get_couples_list). Example:
+  Confirm Aurora Photography|ACTION:book_vendor:11111111-aaaa-bbbb-cccc-dddddddddddd:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee:edward-bella-demo:Aurora Photography
+
+BOOKING CONFIRMATION:
+When the planner says they have confirmed a booking with a vendor (e.g. "I've confirmed the booking with Ivan Budarin"), call mark_vendor_booked with the couple_id, vendor_id, and share_link_id. You should already have these from a prior get_couple_vendor_summary call. If not, call get_couples_list and get_couple_vendor_summary first to find the IDs.`
 
 async function callInternalAPI(url: string, options: RequestInit, baseUrl: string): Promise<any> {
   const fullUrl = `${baseUrl}${url}`
@@ -173,18 +214,24 @@ async function executeTool(
   try {
     if (toolUse.name === 'get_couples_list') {
       const data = await callInternalAPI('/api/planners/couples', { headers: internalHeaders }, baseUrl)
-      result = data.success
-        ? data.data.map((c: any) => ({
-            couple_id: c.id,
-            share_link_id: c.share_link_id,
-            couple_names: c.couple_names,
-            couple_email: c.couple_email,
-            wedding_date: c.wedding_date,
-            wedding_location: c.wedding_location,
-            venue_name: c.venue_name,
-            notes: c.notes,
-          }))
-        : { error: data.error }
+      if (data.success) {
+        const couples = data.data.map((c: any) => ({
+          couple_id: c.id,
+          share_link_id: c.share_link_id,
+          couple_names: c.couple_names,
+          couple_email: c.couple_email,
+          wedding_date: c.wedding_date,
+          wedding_location: c.wedding_location,
+          venue_name: c.venue_name,
+          notes: c.notes,
+        }))
+        result = {
+          couples,
+          _hint: 'This list does NOT include vendor data. You MUST call get_couple_vendor_summary with each couple_id to get their vendor status. Never assume a couple has no vendors based on this list alone.',
+        }
+      } else {
+        result = { error: data.error }
+      }
 
     } else if (toolUse.name === 'get_couple_vendor_summary') {
       const { couple_id: coupleId } = toolUse.input as { couple_id: string }
@@ -194,8 +241,9 @@ async function executeTool(
         baseUrl
       )
       if (data.success) {
-        const vendors = data.data as Array<{ vendor_name: string; vendor_type: string; couple_status: string | null; planner_note?: string; couple_note?: string }>
+        const vendors = data.data as Array<{ id: string; vendor_name: string; vendor_type: string; couple_status: string | null; planner_note?: string; couple_note?: string }>
         const list = vendors.map(v => ({
+          vendor_id: v.id,
           name: v.vendor_name,
           type: v.vendor_type,
           status: v.couple_status === 'approved' ? 'Approved'
@@ -241,6 +289,31 @@ async function executeTool(
         result = { error: `Navigation to ${url} is not allowed` }
       }
 
+    } else if (toolUse.name === 'mark_vendor_booked') {
+      const { couple_id, vendor_id, share_link_id } = toolUse.input as { couple_id: string; vendor_id: string; share_link_id: string }
+      const patchData = await callInternalAPI(
+        `/api/planners/couples/${couple_id}/vendors/${vendor_id}`,
+        {
+          method: 'PATCH',
+          headers: internalHeaders,
+          body: JSON.stringify({ couple_status: 'booked' }),
+        },
+        baseUrl
+      )
+      if (patchData.success) {
+        const navUrl = `/planners/couples/${share_link_id}?tab=vendors`
+        action = {
+          type: 'navigate',
+          payload: {
+            url: navUrl,
+            bookingContext: { vendorId: vendor_id, vendorName: patchData.data?.vendor_name },
+          },
+        }
+        result = { success: true, message: `Vendor marked as Booked & Confirmed. Navigating to vendor team.` }
+      } else {
+        result = { error: patchData.error || 'Failed to mark vendor as booked' }
+      }
+
     } else {
       result = { error: `Unknown tool: ${toolUse.name}` }
     }
@@ -283,10 +356,19 @@ export async function POST(request: NextRequest) {
       ? `${SYSTEM_PROMPT}\n\nCurrent view: ${context.view}`
       : SYSTEM_PROMPT
 
-    let currentMessages: Anthropic.MessageParam[] = messages.map(m => ({
+    // Full conversation history (for Phase 2 contextual response)
+    const fullHistory: Anthropic.MessageParam[] = messages.map(m => ({
       role: m.role,
       content: m.content,
     }))
+
+    // Phase 1 uses ONLY the latest user message (no history).
+    // This prevents Haiku from answering data queries from stale
+    // conversation context instead of calling tools.
+    const latestUserContent = messages[messages.length - 1].content
+    let toolMessages: Anthropic.MessageParam[] = [
+      { role: 'user', content: latestUserContent },
+    ]
 
     const encoder = new TextEncoder()
 
@@ -305,9 +387,9 @@ export async function POST(request: NextRequest) {
           let iterations = 0
           const MAX_ITERATIONS = 10
 
-          // Phase 1: Non-streaming tool loop
-          // Use .create() so no text leaks to the client during tool turns.
-          // Loop exits when Claude returns end_turn or has no tool_use blocks.
+          // Phase 1: Non-streaming tool loop (history-free)
+          // Uses only the latest user message so Haiku always calls tools
+          // for data queries instead of hallucinating from prior messages.
           let didProcessTools = false
 
           while (iterations < MAX_ITERATIONS) {
@@ -318,7 +400,7 @@ export async function POST(request: NextRequest) {
               max_tokens: 2048,
               system: systemPrompt,
               tools: TOOLS,
-              messages: currentMessages,
+              messages: toolMessages,
             })
 
             const toolUseBlocks = response.content.filter(
@@ -326,7 +408,7 @@ export async function POST(request: NextRequest) {
             )
 
             // No tool calls - we're done gathering data
-            if (toolUseBlocks.length === 0 || response.stop_reason === 'end_turn') {
+            if (toolUseBlocks.length === 0) {
               if (!didProcessTools) {
                 // No tools were ever called - send this response's text directly
                 const textBlocks = response.content.filter(
@@ -340,8 +422,8 @@ export async function POST(request: NextRequest) {
 
             didProcessTools = true
 
-            // Add Claude's response to message history
-            currentMessages.push({ role: 'assistant', content: response.content })
+            // Add Claude's response to tool message chain
+            toolMessages.push({ role: 'assistant', content: response.content })
 
             // Execute all tool calls in parallel
             const results = await Promise.all(
@@ -353,35 +435,50 @@ export async function POST(request: NextRequest) {
               if (action) finalAction = action
             }
 
-            // Add tool results to message history
-            currentMessages.push({
+            // Add tool results to tool message chain
+            toolMessages.push({
               role: 'user',
               content: results.map(r => r.toolResult),
             })
           }
 
-          // Phase 2: Stream the final response (only if tools were used)
-          // After tool processing, currentMessages ends with tool_results.
-          // This call generates the text summary - stream it token-by-token.
-          if (didProcessTools) {
-            const finalStream = anthropic.messages.stream({
-              model: 'claude-haiku-4-5-20251001',
-              max_tokens: 2048,
-              system: systemPrompt,
-              tools: TOOLS,
-              messages: currentMessages,
-            })
+          // When there's a booking navigate action, skip the text stream
+          // so the client can navigate immediately (toast + scroll happen on
+          // the destination page; a canned chat message is injected client-side).
+          if (finalAction?.payload?.bookingContext) {
+            send({ type: 'action', action: finalAction })
+            send({ type: 'done' })
+          } else {
+            // Phase 2: Stream the final response
+            // Merge full conversation history with tool results so the
+            // response is both data-accurate and conversationally aware.
+            if (didProcessTools) {
+              // Build Phase 2 messages: full history + tool chain (minus
+              // the duplicate first user message already in history)
+              const phase2Messages: Anthropic.MessageParam[] = [
+                ...fullHistory,
+                ...toolMessages.slice(1), // skip toolMessages[0] (same as last in fullHistory)
+              ]
 
-            finalStream.on('text', (textDelta) => {
-              send({ type: 'delta', text: textDelta })
-            })
+              const finalStream = anthropic.messages.stream({
+                model: 'claude-haiku-4-5-20251001',
+                max_tokens: 2048,
+                system: systemPrompt,
+                tools: TOOLS,
+                messages: phase2Messages,
+              })
 
-            await finalStream.finalMessage()
+              finalStream.on('text', (textDelta) => {
+                send({ type: 'delta', text: textDelta })
+              })
+
+              await finalStream.finalMessage()
+            }
+
+            // Send final action and done event
+            if (finalAction) send({ type: 'action', action: finalAction })
+            send({ type: 'done' })
           }
-
-          // Send final action and done event
-          if (finalAction) send({ type: 'action', action: finalAction })
-          send({ type: 'done' })
         } catch (error: any) {
           send({ type: 'error', message: error.message || 'Something went wrong' })
         }

@@ -22,6 +22,28 @@ function renderInline(s: string): string {
   })
   s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
   s = s.replace(/\*(.+?)\*/g, '<em>$1</em>')
+  // Status badges — match "| Status" at end of vendor lines
+  s = s.replace(
+    /\s*\|\s*(Approved|Booked (?:&amp;|&) Confirmed|Not Reviewed|Review Needed|Declined|Booked)\s*$/,
+    (_, st: string) => {
+      const key = st.replace(/&amp;/g, '&').toLowerCase()
+      let cls: string, label: string
+      if (key === 'approved') {
+        cls = 'bg-emerald-50 text-emerald-700 border-emerald-200'
+        label = 'Approved'
+      } else if (key.startsWith('booked')) {
+        cls = 'bg-emerald-100 text-emerald-800 border-emerald-300 font-semibold'
+        label = 'Booked & Confirmed'
+      } else if (key === 'declined') {
+        cls = 'bg-gray-100 text-gray-400 border-gray-200'
+        label = 'Declined'
+      } else {
+        cls = 'bg-slate-100 text-slate-600 border-slate-200'
+        label = 'Not Reviewed'
+      }
+      return ` <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider border ${cls} ml-1.5" style="vertical-align: middle">${label}</span>`
+    }
+  )
   return s
 }
 
@@ -53,7 +75,7 @@ function renderMarkdown(md: string): string {
     if (subM) {
       // Sub-item under current list entry
       currentLiSubs.push(
-        `<div class="text-xs text-stone-500 flex gap-1.5"><span class="flex-shrink-0 text-stone-300">-</span><span>${renderInline(subM[1])}</span></div>`
+        `<div class="text-[13px] text-stone-600 flex gap-1.5"><span class="flex-shrink-0 text-stone-400">-</span><span>${renderInline(subM[1])}</span></div>`
       )
     } else if (olM) {
       closeUl()
@@ -203,6 +225,37 @@ export default function ChatPanel({ currentView }: ChatPanelProps) {
     const trimmed = text.trim()
     if (!trimmed || loading) return
 
+    // Fast path: booking action from quick reply - bypass Claude entirely
+    const bookMatch = trimmed.match(/^ACTION:book_vendor:([^:]+):([^:]+):([^:]+):(.+)$/)
+    if (bookMatch) {
+      const [, coupleId, vendorId, shareLinkId, vendorName] = bookMatch
+      const userMsg = `I've confirmed the booking with ${vendorName}.`
+      setMessages(prev => [...prev, { role: 'user', content: userMsg }])
+      setLoading(true)
+      try {
+        const token = sessionStorage.getItem('planner_auth') || 'planner'
+        const res = await fetch(`/api/planners/couples/${coupleId}/vendors/${vendorId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ couple_status: 'booked' }),
+        })
+        if (!res.ok) throw new Error('Failed to update vendor')
+        // Inject confirmation into chat storage for persistence across navigation
+        const saved = JSON.parse(sessionStorage.getItem(CHAT_STORAGE_KEY) || '[]')
+        saved.push({ role: 'user', content: userMsg })
+        saved.push({ role: 'assistant', content: `Done! ${vendorName} is now Booked & Confirmed.` })
+        sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(saved))
+        // Set booking context for toast + scroll on destination page
+        sessionStorage.setItem('ksmt_booking_context', JSON.stringify({ vendorId, vendorName }))
+        window.location.href = `/planners/couples/${shareLinkId}?tab=vendors`
+      } catch {
+        setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, something went wrong confirming the booking. Please try again.' }])
+      } finally {
+        setLoading(false)
+      }
+      return
+    }
+
     const userMessage: Message = { role: 'user', content: trimmed }
     const nextMessages = [...messages, userMessage]
     setMessages(nextMessages)
@@ -280,9 +333,19 @@ export default function ChatPanel({ currentView }: ChatPanelProps) {
                   detail: { type: 'open_couple_modal', data: payload },
                 }))
               } else if (type === 'navigate') {
-                window.dispatchEvent(new CustomEvent('ksmt:chat-action', {
-                  detail: { type: 'navigate', data: payload },
-                }))
+                if (payload.bookingContext) {
+                  // Inject a confirmation reply into chat history before navigating
+                  // (the server skips streaming for booking actions so we navigate instantly)
+                  const saved = JSON.parse(sessionStorage.getItem(CHAT_STORAGE_KEY) || '[]')
+                  saved.push({
+                    role: 'assistant',
+                    content: `Done! ${payload.bookingContext.vendorName} is now Booked & Confirmed.`,
+                  })
+                  sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(saved))
+                  sessionStorage.setItem('ksmt_booking_context', JSON.stringify(payload.bookingContext))
+                }
+                // Navigate directly — works on all pages, not just PlannerDashboard
+                window.location.href = payload.url
               }
             }
           } else if (data.type === 'error') {
@@ -323,7 +386,7 @@ export default function ChatPanel({ currentView }: ChatPanelProps) {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col flex-1 min-h-0">
       {/* Message thread */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
         {isEmpty ? (
@@ -422,15 +485,18 @@ export default function ChatPanel({ currentView }: ChatPanelProps) {
               )
             })}
 
-            {/* Streaming assistant message */}
-            {streamingContent && (
-              <div className="flex flex-col items-start gap-2">
-                <div
-                  className="max-w-[90%] px-3 py-2.5 rounded-2xl rounded-bl-sm text-sm bg-stone-100 text-stone-800"
-                  dangerouslySetInnerHTML={{ __html: renderMarkdown(streamingContent) }}
-                />
-              </div>
-            )}
+            {/* Streaming assistant message — strip any partial/complete [QUICK_REPLIES] block */}
+            {streamingContent && (() => {
+              const display = streamingContent.replace(/\[QUICK[\s\S]*$/, '').trimEnd()
+              return display ? (
+                <div className="flex flex-col items-start gap-2">
+                  <div
+                    className="max-w-[90%] px-3 py-2.5 rounded-2xl rounded-bl-sm text-sm bg-stone-100 text-stone-800"
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(display) }}
+                  />
+                </div>
+              ) : null
+            })()}
 
             {/* Spinner - only while waiting for first token */}
             {loading && !streamingContent && (
