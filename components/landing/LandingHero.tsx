@@ -26,7 +26,7 @@ const LandingHero: React.FC = () => {
         <div className="flex flex-col items-center gap-4 mb-4 sm:mb-8 md:mb-8">
           <div className="relative w-[155px] h-[155px] sm:w-[166px] sm:h-[166px] md:w-[291px] md:h-[291px] animate-bounce-slow">
             <Image
-              src="/ksmt-logo.svg"
+              src="/ksmt-heart.svg"
               alt="ksmt"
               fill
               className="object-contain"
