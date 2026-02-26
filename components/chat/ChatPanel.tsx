@@ -68,7 +68,16 @@ function renderMarkdown(md: string): string {
     } else {
       closeOl()
       closeUl()
-      if (line.trim() === '') {
+      const headingM = line.match(/^(#{1,3})\s+(.+)/)
+      if (headingM) {
+        const level = headingM[1].length
+        const cls = level === 1
+          ? 'text-sm font-bold text-stone-900 mt-2'
+          : level === 2
+            ? 'text-sm font-semibold text-stone-800 mt-2'
+            : 'text-xs font-semibold text-stone-700 mt-1.5'
+        out.push(`<p class="${cls}">${renderInline(headingM[2])}</p>`)
+      } else if (line.trim() === '') {
         if (out.length && out[out.length - 1] !== '<div class="h-2"></div>') {
           out.push('<div class="h-2"></div>')
         }
@@ -80,6 +89,30 @@ function renderMarkdown(md: string): string {
   closeOl()
   closeUl()
   return out.join('')
+}
+// ── Quick-reply helpers ───────────────────────────────────────────────────
+interface QuickReply {
+  label: string
+  prompt: string
+}
+
+const QUICK_REPLIES_RE = /\[QUICK_REPLIES\]([\s\S]*?)\[\/QUICK_REPLIES\]/
+
+function extractQuickReplies(content: string): QuickReply[] {
+  const match = content.match(QUICK_REPLIES_RE)
+  if (!match) return []
+  return match[1]
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.includes('|'))
+    .map(line => {
+      const idx = line.indexOf('|')
+      return { label: line.slice(0, idx), prompt: line.slice(idx + 1) }
+    })
+}
+
+function stripQuickReplies(content: string): string {
+  return content.replace(QUICK_REPLIES_RE, '').trimEnd()
 }
 // ──────────────────────────────────────────────────────────────────────────
 
@@ -297,20 +330,43 @@ export default function ChatPanel({ currentView }: ChatPanelProps) {
         ) : (
           /* Conversation view */
           <>
-            {messages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                {msg.role === 'user' ? (
-                  <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-br-sm text-sm leading-relaxed bg-ksmt-brown text-white">
-                    {msg.content}
+            {messages.map((msg, i) => {
+              if (msg.role === 'user') {
+                return (
+                  <div key={i} className="flex justify-end">
+                    <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-br-sm text-sm leading-relaxed bg-ksmt-brown text-white">
+                      {msg.content}
+                    </div>
                   </div>
-                ) : (
+                )
+              }
+
+              const quickReplies = extractQuickReplies(msg.content)
+              const displayContent = stripQuickReplies(msg.content)
+
+              return (
+                <div key={i} className="flex flex-col items-start gap-2">
                   <div
                     className="max-w-[90%] px-3 py-2.5 rounded-2xl rounded-bl-sm text-sm bg-stone-100 text-stone-800"
-                    dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }}
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(displayContent) }}
                   />
-                )}
-              </div>
-            ))}
+                  {quickReplies.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pl-1">
+                      {quickReplies.map((reply) => (
+                        <button
+                          key={reply.label}
+                          onClick={() => sendMessage(reply.prompt)}
+                          disabled={loading}
+                          className="text-xs px-3 py-1.5 rounded-full bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors disabled:opacity-40 border border-stone-200"
+                        >
+                          {reply.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
 
             {loading && (
               <div className="flex justify-start">

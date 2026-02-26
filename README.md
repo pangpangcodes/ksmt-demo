@@ -17,12 +17,15 @@ ksmt Demo is a comprehensive wedding planning solution built with Next.js, React
 ### Key Features
 
 - 🤖 **AI-Powered Parsing** - Claude integration for intelligent vendor and couple data extraction from text/PDFs
+- 💬 **AI Chat with Voice** - Conversational planning assistant with agentic tool use and browser voice input
+- 💡 **AI Insight Generation** - Context-aware nudges for planners and encouraging progress summaries for couples
 - 🎨 **Dual Theme System** - "Pop" (vibrant blue & pink) and "Heirloom" (elegant cream & forest green)
-- 💰 **Multi-Currency Support** - EUR/USD conversion and tracking
+- 💰 **Live Multi-Currency** - Real-time EUR/USD/GBP/CAD conversion via Frankfurter API
 - 📧 **Email Integration** - Automated invitations and notifications
 - 📊 **Analytics & Insights** - Payment tracking, RSVP statistics, vendor progress
 - 📱 **Responsive Design** - Mobile-optimized with inline dropdowns and touch-friendly controls
 - 🔒 **Role-Based Access** - Secure workspaces for planners, couples, and guests
+- 🎯 **Guided Demo Tour** - Multi-step spotlight tour system integrated across planner and couples dashboards
 
 ---
 
@@ -39,9 +42,11 @@ ksmt Demo is a comprehensive wedding planning solution built with Next.js, React
 ### Backend
 - **Supabase** (PostgreSQL) - Database, authentication, real-time subscriptions
 - **Node.js** - API routes and server-side logic
-- **Anthropic Claude API** (Haiku 4.5) - AI parsing and data extraction
+- **Anthropic Claude API** (Haiku 4.5) - AI parsing, chat, insights, and tag suggestions
 - **Nodemailer** - Email sending
 - **PDF-Parse & PDFjs** - PDF document processing
+- **Frankfurter API** - Real-time open exchange rates (EUR/USD/GBP/CAD), no auth required
+- **Browser Speech Recognition API** - Voice input for AI chat assistant
 
 ### Development
 - **TypeScript** - Type safety
@@ -90,6 +95,12 @@ packages/demo/
 ### 1. Professional Planner Workspace (`/planners`)
 
 **Authentication**: Password-protected (set `PLANNER_PASSWORD` env var)
+
+#### Planner Dashboard
+- **Statistics Overview**: Total couples managed, upcoming weddings (next 30 days), vendor library size, couples needing attention
+- **Upcoming Weddings**: Couples getting married within 30 days, sorted by proximity with colour-coded urgency badges
+- **Needs Attention**: Couples with no activity for 14+ days, showing days since last contact
+- **AI Chat Panel**: Conversational assistant accessible directly from the dashboard (see AI Features)
 
 #### Couples Management
 - **Calendar & List Views**: Visualize weddings by date or browse in table format
@@ -177,6 +188,32 @@ packages/demo/
 
 ## AI Features (Claude Integration)
 
+All AI features use **Claude Haiku 4.5** (`claude-haiku-4-5-20251001`) via the Anthropic API.
+
+### AI Chat Interface (Agentic System)
+- **Input**: Natural language text or voice (browser Speech Recognition API)
+- **Output**: Conversational responses with embedded actions and navigation
+- **Agentic loop**: Up to 10 iterations — Claude calls tools, processes results, and continues until it has a complete answer
+- **Tools available to Claude**:
+  - `get_couples_list` — retrieve all managed couples with wedding dates, venues, and share links
+  - `get_couple_vendor_summary` — get vendor status breakdown (booked/approved/declined/not reviewed) for a specific couple
+  - `parse_couple` — extract couple details from natural language for pre-filling the Add Couple modal
+  - `open_couple_modal` — instruct the frontend to open the Add Couple modal with pre-filled data
+  - `navigate_to` — navigate to planner pages (`/planners`, couples list, vendor library, or a specific couple)
+- **Voice input**: Browser Speech Recognition API with graceful fallback; real-time interim transcripts while speaking; smooth transition from voice-first empty state to conversation mode
+- **Chat history**: Persisted in sessionStorage (`ksmt_chat_messages`) across page navigations; clearable by user
+- **Hint pills**: Quick-start prompts ("Who is getting married in September?", "Add a new couple", "Go to vendors")
+- **Tone**: Warm and collegial; couple names rendered as clickable markdown links
+- Files: `app/api/chat/route.ts`, `components/chat/ChatPanel.tsx`
+
+### AI Insight Generation
+Context-aware, 1-2 sentence insights generated on demand using Claude Haiku.
+
+- **Planner insight** (`/api/planners/couples/[id]/insight`): Actionable nudge for the planner based on couple's vendor status — e.g., "Worth checking in on the florist decision before the tasting"
+- **Couple insight** (`/api/shared/[id]/insight`): Warm, encouraging progress summary for the couple in the shared portal — e.g., "You're making great progress! Just a few more vendors to review"
+- Each endpoint uses a separate system prompt and tone tuned to its audience
+- Files: `app/api/planners/couples/[id]/insight/route.ts`, `app/api/shared/[id]/insight/route.ts`
+
 ### Vendor Parsing
 - **Input**: Text descriptions or PDF documents
 - **Output**: Structured vendor data with confidence scores
@@ -196,6 +233,19 @@ packages/demo/
   - Parse wedding date and location
   - Identify venue information
   - Confidence scoring
+
+### AI Tag Suggestion
+- **Input**: A new tag being added to a vendor
+- **Output**: Suggested correction and confidence score
+- Fuzzy-matches new tags against existing tags for the same vendor type (e.g. "dron" → "drone", "cinema" → "cinematic")
+- Only activates when existing tags are present for that vendor type
+- File: `app/api/planners/vendor-library/tags/suggest/route.ts`
+
+### Tag Normalisation
+- Normalises all existing vendor tags to a consistent format across the library in one operation
+- Supports dry-run mode to preview changes before applying
+- Returns statistics: total vendors checked, changed count, unchanged count, and a list of each change
+- File: `app/api/planners/vendor-library/normalize-tags/route.ts`
 
 ### Smart Workflows
 - Preview parsed data before saving
@@ -431,7 +481,7 @@ The application can be deployed to any platform supporting Next.js:
 
 ### Payment Tracking
 - Flexible payment schedules (deposits, installments, final)
-- Currency conversion (EUR → USD)
+- Live currency conversion via Frankfurter API (EUR, USD, GBP, CAD) with 24-hour in-memory cache
 - Payment reminders (overdue, due today, 7-day advance)
 - Refundable payment flags
 
@@ -452,6 +502,14 @@ The application can be deployed to any platform supporting Next.js:
 - Sticky navigation headers
 - Optimized modal layouts
 - Horizontal scrolling for filter controls
+
+### Guided Demo Tour
+- Multi-step guided tour with spotlight overlay (smooth cutout reveals one element at a time)
+- Directional arrow pills (up/down/left/right) with nudge animations pointing at UI targets
+- Step forward/back navigation; tour state persisted in localStorage
+- Integrated into Planner Dashboard and Couples Dashboard
+- Custom hook `useDemoTour()` manages tour state
+- Files: `components/shared/DemoControlPanel.tsx`, `lib/demo-tour-steps.ts`
 
 ---
 
@@ -475,7 +533,8 @@ The application can be deployed to any platform supporting Next.js:
 - `DELETE /api/planner/vendor-library/[id]` - Delete vendor
 - `POST /api/planner/vendor-library/parse` - Parse vendors (AI)
 - `GET /api/planner/vendor-library/tags` - Get all tags
-- `POST /api/planner/vendor-library/tags/suggest` - Get tag suggestions
+- `POST /api/planner/vendor-library/tags/suggest` - AI tag suggestion (fuzzy-match new tags against existing)
+- `POST /api/planners/vendor-library/normalize-tags` - Normalise all vendor tags across the library (supports dry-run)
 
 **Vendor Sharing**
 - `POST /api/planner/couples/[id]/vendors/bulk-share` - Share multiple vendors
@@ -491,6 +550,22 @@ The application can be deployed to any platform supporting Next.js:
 
 - `PATCH /api/admin/vendors/[id]` - Update vendor
 - `POST /api/admin/vendors/parse` - Parse vendors (AI)
+
+### Chat API
+
+- `POST /api/chat` - Multi-turn AI chat with agentic tool use (get couples, get vendor summary, parse couple, open modal, navigate)
+
+### Shared Insight API
+
+- `POST /api/shared/[id]/insight` - Generate encouraging couple progress insight for shared portal
+
+### Exchange Rate API
+
+- `GET /api/exchange-rate` - Real-time currency conversion (USD/EUR/GBP/CAD) with 24-hour cache
+
+### Waitlist API
+
+- `POST /api/waitlist` - Collect email signups from landing page (user type: bride or planner; businessName required for planners)
 
 ### RSVP APIs
 

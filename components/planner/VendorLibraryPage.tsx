@@ -327,7 +327,7 @@ export default function VendorLibraryPage() {
               className={`flex items-center justify-center gap-2 px-3 py-2.5 ${theme.secondaryButton} rounded-xl text-sm font-medium ${theme.secondaryButtonHover} transition-colors flex-1 min-w-0`}
             >
               <Plus className="w-4 h-4 flex-shrink-0" />
-              <span>Add</span>
+              <span>Add Manually</span>
             </button>
 
             {/* Ask AI Button */}
@@ -452,16 +452,16 @@ export default function VendorLibraryPage() {
       ) : (
         <div className={`${theme.cardBackground} rounded-2xl ${theme.border} ${theme.borderWidth} overflow-hidden`}>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px]">
+            <table className="w-full">
               <thead className="bg-stone-50 border-b border-stone-200">
                 <tr>
                   <th className="px-2 py-3"></th>
                   <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Type</th>
                   <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Vendor Name</th>
-                  <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Contact</th>
-                  <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Location</th>
-                  <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Tags</th>
-                  <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Actions</th>
+                  <th className={`hidden md:table-cell px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Contact</th>
+                  <th className={`hidden md:table-cell px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Location</th>
+                  <th className={`hidden md:table-cell px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Tags</th>
+                  <th className={`hidden md:table-cell px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-200">

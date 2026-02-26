@@ -70,12 +70,12 @@ export default function VendorLibraryCard({ vendor, defaultExpanded = false, onU
             {vendor.vendor_name}
           </div>
         </td>
-        <td className={`px-4 py-4 text-sm ${theme.textSecondary}`}>
+        <td className={`hidden md:table-cell px-4 py-4 text-sm ${theme.textSecondary}`}>
           {vendor.contact_name || (
             <span className={`${theme.textMuted} italic`}>-</span>
           )}
         </td>
-        <td className={`px-4 py-4 text-sm ${theme.textSecondary}`}>
+        <td className={`hidden md:table-cell px-4 py-4 text-sm ${theme.textSecondary}`}>
           {vendor.location ? (
             <div className="flex items-center gap-1">
               <MapPin className={`w-4 h-4 flex-shrink-0 ${theme.textMuted}`} />
@@ -85,7 +85,7 @@ export default function VendorLibraryCard({ vendor, defaultExpanded = false, onU
             <span className={`${theme.textMuted} italic`}>-</span>
           )}
         </td>
-        <td className="px-4 py-4">
+        <td className="hidden md:table-cell px-4 py-4">
           {vendor.tags && vendor.tags.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {vendor.tags.slice(0, 3).map(tag => (
@@ -106,7 +106,7 @@ export default function VendorLibraryCard({ vendor, defaultExpanded = false, onU
             <span className={`${theme.textMuted} italic text-sm`}>-</span>
           )}
         </td>
-        <td className="px-4 py-4">
+        <td className="hidden md:table-cell px-4 py-4">
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setShowEditModal(true)}
@@ -149,6 +149,91 @@ export default function VendorLibraryCard({ vendor, defaultExpanded = false, onU
         <tr>
           <td colSpan={7} className="px-4 py-4 bg-stone-50 border-t border-stone-200">
             <div className="max-w-5xl space-y-4">
+              {/* Mobile-only: Contact, Location, Tags, Actions */}
+              <div className="md:hidden grid grid-cols-1 gap-4">
+                {(vendor.contact_name || vendor.email || vendor.phone) && (
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Contact</p>
+                    {vendor.contact_name && (
+                      <p className="text-sm text-gray-900">{vendor.contact_name}</p>
+                    )}
+                    {vendor.email && (
+                      <a href={`mailto:${vendor.email}`} className="text-sm text-gray-900 flex items-center gap-1.5 mt-0.5">
+                        <Mail className="w-3.5 h-3.5 text-gray-400" />
+                        {vendor.email}
+                      </a>
+                    )}
+                    {vendor.phone && (
+                      <a href={`tel:${vendor.phone}`} className="text-sm text-gray-900 flex items-center gap-1.5 mt-0.5">
+                        <Phone className="w-3.5 h-3.5 text-gray-400" />
+                        {vendor.phone}
+                      </a>
+                    )}
+                  </div>
+                )}
+                {vendor.location && (
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Location</p>
+                    <p className="text-sm text-gray-900 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                      {vendor.location}
+                    </p>
+                  </div>
+                )}
+                {vendor.tags && vendor.tags.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Tags</p>
+                    <div className="flex flex-wrap gap-1">
+                      {vendor.tags.map(tag => (
+                        <span
+                          key={tag}
+                          className={`px-2 py-0.5 bg-stone-100 ${theme.textSecondary} text-xs rounded-full lowercase`}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Actions</p>
+                  <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => setShowEditModal(true)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium ${theme.secondaryButton} ${theme.secondaryButtonHover} transition-colors`}
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (showDeleteConfirm) {
+                          handleDelete()
+                        } else {
+                          setShowDeleteConfirm(true)
+                        }
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium ${
+                        showDeleteConfirm
+                          ? 'bg-red-600 text-white hover:bg-red-700'
+                          : 'bg-stone-100 text-stone-600 hover:bg-red-50 hover:text-red-600'
+                      } transition-colors`}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      {showDeleteConfirm ? (deleting ? '...' : 'Confirm') : 'Delete'}
+                    </button>
+                    {showDeleteConfirm && (
+                      <button
+                        onClick={() => setShowDeleteConfirm(false)}
+                        className="px-3 py-1.5 rounded-lg text-sm font-medium bg-stone-200 text-stone-600 hover:bg-stone-300 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Socials */}
               {(vendor.website || vendor.instagram) && (
                 <div>

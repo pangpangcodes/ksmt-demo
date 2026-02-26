@@ -27,7 +27,7 @@ export default function CouplesNavigation({ currentView, onViewChange, onLogout,
   const logoSrc = '/ksmt-heart.svg'
 
   return (
-    <nav className="bg-white sticky top-0 z-40 border-b border-stone-200">
+    <nav className="bg-white sticky top-0 z-50 border-b border-stone-200">
       <div className="px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 md:gap-3">
           <Image
@@ -152,7 +152,7 @@ export default function CouplesNavigation({ currentView, onViewChange, onLogout,
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-stone-200 bg-white">
+        <div className="md:hidden border-t border-stone-200 bg-white relative z-50">
           <div className="px-4 py-2 space-y-1">
             {onStartTour && (
               <button

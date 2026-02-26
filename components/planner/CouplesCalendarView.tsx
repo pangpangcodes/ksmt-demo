@@ -605,7 +605,7 @@ export default function CouplesCalendarView({ setDisplayModeRef }: CouplesCalend
           {/* Row 4: Add + Ask AI */}
           <div className="flex items-center gap-2">
             <button onClick={() => setShowManualInvite(true)} className={`flex items-center justify-center gap-2 px-3 py-2.5 ${theme.cardBackground} border ${theme.border} rounded-xl text-sm font-medium hover:bg-stone-50 transition-colors flex-1`}>
-              <Plus className="w-4 h-4" /> Add
+              <Plus className="w-4 h-4" /> Add Manually
             </button>
             <button id="tour-ask-ksmt-couples-mobile" onClick={() => setShowAddModal(true)} className="flex items-center justify-center gap-2 px-3 py-2.5 bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors flex-1">
               <Bot className="w-5 h-5" /> Ask AI
@@ -703,28 +703,28 @@ export default function CouplesCalendarView({ setDisplayModeRef }: CouplesCalend
         ) : (
           <div className={`${theme.cardBackground} rounded-2xl ${theme.border} ${theme.borderWidth} overflow-hidden`}>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px]">
+              <table className="w-full">
                 <thead className="bg-stone-50 border-b border-stone-200">
                   <tr>
                     <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>
                       Couple Names
                     </th>
-                    <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>
+                    <th className={`hidden md:table-cell px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>
                       Contact
                     </th>
                     <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>
                       Wedding Date
                     </th>
-                    <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>
+                    <th className={`hidden md:table-cell px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>
                       Venue
                     </th>
-                    <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>
+                    <th className={`hidden md:table-cell px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>
                       Last Activity
                     </th>
                     <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>
                       Vendors
                     </th>
-                    <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>
+                    <th className={`hidden md:table-cell px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>
                       Actions
                     </th>
                   </tr>

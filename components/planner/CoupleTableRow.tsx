@@ -274,7 +274,7 @@ export default function CoupleTableRow({
         </td>
 
         {/* Contact (Email) */}
-        <td className="px-4 py-4">
+        <td className="hidden md:table-cell px-4 py-4">
           {couple.couple_email ? (
             <div className="flex items-center gap-2 group/email">
               <span className={`text-sm ${theme.textSecondary}`}>
@@ -313,7 +313,7 @@ export default function CoupleTableRow({
         </td>
 
         {/* Location */}
-        <td className={`px-4 py-4 text-sm ${theme.textSecondary}`}>
+        <td className={`hidden md:table-cell px-4 py-4 text-sm ${theme.textSecondary}`}>
           {couple.wedding_location || couple.venue_name ? (
             <a
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(couple.wedding_location || couple.venue_name || '')}`}
@@ -330,7 +330,7 @@ export default function CoupleTableRow({
         </td>
 
         {/* Last Activity */}
-        <td className={`px-4 py-4 text-sm ${theme.textMuted}`}>
+        <td className={`hidden md:table-cell px-4 py-4 text-sm ${theme.textMuted}`}>
           {formatDistanceToNow(new Date(couple.last_activity), { addSuffix: true })}
         </td>
 
@@ -352,7 +352,7 @@ export default function CoupleTableRow({
         </td>
 
         {/* Actions */}
-        <td className={`px-4 py-4`}>
+        <td className={`hidden md:table-cell px-4 py-4`}>
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             {/* View Shared Website Button */}
             <button

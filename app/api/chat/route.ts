@@ -138,7 +138,22 @@ BEHAVIOUR GUIDELINES:
 - When the planner wants to add a couple, call parse_couple first, then open_couple_modal with the result
 - For navigation requests ("go to vendors", "show settings", "vendors tab", "vendors table"), call navigate_to with the appropriate URL
 - When asked to go to a specific couple ("go to Alice and Jasper", "open Bella and Edward"), first call get_couples_list to find their share_link_id, then call navigate_to with /planners/couples/{share_link_id}
-- Always call open_couple_modal after parse_couple when adding a couple - don't just describe what you found`
+- Always call open_couple_modal after parse_couple when adding a couple - don't just describe what you found
+
+QUICK REPLY FORMAT:
+When asking a clarification question with discrete options, append a QUICK_REPLIES block at the end of your response. Format:
+
+[QUICK_REPLIES]
+Short label|Full message to send when clicked
+Another option|Full message for this choice
+[/QUICK_REPLIES]
+
+Rules:
+- Labels: 2-5 words, shown on buttons
+- Prompts: complete sentence the planner would say, that you can act on immediately
+- 2-4 options max
+- Only use for discrete choices, not open-ended questions
+- The block is hidden from the user - they only see buttons`
 
 async function callInternalAPI(url: string, options: RequestInit, baseUrl: string): Promise<any> {
   const fullUrl = `${baseUrl}${url}`

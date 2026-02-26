@@ -12,11 +12,11 @@ export default function ChatBubble({ currentView }: ChatBubbleProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
       {/* Chat panel — always mounted so messages persist; hidden via CSS when closed */}
       <div
-        className={`w-[380px] bg-white rounded-2xl shadow-2xl border border-stone-200 flex flex-col overflow-hidden transition-all duration-200 ${
-          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        className={`w-[380px] bg-white rounded-2xl shadow-2xl border border-stone-200 flex flex-col overflow-hidden transition-all duration-200 pointer-events-auto ${
+          isOpen ? 'opacity-100' : 'opacity-0 !pointer-events-none'
         }`}
         style={{ height: 'calc(100vh - 8rem)', maxHeight: '560px' }}
         aria-hidden={!isOpen}
@@ -41,7 +41,7 @@ export default function ChatBubble({ currentView }: ChatBubbleProps) {
       {/* Floating button */}
       <button
         onClick={() => setIsOpen(prev => !prev)}
-        className="w-14 h-14 rounded-full bg-ksmt-brown hover:bg-ksmt-brown-hover text-white shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+        className="w-14 h-14 rounded-full bg-ksmt-brown hover:bg-ksmt-brown-hover text-white shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 pointer-events-auto"
         aria-label={isOpen ? 'Close chat' : 'Open AI chat'}
       >
         {isOpen ? <X size={22} /> : <MessageCircle size={22} />}

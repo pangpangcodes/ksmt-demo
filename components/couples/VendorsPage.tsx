@@ -1,21 +1,29 @@
 'use client'
 
 import { useState, useEffect, Fragment } from 'react'
-import Image from 'next/image'
-import { Users, DollarSign, AlertCircle, CheckCircle, Download, Plus, Edit2, Trash2, Upload, Copy, Check, Settings, Calendar, ChevronDown, ChevronRight, Bot } from 'lucide-react'
-import { Vendor, VendorStats, VENDOR_TYPES } from '@/types/vendor'
-import { formatCurrency, getCurrencySymbol, calculateVendorStats, exportVendorsToCSV } from '@/lib/vendorUtils'
+import { Users, DollarSign, AlertCircle, CheckCircle, Download, Plus, Edit2, Trash2, Copy, Check, Settings, ChevronDown, ChevronRight, Bot } from 'lucide-react'
+import { Vendor, Payment, VendorStats, VENDOR_TYPES } from '@/types/vendor'
+import { formatCurrency, calculateVendorStats, exportVendorsToCSV } from '@/lib/vendorUtils'
 import VendorForm from './VendorForm'
 import CoupleAskAIVendorModal from './CoupleAskAIVendorModal'
 import CompleteDetailsModal from './CompleteDetailsModal'
 import PaymentReminderSettingsModal from './PaymentReminderSettingsModal'
 import SearchableMultiSelect from '../SearchableMultiSelect'
-import { useTheme } from '@/contexts/ThemeContext'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
 import { StatCard, StatCardSkeleton } from '@/components/ui/StatCard'
 
+interface PaymentReminder {
+  vendor_name?: string
+  vendor_type: string
+  payment_description: string
+  amount: number
+  currency: string
+  due_date: string
+  reminder_type: string
+  days_until_due: number
+}
+
 export default function VendorsPage() {
-  const { theme: currentTheme } = useTheme()
   const theme = useThemeStyles()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -49,8 +57,7 @@ export default function VendorsPage() {
   const [editingVendor, setEditingVendor] = useState<Vendor | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [expandedVendor, setExpandedVendor] = useState<string | null>(null)
-  const [paymentReminders, setPaymentReminders] = useState<any[]>([])
-  const [showRemindersBanner, setShowRemindersBanner] = useState(true)
+  const [, setPaymentReminders] = useState<PaymentReminder[]>([])
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
   const [showReminderSettings, setShowReminderSettings] = useState(false)
   const [scrollToVendorId, setScrollToVendorId] = useState<string | null>(null)
@@ -59,6 +66,7 @@ export default function VendorsPage() {
     fetchVendors()
     fetchPaymentReminders()
     fetchWeddingSettings()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typeFilter])
 
   // Scroll to vendor after editing
@@ -91,7 +99,7 @@ export default function VendorsPage() {
       }
 
       // Map database fields to component expected fields
-      const allVendors = (rawVendors || []).map((v: any) => ({
+      const allVendors = (rawVendors || []).map((v: Vendor & Record<string, unknown>) => ({
         ...v,
         vendor_cost: v.estimated_cost_eur || v.vendor_cost,
         cost_converted: v.estimated_cost_cad || v.cost_converted,
@@ -135,9 +143,9 @@ export default function VendorsPage() {
       const vendors = result.success ? result.data : null
 
       // Calculate payment reminders
-      const reminders: any[] = []
+      const reminders: PaymentReminder[] = []
       vendors?.forEach((vendor: Vendor) => {
-        vendor.payments?.forEach((payment: any) => {
+        vendor.payments?.forEach((payment: Payment) => {
           if (!payment.paid && payment.due_date) {
             const [dy, dm, dd] = payment.due_date.split('-').map(Number)
             const dueDate = new Date(dy, dm - 1, dd)
@@ -251,7 +259,7 @@ export default function VendorsPage() {
     fetchPaymentReminders()
   }
 
-  const handleBulkImport = async (vendors: any[]) => {
+  const handleBulkImport = async (vendors: Partial<Vendor>[]) => {
     try {
       // Import each vendor
       const token = sessionStorage.getItem('couples_auth')
@@ -363,7 +371,7 @@ export default function VendorsPage() {
         {/* Mobile: Stacked layout with inline dropdown */}
         <div className="lg:hidden">
           <div className="flex flex-col gap-2">
-            {/* Top row: Type filter + Currency toggles */}
+            {/* Top row: Type filter + Currency toggles + Export */}
             <div className="flex gap-2 items-center">
               <SearchableMultiSelect
                 options={VENDOR_TYPES.map(type => ({ value: type, label: type }))}
@@ -406,30 +414,30 @@ export default function VendorsPage() {
                   <span className={`text-xs font-medium ${theme.textPrimary}`}>USD</span>
                 </label>
               </div>
-            </div>
-
-            {/* Bottom row: Export + Add + Ask AI */}
-            <div className="flex gap-2">
               <button
                 onClick={handleExportCSV}
-                className={`flex items-center justify-center px-3 py-2 ${theme.secondaryButton} rounded-xl text-sm font-medium ${theme.secondaryButtonHover} transition-colors`}
+                className={`flex items-center justify-center px-3 py-2 ${theme.secondaryButton} rounded-xl text-sm font-medium ${theme.secondaryButtonHover} transition-colors flex-shrink-0`}
               >
                 <Download className="w-4 h-4" />
               </button>
+            </div>
+
+            {/* Bottom row: Add Manually + Ask AI (equal width) */}
+            <div className="flex gap-2">
               <button
                 onClick={handleAddVendor}
-                className={`flex items-center justify-center gap-2 px-3 py-2 ${theme.secondaryButton} rounded-xl text-sm font-medium ${theme.secondaryButtonHover} transition-colors flex-shrink-0`}
+                className={`flex items-center justify-center gap-2 px-3 py-2.5 ${theme.secondaryButton} rounded-xl text-sm font-medium ${theme.secondaryButtonHover} transition-colors flex-1`}
               >
                 <Plus className="w-4 h-4" />
-                <span>Add</span>
+                <span>Add Manually</span>
               </button>
               <button
                 id="tour-ask-ksmt-vendors-couples-mobile"
                 onClick={() => setShowBulkImport(true)}
-                className="flex items-center justify-center gap-2 px-3 py-2 bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors flex-1 min-w-0"
+                className="flex items-center justify-center gap-2 px-3 py-2.5 bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors flex-1"
               >
-                <Bot className="w-5 h-5 flex-shrink-0" />
-                <span className="truncate">Ask AI</span>
+                <Bot className="w-5 h-5" />
+                <span>Ask AI</span>
               </button>
             </div>
           </div>
@@ -508,99 +516,125 @@ export default function VendorsPage() {
       </div>
 
       {/* Budget Progress Visualization */}
-      {stats && (
+      {stats && weddingSettings && (
         <div className={`${theme.cardBackground} rounded-2xl shadow-md p-4 md:p-6 mb-4 md:mb-6 border ${theme.border}`}>
-          <div className="flex items-center justify-between mb-3 md:mb-4">
-            <h3 className={`${theme.typeSectionHeading} ${theme.textPrimary}`}>Budget Progress</h3>
-            <span className={theme.typeStatValue} style={{ color: theme.primaryColor }}>
-              {((stats.totalPaid / stats.totalCost) * 100).toFixed(1)}% Paid
-            </span>
-          </div>
-          <div className="space-y-3">
-            <div className="relative w-full h-8 bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className="absolute h-full transition-all duration-500 ease-out"
-                style={{
-                  width: `${Math.min((stats.totalPaid / stats.totalCost) * 100, 100)}%`,
-                  backgroundColor: theme.primaryColor
-                }}
-              />
-              <div className="absolute inset-0 flex items-center justify-center">
-                {(() => {
-                  const eurTotalCost = vendors.reduce((sum, v) => {
-                    return sum + (v.payments || [])
-                      .filter(p => !p.refundable)
-                      .reduce((pSum, p) => pSum + (p.amount || 0), 0)
-                  }, 0)
-                  const eurTotalPaid = vendors.reduce((sum, v) => {
-                    return sum + (v.payments || [])
-                      .filter(p => !p.refundable && p.paid)
-                      .reduce((pSum, p) => pSum + (p.amount || 0), 0)
-                  }, 0)
+          {(() => {
+            const budget = weddingSettings.wedding_budget
+            const exchangeRate = weddingSettings.exchange_rate
 
-                  if (currencyDisplay === 'eur') {
-                    return (
-                      <span className={`text-xs font-semibold ${theme.textPrimary} drop-shadow`}>
-                        {formatCurrency(eurTotalPaid, 'EUR')} of {formatCurrency(eurTotalCost, 'EUR')} EUR
-                      </span>
-                    )
-                  } else if (currencyDisplay === 'cad') {
-                    return (
-                      <span className={`text-xs font-semibold ${theme.textPrimary} drop-shadow`}>
-                        {formatCurrency(stats.totalPaid)} of {formatCurrency(stats.totalCost)} USD
-                      </span>
-                    )
-                  } else {
-                    return (
-                      <span className={`text-xs font-semibold ${theme.textPrimary} drop-shadow`}>
-                        {formatCurrency(stats.totalPaid)} / {formatCurrency(eurTotalPaid, 'EUR')} of {formatCurrency(stats.totalCost)} / {formatCurrency(eurTotalCost, 'EUR')}
-                      </span>
-                    )
-                  }
-                })()}
-              </div>
-            </div>
-            <div className={`flex justify-between ${theme.typeStatSubtitle}`}>
-              {(() => {
-                const eurTotalCost = vendors.reduce((sum, v) => {
-                  return sum + (v.payments || [])
-                    .filter(p => !p.refundable)
-                    .reduce((pSum, p) => pSum + (p.amount || 0), 0)
-                }, 0)
-                const eurTotalPaid = vendors.reduce((sum, v) => {
-                  return sum + (v.payments || [])
-                    .filter(p => !p.refundable && p.paid)
-                    .reduce((pSum, p) => pSum + (p.amount || 0), 0)
-                }, 0)
-                const eurTotalOutstanding = eurTotalCost - eurTotalPaid
+            // EUR amounts (raw payment amounts stored in vendor currency)
+            const eurTotalCost = vendors.reduce((sum, v) => {
+              return sum + (v.payments || [])
+                .filter(p => !p.refundable)
+                .reduce((pSum, p) => pSum + (p.amount || 0), 0)
+            }, 0)
+            const eurTotalPaid = vendors.reduce((sum, v) => {
+              return sum + (v.payments || [])
+                .filter(p => !p.refundable && p.paid)
+                .reduce((pSum, p) => pSum + (p.amount || 0), 0)
+            }, 0)
+            const eurBudget = budget * exchangeRate
 
-                return (
-                  <>
+            // Contracted but unpaid
+            const eurContracted = eurTotalCost - eurTotalPaid
+            const cadContracted = stats.totalCost - stats.totalPaid
+
+            // Remaining budget
+            const eurRemaining = eurBudget - eurTotalCost
+            const cadRemaining = budget - stats.totalCost
+
+            // Percentage used = totalCost / budget (same ratio in any currency)
+            const pctUsed = budget > 0 ? ((stats.totalCost / budget) * 100).toFixed(1) : '0.0'
+
+            // Per-segment percentages of total budget
+            const denom = Math.max(budget, stats.totalCost)
+            const paidPct = denom > 0 ? (stats.totalPaid / denom) * 100 : 0
+            const unpaidPct = denom > 0 ? (cadContracted / denom) * 100 : 0
+            const remainingPct = denom > 0 ? (Math.max(cadRemaining, 0) / denom) * 100 : 0
+
+            return (
+              <>
+                <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <h3 className={`${theme.typeSectionHeading} ${theme.textPrimary}`}>Budget Progress</h3>
+                  <span className={`text-sm font-medium`} style={{ color: theme.primaryColor }}>
+                    {pctUsed}% of Total Budget Used
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex w-full h-8 rounded-full overflow-hidden">
+                    {/* Contracted & Paid */}
+                    {paidPct > 0 && (
+                      <div
+                        className="h-full flex items-center justify-center transition-all duration-500 ease-out"
+                        style={{ width: `${paidPct}%`, backgroundColor: theme.primaryColor }}
+                      >
+                        {paidPct >= 10 && (
+                          <span className="text-xs font-semibold text-white drop-shadow-md">{paidPct.toFixed(1)}%</span>
+                        )}
+                      </div>
+                    )}
+                    {/* Contracted & Unpaid */}
+                    {unpaidPct > 0 && (
+                      <div
+                        className="h-full flex items-center justify-center transition-all duration-500 ease-out"
+                        style={{ width: `${unpaidPct}%`, backgroundColor: '#a8a29e' }}
+                      >
+                        {unpaidPct >= 10 && (
+                          <span className="text-xs font-semibold text-white drop-shadow-md">{unpaidPct.toFixed(1)}%</span>
+                        )}
+                      </div>
+                    )}
+                    {/* Remaining Budget */}
+                    {remainingPct > 0 && (
+                      <div
+                        className="h-full flex items-center justify-center bg-gray-200 transition-all duration-500 ease-out"
+                        style={{ width: `${remainingPct}%` }}
+                      >
+                        {remainingPct >= 10 && (
+                          <span className={`text-xs font-semibold ${theme.textMuted}`}>{remainingPct.toFixed(1)}%</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className={`flex flex-wrap gap-x-4 gap-y-1 justify-between ${theme.typeStatSubtitle}`}>
+                    {/* Contracted & Paid */}
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: theme.primaryColor }} />
                       {currencyDisplay === 'eur' ? (
-                        <span className={theme.textSecondary}>Paid: {formatCurrency(eurTotalPaid, 'EUR')} EUR</span>
+                        <span className={theme.textSecondary}>Contracted & Paid: {formatCurrency(eurTotalPaid, 'EUR')} EUR</span>
                       ) : currencyDisplay === 'cad' ? (
-                        <span className={theme.textSecondary}>Paid: {formatCurrency(stats.totalPaid)} USD</span>
+                        <span className={theme.textSecondary}>Contracted & Paid: {formatCurrency(stats.totalPaid)} USD</span>
                       ) : (
-                        <span className={theme.textSecondary}>Paid: {formatCurrency(stats.totalPaid)} USD / {formatCurrency(eurTotalPaid, 'EUR')} EUR</span>
+                        <span className={theme.textSecondary}>Contracted & Paid: {formatCurrency(stats.totalPaid)} USD / {formatCurrency(eurTotalPaid, 'EUR')} EUR</span>
                       )}
                     </div>
+                    {/* Contracted & Unpaid */}
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#a8a29e' }} />
+                      {currencyDisplay === 'eur' ? (
+                        <span className={theme.textSecondary}>Contracted & Unpaid: {formatCurrency(eurContracted, 'EUR')} EUR</span>
+                      ) : currencyDisplay === 'cad' ? (
+                        <span className={theme.textSecondary}>Contracted & Unpaid: {formatCurrency(cadContracted)} USD</span>
+                      ) : (
+                        <span className={theme.textSecondary}>Contracted & Unpaid: {formatCurrency(cadContracted)} USD / {formatCurrency(eurContracted, 'EUR')} EUR</span>
+                      )}
+                    </div>
+                    {/* Remaining Budget */}
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 bg-gray-200 rounded-full" />
                       {currencyDisplay === 'eur' ? (
-                        <span className={theme.textSecondary}>Outstanding: {formatCurrency(eurTotalOutstanding, 'EUR')} EUR</span>
+                        <span className={theme.textSecondary}>Remaining Budget: {formatCurrency(eurRemaining, 'EUR')} EUR</span>
                       ) : currencyDisplay === 'cad' ? (
-                        <span className={theme.textSecondary}>Outstanding: {formatCurrency(stats.totalOutstanding)} USD</span>
+                        <span className={theme.textSecondary}>Remaining Budget: {formatCurrency(cadRemaining)} USD</span>
                       ) : (
-                        <span className={theme.textSecondary}>Outstanding: {formatCurrency(stats.totalOutstanding)} USD / {formatCurrency(eurTotalOutstanding, 'EUR')} EUR</span>
+                        <span className={theme.textSecondary}>Remaining Budget: {formatCurrency(cadRemaining)} USD / {formatCurrency(eurRemaining, 'EUR')} EUR</span>
                       )}
                     </div>
-                  </>
-                )
-              })()}
-            </div>
-          </div>
+                  </div>
+                </div>
+              </>
+            )
+          })()}
         </div>
       )}
 
@@ -634,7 +668,7 @@ export default function VendorsPage() {
           <div className={`${theme.cardBackground} rounded-2xl shadow-md p-3 md:p-6 mb-4 md:mb-6 border ${theme.border}`}>
             {/* Mobile: Title and Settings on same row */}
             <div className="flex sm:hidden items-center justify-between gap-2 mb-3">
-              <h3 className={`font-display text-xl ${theme.textPrimary}`}>Upcoming Payments</h3>
+              <h3 className={`font-display text-lg ${theme.textPrimary}`}>Upcoming Payments</h3>
               <button
                 onClick={() => setShowReminderSettings(true)}
                 className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${theme.secondaryButton} ${theme.textPrimary} ${theme.secondaryButtonHover} flex-shrink-0`}
@@ -692,7 +726,7 @@ export default function VendorsPage() {
                           </div>
                         </div>
                         <div className="flex items-center justify-between gap-3 pt-1">
-                          <span className={`${theme.typeStatValue} ${theme.textPrimary} whitespace-nowrap`}>
+                          <span className={`text-sm font-semibold ${theme.textPrimary} whitespace-nowrap`}>
                             {formatCurrency(payment.payment_amount)} {payment.payment_currency}
                           </span>
                           <span className={`text-xs font-medium text-right whitespace-nowrap ${
@@ -739,7 +773,7 @@ export default function VendorsPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className={`${theme.typeStatValue} ${theme.textPrimary} whitespace-nowrap`}>
+                        <span className={`text-sm font-medium ${theme.textPrimary} whitespace-nowrap`}>
                           {formatCurrency(payment.payment_amount)} {payment.payment_currency}
                         </span>
                         <span className={`text-xs font-medium whitespace-nowrap ${
@@ -790,19 +824,19 @@ export default function VendorsPage() {
       {/* Vendors Table */}
       <div className={`${theme.cardBackground} rounded-2xl border ${theme.border} ${theme.borderWidth} overflow-hidden`}>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px]">
+          <table className="w-full">
             <thead className="bg-stone-50 border-b border-stone-200">
               <tr>
                 {/* Expand icon column */}
                 <th className="px-4 py-3 text-left w-10"></th>
                 <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Type</th>
-                <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Email</th>
-                <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Contract</th>
-                <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Deposit</th>
+                <th className={`hidden md:table-cell px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Email</th>
+                <th className={`hidden md:table-cell px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Contract</th>
+                <th className={`hidden md:table-cell px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Deposit</th>
                 <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Cost</th>
-                <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Paid</th>
+                <th className={`hidden md:table-cell px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Paid</th>
                 <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Outstanding</th>
-                <th className={`px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Actions</th>
+                <th className={`hidden md:table-cell px-4 py-3 text-left text-xs font-semibold ${theme.textSecondary} uppercase`}>Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-200">
@@ -851,7 +885,7 @@ export default function VendorsPage() {
                     <td className="px-2 py-3 text-sm text-gray-600 truncate">
                       {vendor.vendor_type}
                     </td>
-                    <td className="px-2 py-3 text-sm text-gray-600">
+                    <td className="hidden md:table-cell px-2 py-3 text-sm text-gray-600">
                       {vendor.email ? (
                         <div className="flex items-center gap-2 group">
                           <span className="truncate">{vendor.email}</span>
@@ -871,7 +905,7 @@ export default function VendorsPage() {
                         <span className="text-gray-400 italic">(no email)</span>
                       )}
                     </td>
-                    <td className="px-2 py-3">
+                    <td className="hidden md:table-cell px-2 py-3">
                       <div className={`inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold w-full ${
                         vendor.contract_signed
                           ? 'bg-emerald-50 text-emerald-700'
@@ -891,7 +925,7 @@ export default function VendorsPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-2 py-3">
+                    <td className="hidden md:table-cell px-2 py-3">
                       {(() => {
                         // Check if first deposit payment is paid
                         // Look for payment with description containing "1st", "first", or just "deposit"
@@ -964,7 +998,7 @@ export default function VendorsPage() {
                         })()}
                       </div>
                     </td>
-                    <td className="px-2 py-3 text-sm">
+                    <td className="hidden md:table-cell px-2 py-3 text-sm">
                       <div>
                         {(() => {
                           // Calculate total paid (excluding refundable)
@@ -1044,7 +1078,7 @@ export default function VendorsPage() {
                         })()}
                       </div>
                     </td>
-                    <td className="px-2 py-3">
+                    <td className="hidden md:table-cell px-2 py-3">
                       <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => handleEditVendor(vendor)}
@@ -1085,10 +1119,122 @@ export default function VendorsPage() {
                   {expandedVendor === vendor.id && (
                     <tr key={`${vendor.id}-expanded`}>
                       <td colSpan={9} className="px-2 py-3 bg-gray-50 border-t border-gray-200">
+                        {/* Mobile-only: hidden columns shown here */}
+                        <div className="md:hidden grid grid-cols-1 gap-4 mb-4 mx-auto" style={{ maxWidth: '95%' }}>
+                          {vendor.email && (
+                            <div>
+                              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Email</p>
+                              <p className="text-sm text-gray-900">{vendor.email}</p>
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Contract</p>
+                            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold ${
+                              vendor.contract_signed
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : !vendor.contract_required
+                                ? 'bg-stone-100 text-stone-600'
+                                : 'bg-amber-50 text-amber-700'
+                            }`}>
+                              {vendor.contract_signed ? (
+                                <>
+                                  <CheckCircle className="w-3 h-3" />
+                                  <span>Signed</span>
+                                </>
+                              ) : !vendor.contract_required ? (
+                                <span>Not Required</span>
+                              ) : (
+                                <span>Unsigned</span>
+                              )}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Deposit</p>
+                            {(() => {
+                              const firstDepositPayment = vendor.payments?.find(p =>
+                                p.description.toLowerCase().match(/1st|first|^deposit$/i)
+                              ) || vendor.payments?.[0]
+                              const isDepositPaid = firstDepositPayment?.paid || false
+                              return (
+                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold ${
+                                  isDepositPaid ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                                }`}>
+                                  {isDepositPaid ? (
+                                    <><CheckCircle className="w-3 h-3" /><span>Paid</span></>
+                                  ) : (
+                                    <><AlertCircle className="w-3 h-3" /><span>Pending</span></>
+                                  )}
+                                </span>
+                              )
+                            })()}
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Paid</p>
+                            <div className="text-sm">
+                              {(() => {
+                                const hasPaidEstimate = vendor.payments
+                                  ?.filter(p => !p.refundable && p.paid)
+                                  .some(p => !p.amount_converted && p.amount > 0) || false
+                                const totalPaidConverted = vendor.payments
+                                  ?.filter(p => !p.refundable && p.paid)
+                                  .reduce((sum, p) => {
+                                    if (p.amount_converted) return sum + p.amount_converted
+                                    else if (vendor.vendor_cost && vendor.cost_converted) return sum + (p.amount * (vendor.cost_converted / vendor.vendor_cost))
+                                    return sum + (p.amount || 0)
+                                  }, 0) || 0
+                                return (
+                                  <span className="font-medium text-emerald-700">
+                                    {hasPaidEstimate ? '~ ' : ''}{formatCurrency(totalPaidConverted, vendor.cost_converted_currency || 'USD')} USD
+                                  </span>
+                                )
+                              })()}
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Actions</p>
+                            <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                onClick={() => handleEditVendor(vendor)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (deleteConfirm === vendor.id) {
+                                    handleDeleteVendor(vendor.id)
+                                  } else {
+                                    setDeleteConfirm(vendor.id)
+                                  }
+                                }}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium ${
+                                  deleteConfirm === vendor.id
+                                    ? 'bg-red-600 text-white hover:bg-red-700'
+                                    : 'bg-stone-100 text-stone-600 hover:bg-red-50 hover:text-red-600'
+                                } transition-colors`}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                {deleteConfirm === vendor.id ? 'Confirm' : 'Delete'}
+                              </button>
+                              {deleteConfirm === vendor.id && (
+                                <button
+                                  onClick={() => setDeleteConfirm(null)}
+                                  className="px-3 py-1.5 rounded-lg text-sm font-medium bg-stone-200 text-stone-600 hover:bg-stone-300 transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
                         <div className="space-y-2 mx-auto" style={{ maxWidth: '95%' }}>
                           <h4 className="font-semibold text-gray-700 text-xs uppercase tracking-wide mb-2">Payment Schedule</h4>
                           {vendor.payments && vendor.payments.length > 0 ? (
-                            <table className="w-full bg-white rounded border border-gray-200">
+                            <>
+                            {/* Desktop: Payment table */}
+                            <table className="hidden md:table w-full bg-white rounded border border-gray-200">
                               <thead>
                                 <tr className="text-xs text-gray-600 border-b border-gray-200 bg-gray-100">
                                   <th className="text-left px-3 py-2 font-bold">Description</th>
@@ -1204,6 +1350,92 @@ export default function VendorsPage() {
                                 </tr>
                               </tfoot>
                             </table>
+
+                            {/* Mobile: Payment cards */}
+                            <div className="md:hidden space-y-3">
+                              {[...vendor.payments].sort((a, b) => {
+                                if (!a.due_date && !b.due_date) return 0
+                                if (!a.due_date) return 1
+                                if (!b.due_date) return -1
+                                return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
+                              }).map((payment, index) => (
+                                <div key={index} className="bg-white rounded-lg border border-gray-200 p-3">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm font-medium text-gray-900">{payment.description}</span>
+                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold ${
+                                      payment.paid
+                                        ? 'bg-emerald-50 text-emerald-700'
+                                        : 'bg-amber-50 text-amber-700'
+                                    }`}>
+                                      {payment.paid ? (
+                                        <><CheckCircle className="w-3 h-3" />Paid</>
+                                      ) : (
+                                        <><AlertCircle className="w-3 h-3" />Pending</>
+                                      )}
+                                    </span>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-2 text-xs">
+                                    <div>
+                                      <span className="text-gray-500">Amount</span>
+                                      <p className="font-medium text-gray-900">
+                                        {payment.amount_converted
+                                          ? formatCurrency(payment.amount_converted, vendor.cost_converted_currency || 'USD')
+                                          : formatCurrency(payment.amount, vendor.vendor_currency || 'USD')
+                                        }
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-500">Due Date</span>
+                                      <p className="text-gray-900">
+                                        {payment.due_date ? (() => {
+                                          const [year, month, day] = payment.due_date.split('-')
+                                          return new Date(parseInt(year), parseInt(month) - 1, parseInt(day)).toLocaleDateString()
+                                        })() : '-'}
+                                      </p>
+                                    </div>
+                                    {payment.paid && payment.paid_date && (
+                                      <div>
+                                        <span className="text-gray-500">Paid Date</span>
+                                        <p className="text-gray-900">
+                                          {(() => {
+                                            const [py, pm, pd] = payment.paid_date.split('-').map(Number)
+                                            return new Date(py, pm - 1, pd).toLocaleDateString()
+                                          })()}
+                                        </p>
+                                      </div>
+                                    )}
+                                    <div>
+                                      <span className="text-gray-500">Type</span>
+                                      <p className="text-gray-900">{payment.payment_type === 'cash' ? 'Cash' : 'Bank Transfer'}</p>
+                                    </div>
+                                    {payment.refundable && (
+                                      <div>
+                                        <span className="text-gray-500">Refundable</span>
+                                        <p className="text-gray-900">Yes</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                              {/* Mobile total */}
+                              <div className="bg-gray-100 rounded-lg px-3 py-2 flex justify-between items-center">
+                                <span className="text-sm font-bold text-gray-900">Total</span>
+                                <span className="text-sm font-bold text-gray-900">
+                                  {(() => {
+                                    const hasEstimatedConversion = vendor.payments
+                                      .filter(p => !p.refundable)
+                                      .some(p => !p.amount_converted && p.amount > 0)
+                                    const total = vendor.payments.filter(p => !p.refundable).reduce((sum, p) => {
+                                      if (p.amount_converted) return sum + p.amount_converted
+                                      else if (vendor.vendor_cost && vendor.cost_converted) return sum + (p.amount * (vendor.cost_converted / vendor.vendor_cost))
+                                      return sum + (p.amount || 0)
+                                    }, 0)
+                                    return `${hasEstimatedConversion ? '~ ' : ''}${formatCurrency(total, vendor.cost_converted_currency || 'USD')}`
+                                  })()}
+                                </span>
+                              </div>
+                            </div>
+                            </>
                           ) : (
                             <p className="text-sm text-gray-500 italic">No payments scheduled</p>
                           )}

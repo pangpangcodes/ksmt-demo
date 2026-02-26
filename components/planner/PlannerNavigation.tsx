@@ -25,7 +25,7 @@ export default function PlannerNavigation({ currentView, onViewChange, onStartTo
   const logoSrc = '/ksmt-heart.svg'
 
   return (
-    <nav className={`${theme.cardBackground} sticky top-0 z-40 border-b ${theme.border}`}>
+    <nav className={`${theme.cardBackground} sticky top-0 z-50 border-b ${theme.border}`}>
       <div className="px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
         <a href="/" className="flex items-center gap-2 md:gap-3">
           <Image
@@ -117,7 +117,7 @@ export default function PlannerNavigation({ currentView, onViewChange, onStartTo
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className={`md:hidden border-t ${theme.border} ${theme.cardBackground}`}>
+        <div className={`md:hidden border-t ${theme.border} ${theme.cardBackground} relative z-50`}>
           <div className="px-4 py-2 space-y-1">
             {onStartTour && (
               <button
@@ -173,6 +173,20 @@ export default function PlannerNavigation({ currentView, onViewChange, onStartTo
               }`}
             >
               Vendors
+            </a>
+            <a
+              href="/planners?view=settings"
+              onClick={(e) => {
+                e.preventDefault()
+                handleViewChange('settings')
+              }}
+              className={`block w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                currentView === 'settings'
+                  ? `bg-stone-100 ${theme.navActive}`
+                  : `${theme.textSecondary} hover:bg-stone-50 hover:${theme.textPrimary}`
+              }`}
+            >
+              Settings
             </a>
           </div>
         </div>
