@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Fragment } from 'react'
 import Image from 'next/image'
-import { Users, DollarSign, AlertCircle, CheckCircle, Download, Plus, Edit2, Trash2, Upload, Copy, Check, Settings, Calendar, ChevronDown, ChevronRight } from 'lucide-react'
+import { Users, DollarSign, AlertCircle, CheckCircle, Download, Plus, Edit2, Trash2, Upload, Copy, Check, Settings, Calendar, ChevronDown, ChevronRight, Bot } from 'lucide-react'
 import { Vendor, VendorStats, VENDOR_TYPES } from '@/types/vendor'
 import { formatCurrency, getCurrencySymbol, calculateVendorStats, exportVendorsToCSV } from '@/lib/vendorUtils'
 import VendorForm from './VendorForm'
@@ -426,9 +426,9 @@ export default function VendorsPage() {
               <button
                 id="tour-ask-ksmt-vendors-couples-mobile"
                 onClick={() => setShowBulkImport(true)}
-                className="flex items-center justify-center gap-2 px-3 py-[5px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors flex-1 min-w-0"
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors flex-1 min-w-0"
               >
-                <Image src="/ksmt-heart.svg" alt="ksmt" width={26} height={26} className="object-contain flex-shrink-0" />
+                <Bot className="w-5 h-5 flex-shrink-0" />
                 <span className="truncate">Ask AI</span>
               </button>
             </div>
@@ -498,9 +498,9 @@ export default function VendorsPage() {
             <button
               id="tour-ask-ksmt-vendors-couples"
               onClick={() => setShowBulkImport(true)}
-              className="flex items-center justify-center gap-2 px-3 md:px-4 py-[5px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors min-w-[44px]"
+              className="flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors min-w-[44px]"
             >
-              <Image src="/ksmt-heart.svg" alt="ksmt" width={26} height={26} className="object-contain" />
+              <Bot className="w-5 h-5" />
               <span className="hidden sm:inline">Ask AI</span>
             </button>
           </div>

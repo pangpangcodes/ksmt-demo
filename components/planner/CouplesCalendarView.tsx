@@ -4,8 +4,7 @@ import { useState, useEffect, useCallback, useMemo, MutableRefObject } from 'rea
 import { Calendar as BigCalendar, dateFnsLocalizer, View } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay, addMonths, subMonths } from 'date-fns'
 import { enUS } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, Plus, Search, Calendar as CalendarIcon, Users, Clock, Package, List, Grid, AlertCircle } from 'lucide-react'
-import Image from 'next/image'
+import { ChevronLeft, ChevronRight, Plus, Search, Calendar as CalendarIcon, Users, Clock, Package, List, Grid, AlertCircle, Bot } from 'lucide-react'
 import { PlannerCouple, ParsedCoupleOperation } from '@/types/planner'
 import { useRouter } from 'next/navigation'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -608,8 +607,8 @@ export default function CouplesCalendarView({ setDisplayModeRef }: CouplesCalend
             <button onClick={() => setShowManualInvite(true)} className={`flex items-center justify-center gap-2 px-3 py-2.5 ${theme.cardBackground} border ${theme.border} rounded-xl text-sm font-medium hover:bg-stone-50 transition-colors flex-1`}>
               <Plus className="w-4 h-4" /> Add
             </button>
-            <button id="tour-ask-ksmt-couples-mobile" onClick={() => setShowAddModal(true)} className="flex items-center justify-center gap-2 px-3 py-[7px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors flex-1">
-              <Image src="/ksmt-logo.svg" alt="ksmt" width={26} height={26} className="object-contain" /> Ask AI
+            <button id="tour-ask-ksmt-couples-mobile" onClick={() => setShowAddModal(true)} className="flex items-center justify-center gap-2 px-3 py-2.5 bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors flex-1">
+              <Bot className="w-5 h-5" /> Ask AI
             </button>
           </div>
         </div>
@@ -665,8 +664,8 @@ export default function CouplesCalendarView({ setDisplayModeRef }: CouplesCalend
               <Plus className="w-4 h-4" />
               <span>Add Manually</span>
             </button>
-            <button id="tour-ask-ksmt-couples" onClick={() => setShowAddModal(true)} className="flex items-center gap-2 px-6 py-[7px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors">
-              <Image src="/ksmt-logo.svg" alt="ksmt" width={26} height={26} className="object-contain" />
+            <button id="tour-ask-ksmt-couples" onClick={() => setShowAddModal(true)} className="flex items-center gap-2 px-6 py-2.5 bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors">
+              <Bot className="w-5 h-5" />
               <span>Ask AI</span>
             </button>
           </div>

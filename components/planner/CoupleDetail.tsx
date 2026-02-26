@@ -25,7 +25,8 @@ import {
   Copy,
   Check,
   Layers,
-  Search
+  Search,
+  Bot
 } from 'lucide-react'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useThemeStyles } from '@/hooks/useThemeStyles'
@@ -690,7 +691,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-2">
                     <Image
-                      src="/ksmt-logo.svg"
+                      src="/ksmt-heart.svg"
                       alt="ksmt"
                       width={36}
                       height={36}
@@ -716,7 +717,7 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                 {/* Decorative faded logo */}
                 <div className="absolute -right-4 -bottom-4 opacity-[0.06]">
                   <Image
-                    src="/ksmt-logo.svg"
+                    src="/ksmt-heart.svg"
                     alt=""
                     width={120}
                     height={120}
@@ -877,15 +878,9 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
                   {/* Ask AI Button */}
                   <button
                     onClick={() => setShowAskAIModal(true)}
-                    className="flex items-center gap-2 px-6 py-[7px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors"
                   >
-                    <Image
-                      src="/ksmt-logo.svg"
-                      alt="ksmt"
-                      width={26}
-                      height={26}
-                      className="object-contain"
-                    />
+                    <Bot className="w-5 h-5" />
                     <span className="hidden sm:inline">Ask AI</span>
                   </button>
                 </div>
@@ -965,15 +960,9 @@ export default function CoupleDetail({ coupleId }: CoupleDetailProps) {
 
                       <button
                         onClick={() => setShowAskAIModal(true)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-[7px] bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-ksmt-crimson hover:bg-[#7a2520] text-white rounded-xl text-sm font-medium transition-colors"
                       >
-                        <Image
-                          src="/ksmt-logo.svg"
-                          alt="ksmt"
-                          width={26}
-                          height={26}
-                          className="object-contain"
-                        />
+                        <Bot className="w-5 h-5" />
                         <span>Ask AI</span>
                       </button>
                     </div>
