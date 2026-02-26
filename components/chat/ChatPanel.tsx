@@ -187,6 +187,8 @@ export default function ChatPanel({ currentView }: ChatPanelProps) {
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const [streamingContent, setStreamingContent] = useState('')
+  const accumulatedTextRef = useRef('')
   const isEmpty = messages.length === 0
 
   useEffect(() => {
@@ -195,7 +197,7 @@ export default function ChatPanel({ currentView }: ChatPanelProps) {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, loading])
+  }, [messages, loading, streamingContent])
 
   const sendMessage = useCallback(async (text: string) => {
     const trimmed = text.trim()
@@ -206,6 +208,8 @@ export default function ChatPanel({ currentView }: ChatPanelProps) {
     setMessages(nextMessages)
     setInput('')
     setLoading(true)
+    accumulatedTextRef.current = ''
+    setStreamingContent('')
 
     try {
       const token = sessionStorage.getItem('planner_auth') || 'planner'
@@ -221,21 +225,69 @@ export default function ChatPanel({ currentView }: ChatPanelProps) {
         }),
       })
 
-      const data = await res.json()
-      if (!res.ok || !data.success) throw new Error(data.error || 'Failed to get response')
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to get response')
+      }
 
-      setMessages(prev => [...prev, { role: 'assistant', content: data.message }])
+      if (!res.body) throw new Error('No response body')
 
-      if (data.action) {
-        const { type, payload } = data.action
-        if (type === 'open_couple_modal') {
-          window.dispatchEvent(new CustomEvent('ksmt:chat-action', {
-            detail: { type: 'open_couple_modal', data: payload },
-          }))
-        } else if (type === 'navigate') {
-          window.dispatchEvent(new CustomEvent('ksmt:chat-action', {
-            detail: { type: 'navigate', data: payload },
-          }))
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      let pendingAction: { type: string; payload: any } | null = null
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+
+        // Parse complete SSE events (separated by double newline)
+        const parts = buffer.split('\n\n')
+        buffer = parts.pop()! // Keep potentially incomplete last chunk
+
+        for (const part of parts) {
+          const trimmedPart = part.trim()
+          if (!trimmedPart || !trimmedPart.startsWith('data: ')) continue
+
+          let data: any
+          try {
+            data = JSON.parse(trimmedPart.slice(6))
+          } catch {
+            continue
+          }
+
+          if (data.type === 'delta') {
+            accumulatedTextRef.current += data.text
+            setStreamingContent(accumulatedTextRef.current)
+          } else if (data.type === 'action') {
+            pendingAction = data.action
+          } else if (data.type === 'done') {
+            // Capture text before clearing - React's functional updater
+            // executes later, so the ref would be empty by then
+            const finalText = accumulatedTextRef.current
+            accumulatedTextRef.current = ''
+            setStreamingContent('')
+            if (finalText) {
+              setMessages(prev => [...prev, { role: 'assistant', content: finalText }])
+            }
+
+            if (pendingAction) {
+              const { type, payload } = pendingAction
+              if (type === 'open_couple_modal') {
+                window.dispatchEvent(new CustomEvent('ksmt:chat-action', {
+                  detail: { type: 'open_couple_modal', data: payload },
+                }))
+              } else if (type === 'navigate') {
+                window.dispatchEvent(new CustomEvent('ksmt:chat-action', {
+                  detail: { type: 'navigate', data: payload },
+                }))
+              }
+            }
+          } else if (data.type === 'error') {
+            throw new Error(data.message || 'Something went wrong')
+          }
         }
       }
     } catch {
@@ -243,6 +295,8 @@ export default function ChatPanel({ currentView }: ChatPanelProps) {
         ...prev,
         { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' },
       ])
+      accumulatedTextRef.current = ''
+      setStreamingContent('')
     } finally {
       setLoading(false)
       inputRef.current?.focus()
@@ -368,7 +422,18 @@ export default function ChatPanel({ currentView }: ChatPanelProps) {
               )
             })}
 
-            {loading && (
+            {/* Streaming assistant message */}
+            {streamingContent && (
+              <div className="flex flex-col items-start gap-2">
+                <div
+                  className="max-w-[90%] px-3 py-2.5 rounded-2xl rounded-bl-sm text-sm bg-stone-100 text-stone-800"
+                  dangerouslySetInnerHTML={{ __html: renderMarkdown(streamingContent) }}
+                />
+              </div>
+            )}
+
+            {/* Spinner - only while waiting for first token */}
+            {loading && !streamingContent && (
               <div className="flex justify-start">
                 <div className="bg-stone-100 px-3 py-2 rounded-2xl rounded-bl-sm">
                   <Loader2 size={16} className="text-stone-400 animate-spin" />

@@ -162,6 +162,102 @@ async function callInternalAPI(url: string, options: RequestInit, baseUrl: strin
   return data
 }
 
+async function executeTool(
+  toolUse: Anthropic.ToolUseBlock,
+  internalHeaders: Record<string, string>,
+  baseUrl: string,
+): Promise<{ toolResult: Anthropic.ToolResultBlockParam; action?: { type: string; payload: any } }> {
+  let result: any = null
+  let action: { type: string; payload: any } | undefined
+
+  try {
+    if (toolUse.name === 'get_couples_list') {
+      const data = await callInternalAPI('/api/planners/couples', { headers: internalHeaders }, baseUrl)
+      result = data.success
+        ? data.data.map((c: any) => ({
+            couple_id: c.id,
+            share_link_id: c.share_link_id,
+            couple_names: c.couple_names,
+            couple_email: c.couple_email,
+            wedding_date: c.wedding_date,
+            wedding_location: c.wedding_location,
+            venue_name: c.venue_name,
+            notes: c.notes,
+          }))
+        : { error: data.error }
+
+    } else if (toolUse.name === 'get_couple_vendor_summary') {
+      const { couple_id: coupleId } = toolUse.input as { couple_id: string }
+      const data = await callInternalAPI(
+        `/api/planners/couples/${coupleId}/vendors`,
+        { headers: internalHeaders },
+        baseUrl
+      )
+      if (data.success) {
+        const vendors = data.data as Array<{ vendor_name: string; vendor_type: string; couple_status: string | null; planner_note?: string; couple_note?: string }>
+        const list = vendors.map(v => ({
+          name: v.vendor_name,
+          type: v.vendor_type,
+          status: v.couple_status === 'approved' ? 'Approved'
+                : v.couple_status === 'booked'   ? 'Booked'
+                : v.couple_status === 'declined' ? 'Declined'
+                : 'Not Reviewed',
+          ...(v.planner_note && { planner_note: v.planner_note }),
+          ...(v.couple_note  && { couple_note:  v.couple_note  }),
+        }))
+        result = { total: list.length, vendors: list }
+      } else {
+        result = { error: data.error }
+      }
+
+    } else if (toolUse.name === 'parse_couple') {
+      const { description } = toolUse.input as { description: string }
+      const data = await callInternalAPI(
+        '/api/planners/couples/parse',
+        {
+          method: 'POST',
+          headers: internalHeaders,
+          body: JSON.stringify({ text: description }),
+        },
+        baseUrl
+      )
+      if (data.success && data.data?.operations?.length > 0) {
+        result = data.data.operations[0]
+      } else {
+        result = { error: data.error || 'Could not parse couple details' }
+      }
+
+    } else if (toolUse.name === 'open_couple_modal') {
+      const { coupleData } = toolUse.input as { coupleData: any }
+      action = { type: 'open_couple_modal', payload: coupleData }
+      result = { success: true, message: 'Modal will be opened on the frontend' }
+
+    } else if (toolUse.name === 'navigate_to') {
+      const { url } = toolUse.input as { url: string }
+      if (isAllowedUrl(url)) {
+        action = { type: 'navigate', payload: { url } }
+        result = { success: true, message: `Will navigate to ${url}` }
+      } else {
+        result = { error: `Navigation to ${url} is not allowed` }
+      }
+
+    } else {
+      result = { error: `Unknown tool: ${toolUse.name}` }
+    }
+  } catch (err: any) {
+    result = { error: err.message || 'Tool execution failed' }
+  }
+
+  return {
+    toolResult: {
+      type: 'tool_result' as const,
+      tool_use_id: toolUse.id,
+      content: JSON.stringify(result),
+    },
+    action,
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization')
@@ -187,148 +283,120 @@ export async function POST(request: NextRequest) {
       ? `${SYSTEM_PROMPT}\n\nCurrent view: ${context.view}`
       : SYSTEM_PROMPT
 
-    // Agentic loop - keep calling Claude until it stops using tools
     let currentMessages: Anthropic.MessageParam[] = messages.map(m => ({
       role: m.role,
       content: m.content,
     }))
 
-    let finalText = ''
-    let finalAction: { type: string; payload: any } | null = null
-    let iterations = 0
-    const MAX_ITERATIONS = 10
+    const encoder = new TextEncoder()
 
-    while (iterations < MAX_ITERATIONS) {
-      iterations++
-
-      const response = await anthropic.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2048,
-        system: systemPrompt,
-        tools: TOOLS,
-        messages: currentMessages,
-      })
-
-      // Collect all text content from this response
-      const textBlocks = response.content.filter(b => b.type === 'text')
-      if (textBlocks.length > 0) {
-        finalText = textBlocks.map(b => (b as Anthropic.TextBlock).text).join('\n')
-      }
-
-      // If Claude is done (no more tool calls), exit loop
-      if (response.stop_reason === 'end_turn') {
-        break
-      }
-
-      // Process tool calls
-      const toolUseBlocks = response.content.filter(b => b.type === 'tool_use') as Anthropic.ToolUseBlock[]
-      if (toolUseBlocks.length === 0) {
-        break
-      }
-
-      // Add Claude's response to message history
-      currentMessages.push({ role: 'assistant', content: response.content })
-
-      // Execute all tool calls and collect results
-      const toolResults: Anthropic.ToolResultBlockParam[] = []
-
-      for (const toolUse of toolUseBlocks) {
-        let result: any = null
-
-        try {
-          if (toolUse.name === 'get_couples_list') {
-            const data = await callInternalAPI('/api/planners/couples', { headers: internalHeaders }, baseUrl)
-            // Rename 'id' -> 'couple_id' so Claude never confuses it with share_link_id
-            result = data.success
-              ? data.data.map((c: any) => ({
-                  couple_id: c.id,
-                  share_link_id: c.share_link_id,
-                  couple_names: c.couple_names,
-                  couple_email: c.couple_email,
-                  wedding_date: c.wedding_date,
-                  wedding_location: c.wedding_location,
-                  venue_name: c.venue_name,
-                  notes: c.notes,
-                }))
-              : { error: data.error }
-
-          } else if (toolUse.name === 'get_couple_vendor_summary') {
-            const { couple_id: coupleId } = toolUse.input as { couple_id: string }
-            const data = await callInternalAPI(
-              `/api/planners/couples/${coupleId}/vendors`,
-              { headers: internalHeaders },
-              baseUrl
-            )
-            if (data.success) {
-              const vendors = data.data as Array<{ vendor_name: string; vendor_type: string; couple_status: string | null; planner_note?: string; couple_note?: string }>
-              const list = vendors.map(v => ({
-                name: v.vendor_name,
-                type: v.vendor_type,
-                status: v.couple_status === 'approved' ? 'Approved'
-                      : v.couple_status === 'booked'   ? 'Booked'
-                      : v.couple_status === 'declined' ? 'Declined'
-                      : 'Not Reviewed',
-                ...(v.planner_note && { planner_note: v.planner_note }),
-                ...(v.couple_note  && { couple_note:  v.couple_note  }),
-              }))
-              result = { total: list.length, vendors: list }
-            } else {
-              result = { error: data.error }
-            }
-
-          } else if (toolUse.name === 'parse_couple') {
-            const { description } = toolUse.input as { description: string }
-            const data = await callInternalAPI(
-              '/api/planners/couples/parse',
-              {
-                method: 'POST',
-                headers: internalHeaders,
-                body: JSON.stringify({ text: description }),
-              },
-              baseUrl
-            )
-            if (data.success && data.data?.operations?.length > 0) {
-              result = data.data.operations[0]
-            } else {
-              result = { error: data.error || 'Could not parse couple details' }
-            }
-
-          } else if (toolUse.name === 'open_couple_modal') {
-            const { coupleData } = toolUse.input as { coupleData: any }
-            finalAction = { type: 'open_couple_modal', payload: coupleData }
-            result = { success: true, message: 'Modal will be opened on the frontend' }
-
-          } else if (toolUse.name === 'navigate_to') {
-            const { url } = toolUse.input as { url: string }
-            if (isAllowedUrl(url)) {
-              finalAction = { type: 'navigate', payload: { url } }
-              result = { success: true, message: `Will navigate to ${url}` }
-            } else {
-              result = { error: `Navigation to ${url} is not allowed` }
-            }
-
-          } else {
-            result = { error: `Unknown tool: ${toolUse.name}` }
+    const readable = new ReadableStream({
+      async start(controller) {
+        const send = (data: object) => {
+          try {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
+          } catch {
+            // Client disconnected - ignore
           }
-        } catch (err: any) {
-          result = { error: err.message || 'Tool execution failed' }
         }
 
-        toolResults.push({
-          type: 'tool_result',
-          tool_use_id: toolUse.id,
-          content: JSON.stringify(result),
-        })
-      }
+        try {
+          let finalAction: { type: string; payload: any } | null = null
+          let iterations = 0
+          const MAX_ITERATIONS = 10
 
-      // Add tool results to message history
-      currentMessages.push({ role: 'user', content: toolResults })
-    }
+          // Phase 1: Non-streaming tool loop
+          // Use .create() so no text leaks to the client during tool turns.
+          // Loop exits when Claude returns end_turn or has no tool_use blocks.
+          let didProcessTools = false
 
-    return NextResponse.json({
-      success: true,
-      message: finalText,
-      action: finalAction,
+          while (iterations < MAX_ITERATIONS) {
+            iterations++
+
+            const response = await anthropic.messages.create({
+              model: 'claude-haiku-4-5-20251001',
+              max_tokens: 2048,
+              system: systemPrompt,
+              tools: TOOLS,
+              messages: currentMessages,
+            })
+
+            const toolUseBlocks = response.content.filter(
+              (b): b is Anthropic.ToolUseBlock => b.type === 'tool_use'
+            )
+
+            // No tool calls - we're done gathering data
+            if (toolUseBlocks.length === 0 || response.stop_reason === 'end_turn') {
+              if (!didProcessTools) {
+                // No tools were ever called - send this response's text directly
+                const textBlocks = response.content.filter(
+                  (b): b is Anthropic.TextBlock => b.type === 'text'
+                )
+                const text = textBlocks.map(b => b.text).join('\n')
+                if (text) send({ type: 'delta', text })
+              }
+              break
+            }
+
+            didProcessTools = true
+
+            // Add Claude's response to message history
+            currentMessages.push({ role: 'assistant', content: response.content })
+
+            // Execute all tool calls in parallel
+            const results = await Promise.all(
+              toolUseBlocks.map(toolUse => executeTool(toolUse, internalHeaders, baseUrl))
+            )
+
+            // Collect any actions from tool results
+            for (const { action } of results) {
+              if (action) finalAction = action
+            }
+
+            // Add tool results to message history
+            currentMessages.push({
+              role: 'user',
+              content: results.map(r => r.toolResult),
+            })
+          }
+
+          // Phase 2: Stream the final response (only if tools were used)
+          // After tool processing, currentMessages ends with tool_results.
+          // This call generates the text summary - stream it token-by-token.
+          if (didProcessTools) {
+            const finalStream = anthropic.messages.stream({
+              model: 'claude-haiku-4-5-20251001',
+              max_tokens: 2048,
+              system: systemPrompt,
+              tools: TOOLS,
+              messages: currentMessages,
+            })
+
+            finalStream.on('text', (textDelta) => {
+              send({ type: 'delta', text: textDelta })
+            })
+
+            await finalStream.finalMessage()
+          }
+
+          // Send final action and done event
+          if (finalAction) send({ type: 'action', action: finalAction })
+          send({ type: 'done' })
+        } catch (error: any) {
+          send({ type: 'error', message: error.message || 'Something went wrong' })
+        }
+
+        try { controller.close() } catch {}
+      },
+    })
+
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache, no-transform',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no',
+      },
     })
   } catch (error: any) {
     console.error('Chat API error:', error)
